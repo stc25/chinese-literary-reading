@@ -93,8 +93,9 @@ Grammar ids in `code` become files in `content/grammar/`.
 ### U07 Time, aspect and modality
 - **Skills**: 已, 既, 嘗, 將, 方; final 矣; modal verbs 可 能 得 足 宜 當 須 必.
 - **Grammar**: `aspect-markers`, `yi-final`, `modal-verbs`
-- **Genres**: newspaper
-- **Candidate sources**: 申報 news items (fires, floods, local events): short reports with a clear time sequence.
+- **Genres**: diary, letter
+- **Sources**: 薛福成《出使英法義比四國日記》(1890), first entry; 曾國藩家書, two letters on study.
+  *(No 申報 reports are available as text.)*
 
 ### U08 所, 者 and the passive
 - **Skills**: 所 + verb "that which"; 所以; 者 "the one who"; passives with 爲…所, 見, 被, 於.

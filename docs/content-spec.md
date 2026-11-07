@@ -56,7 +56,7 @@ content/
 |---|---|
 | `level` | `beginner`, `intermediate` |
 | `status` | `planned`, `draft`, `reviewed`, `expert-reviewed`, `needs-revision` |
-| `genre` | `official`, `newspaper`, `essay`, `letter`, `scholarly`, `legal`, `diplomatic`, `literary`, `textbook`, `other` |
+| `genre` | `official`, `newspaper`, `essay`, `letter`, `scholarly`, `legal`, `diplomatic`, `literary`, `textbook`, `diary`, `other` |
 | `rights` | `public-domain`, `fair-dealing` |
 | `default_view` | `modern`, `unpunctuated`, `vertical`, `vertical-unpunctuated` |
 | `punctuation` | `original`, `edition`, `course` |

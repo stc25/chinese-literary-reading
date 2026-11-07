@@ -4,27 +4,27 @@ title: Time, aspect and modality
 level: beginner
 prerequisites: []
 grammar: [aspect-markers, yi-final, modal-verbs]
-genres: [newspaper]
-status: planned
+genres: [diary, letter]
+status: draft
 ---
 
 ## Introduction
 
-News reports narrate events in sequence and say what could, must or should happen.
+Diaries and letters narrate events in sequence and say what could, must or should happen. Two passages come from the diary of the envoy Xue Fucheng (1890); the third from Zeng Guofan's advice to his brothers on study.
 
 ## Objectives
 
 By the end of this unit you will be able to:
 
-- follow the time sequence of a report
+- follow the time sequence of a narrative
 - recognise 已, 既, 將, 嘗 and final 矣
 - distinguish modal verbs 可, 能, 得, 宜, 當, 須
 
 ## Passages
 
-1. A 申報 report of a fire (planned)
-2. A 申報 report of a flood or famine (planned)
-3. A 申報 report of a local event (planned)
+1. [A brother's death](u07-p01-a-brothers-death.md)
+2. [A delayed departure](u07-p02-delayed-departure.md)
+3. [Every day, without a break](u07-p03-daily-study.md)
 
 ## Grammar
 
