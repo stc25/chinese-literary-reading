@@ -4,13 +4,13 @@ title: 所, 者 and the passive
 level: beginner
 prerequisites: []
 grammar: [suo, suoyi, zhe-nominaliser, passives]
-genres: [newspaper, legal]
-status: planned
+genres: [legal, essay, letter]
+status: draft
 ---
 
 ## Introduction
 
-Court reports and penal law are full of people who did things and things that were done to people.
+Penal law is full of people who did things and things that were done to people. The passages come from the 1912 Provisional New Penal Code, Liang Qichao's 〈新民說〉, and Zeng Guofan's last advice to his sons, with a sentence from Xue Fucheng's diary.
 
 ## Objectives
 
@@ -22,9 +22,9 @@ By the end of this unit you will be able to:
 
 ## Passages
 
-1. A 申報 court report (planned)
-2. A 申報 crime report (planned)
-3. 大清新刑律 (1911): selected articles (planned)
+1. [Crimes and penalties](u08-p01-crimes-and-penalties.md)
+2. [The scales and the sword](u08-p02-scales-and-sword.md)
+3. [Used or cast aside](u08-p03-used-and-cast-aside.md)
 
 ## Grammar
 

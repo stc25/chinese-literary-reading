@@ -100,8 +100,9 @@ Grammar ids in `code` become files in `content/grammar/`.
 ### U08 所, 者 and the passive
 - **Skills**: 所 + verb "that which"; 所以; 者 "the one who"; passives with 爲…所, 見, 被, 於.
 - **Grammar**: `suo`, `suoyi`, `zhe-nominaliser`, `passives`
-- **Genres**: newspaper, legal
-- **Candidate sources**: 申報 court and crime reports, where passives are frequent; articles of the 大清新刑律 (1911).
+- **Genres**: legal, essay, letter
+- **Sources**: 暫行新刑律 (1912), articles 48, 271, 276, 311; 梁啟超〈新民說〉, four 所以 sentences;
+  曾國藩家書 (1870) and 薛福成's diary for passives. *(No 申報 reports are available as text.)*
 
 ### U09 Linking clauses
 - **Skills**: 而; 則; 且, 乃, 遂; cause (故, 是以, 因); condition (若, 如, 苟, 使, 倘);
