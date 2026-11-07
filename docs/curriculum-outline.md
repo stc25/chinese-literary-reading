@@ -108,8 +108,8 @@ Grammar ids in `code` become files in `content/grammar/`.
 - **Skills**: 而; 則; 且, 乃, 遂; cause (故, 是以, 因); condition (若, 如, 苟, 使, 倘);
   concession (雖, 縱).
 - **Grammar**: `er-conjunction`, `ze`, `causal`, `conditionals`, `concessives`
-- **Genres**: essay, newspaper
-- **Candidate sources**: editorials from 時務報 (1896–98); 嚴復〈原強〉(1895), excerpts.
+- **Genres**: essay
+- **Sources**: 梁啟超〈變法通議·自序〉(時務報, 1896); 嚴復〈原強〉(1895).
 
 ### U10 Questions and rhetoric
 - **Skills**: final particles 乎 歟 耶 哉; question words 何 安 孰 誰 奚 焉;
