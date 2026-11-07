@@ -5,12 +5,12 @@ level: intermediate
 prerequisites: []
 grammar: [document-types, directive-language, embedded-citation]
 genres: [official]
-status: planned
+status: draft
 ---
 
 ## Introduction
 
-Republican government documents keep many Qing conventions and add new ones.
+Republican government documents keep many Qing conventions and add new ones. All three passages come from a single issue of the Provisional Government's gazette, 臨時政府公報 no. 15 (14 February 1912), two days after the last emperor abdicated: an order of the Provisional President, a petition and a ruling, and two telegrams between Yuan Shikai and Sun Yat-sen. Each document type has its own opening, its own way of quoting the documents it answers, and its own closing words.
 
 ## Objectives
 
@@ -22,9 +22,9 @@ By the end of this unit you will be able to:
 
 ## Passages
 
-1. An order of the Provisional President (1912) (planned)
-2. A petition (呈) and its ruling (批) (planned)
-3. A government gazette item (政府公報) (planned)
+1. [Protect the schools](u14-p01-protect-the-schools.md)
+2. [A petition and a ruling](u14-p02-a-petition-and-a-ruling.md)
+3. [Two telegrams](u14-p03-two-telegrams.md)
 
 ## Grammar
 

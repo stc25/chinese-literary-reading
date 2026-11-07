@@ -155,8 +155,11 @@ Grammar ids in `code` become files in `content/grammar/`.
   (仰, 應, 須, 著即); how a document cites earlier documents (準…咨開, 等因).
 - **Grammar/skills**: `document-types`, `directive-language`, `embedded-citation`
 - **Genres**: official
-- **Candidate sources**: orders of the Provisional President (1912), e.g. the order
-  urging an end to footbinding; government gazettes (政府公報).
+- **Sources**: 臨時政府公報 no. 15 (14 February 1912): the President's order to protect the
+  schools of Nanjing (with the Ministry of Education's petition quoted inside it); the 內務部
+  petition on the police school and the 實業部 ruling on Lake Shaobo; the telegrams of Yuan Shikai and
+  Sun Wen on the abdication. *(The footbinding order is not on Wikisource as a separate text; it could
+  replace or supplement the first passage later.)*
 
 ### U15 Law and treaties
 - **Skills**: legal drafting (凡, 均, 得, 不得, 但, 其…者); treaty articles and how parallel texts in two languages relate.
