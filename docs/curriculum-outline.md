@@ -128,7 +128,8 @@ Grammar ids in `code` become files in `content/grammar/`.
   words (抬頭); period punctuation marks; how newspapers and string-bound books lay out the page.
 - **Grammar/skills**: `judou`, `boundary-particles`, `elevation`
 - **Genres**: newspaper, official
-- **Candidate sources**: 京報 (Peking Gazette) pages; 申報 front pages in original layout.
+- **Sources**: 張之洞《勸學篇·序》(1898); 南京條約 articles 9–10 (elevation spaces); 臨時約法,
+  promulgation and articles 1–4. *(No 京報 or 申報 pages are available as text; page images could be added later.)*
 - **Default view**: unpunctuated and vertical.
 
 ### U12 Parallelism, allusion and rhythm

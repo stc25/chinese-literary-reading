@@ -4,13 +4,13 @@ title: Reading the original page
 level: intermediate
 prerequisites: []
 grammar: [judou, boundary-particles, elevation]
-genres: [newspaper, official]
-status: planned
+genres: [essay, diplomatic, legal]
+status: draft
 ---
 
 ## Introduction
 
-Most period texts were printed without modern punctuation, in vertical columns read from right to left. This unit teaches how to read them as they were printed.
+Most period texts were printed without modern punctuation, in vertical columns read from right to left. This unit teaches how to read them as they were printed. The passages open in the unpunctuated or vertical view: try them that way first, then check yourself against the modern view.
 
 ## Objectives
 
@@ -22,9 +22,9 @@ By the end of this unit you will be able to:
 
 ## Passages
 
-1. 京報 (Peking Gazette): a page (planned)
-2. 申報: a front-page editorial in original layout (planned)
-3. A string-bound book page (planned)
+1. [Finding the breaks](u11-p01-finding-the-breaks.md)
+2. [Gaps on the page](u11-p02-gaps-on-the-page.md)
+3. [A constitution in columns](u11-p03-a-constitution-in-columns.md)
 
 ## Grammar
 
