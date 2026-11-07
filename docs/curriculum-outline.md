@@ -73,8 +73,8 @@ Grammar ids in `code` become files in `content/grammar/`.
   demonstratives (此 彼 是 斯); kinship terms.
 - **Grammar**: `personal-pronouns`, `qi-pronoun`, `zhi-object`, `demonstratives`
 - **Genres**: letter
-- **Candidate sources**: 曾國藩家書 (Zeng Guofan's family letters, 1840s–1870s).
-  The style is plain, the content personal, and pronouns are used a great deal.
+- **Sources**: 曾國藩家書: letters 諭紀澤 (十月二十五日), 諭紀澤紀鴻 (二月二十五日),
+  致溫弟 (六月初六日).
 
 ### U05 The noun phrase: 之 and 其
 - **Skills**: 之 joining a modifier to a noun; 之 between subject and verb; 其 as subject of a clause.

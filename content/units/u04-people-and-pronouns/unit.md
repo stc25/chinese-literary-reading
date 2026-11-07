@@ -5,12 +5,12 @@ level: beginner
 prerequisites: []
 grammar: [personal-pronouns, qi-pronoun, zhi-object, demonstratives]
 genres: [letter]
-status: planned
+status: draft
 ---
 
 ## Introduction
 
-Family letters show how writers refer to themselves, to the person addressed, and to others.
+Family letters show how writers refer to themselves, to the person addressed, and to others. All three passages come from Zeng Guofan's letters to his sons and to a younger brother.
 
 ## Objectives
 
@@ -22,9 +22,9 @@ By the end of this unit you will be able to:
 
 ## Passages
 
-1. 曾國藩家書: a letter to his brothers (planned)
-2. 曾國藩家書: a letter to his sons (planned)
-3. 曾國藩家書: a letter on study (planned)
+1. [Your cousins](u04-p01-cousins.md)
+2. [Going home](u04-p02-going-home.md)
+3. [A friend in calligraphy](u04-p03-a-friend-in-calligraphy.md)
 
 ## Grammar
 
