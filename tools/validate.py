@@ -266,7 +266,11 @@ def parse_doc(path: Path, kind: str, rep: Report) -> Doc | None:
     except yaml.YAMLError as e:
         mark = getattr(e, "problem_mark", None)
         line = mark.line + 2 if mark else 1
-        rep.error(path, line, f"invalid YAML in frontmatter: {getattr(e, 'problem', e)}")
+        problem = str(getattr(e, "problem", e))
+        hint = ""
+        if "mapping values are not allowed" in problem:
+            hint = " (a value containing ': ' must be quoted, e.g. title: '之: a title')"
+        rep.error(path, line, f"invalid YAML in frontmatter: {problem}{hint}")
         return None
     if not isinstance(meta, dict):
         rep.error(path, 1, "frontmatter must be a set of key: value fields")

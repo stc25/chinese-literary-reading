@@ -64,9 +64,9 @@ Grammar ids in `code` become files in `content/grammar/`.
 ### U03 Verbs, objects and negation
 - **Skills**: verb–object order; 不, 未, 無, 勿/毋; existence with 有/無.
 - **Grammar**: `bu-negation`, `wei-not-yet`, `you-wu`, `prohibitives`
-- **Genres**: legal
-- **Candidate sources**: 中華民國臨時約法 (1912). Its short articles are simple
-  and give rights and prohibitions. School and society regulations (章程).
+- **Genres**: legal, letter
+- **Sources**: 中華民國臨時約法 (1912), articles 5–7, 12–14, 51, 54; 曾國藩家書, two
+  letters for 勿/毋 *(no regulation text with clear 勿/毋 was available)*.
 
 ### U04 People and pronouns
 - **Skills**: personal pronouns (吾 我 余 予 爾 汝); 其 "his, its"; 之 "him, it";

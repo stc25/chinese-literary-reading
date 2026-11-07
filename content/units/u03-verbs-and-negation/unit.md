@@ -4,13 +4,13 @@ title: Verbs, objects and negation
 level: beginner
 prerequisites: []
 grammar: [bu-negation, wei-not-yet, you-wu, prohibitives]
-genres: [legal]
-status: planned
+genres: [legal, letter]
+status: draft
 ---
 
 ## Introduction
 
-Short legal articles state rights, duties and prohibitions in simple verb–object sentences.
+Short legal articles state rights, duties and prohibitions in simple verb–object sentences. The first two passages come from the Provisional Constitution of 1912; the third, from Zeng Guofan's family letters, shows how to tell someone *not* to do something.
 
 ## Objectives
 
@@ -22,9 +22,9 @@ By the end of this unit you will be able to:
 
 ## Passages
 
-1. 中華民國臨時約法 (1912): articles on citizens' rights (planned)
-2. 中華民國臨時約法 (1912): articles on duties (planned)
-3. A school or society regulation (章程) (planned)
+1. [Rights and duties](u03-p01-rights-and-duties.md)
+2. [Liberty and the courts](u03-p02-liberty-and-the-courts.md)
+3. ["Uncle, do not come"](u03-p03-do-not-come.md)
 
 ## Grammar
 

@@ -63,6 +63,10 @@ class BrokenContent(FixtureCopy):
         p.write_text(p.read_text(encoding="utf-8").replace("---\n", "", 1), encoding="utf-8")
         self.assertError("missing YAML frontmatter")
 
+    def test_unquoted_colon_hint(self):
+        self.edit(GRAMMAR, "title: 之 between subject and verb", "title: 之: between subject and verb")
+        self.assertError("must be quoted")
+
     def test_bad_controlled_value(self):
         self.edit(PASSAGE, "status: draft", "status: done")
         self.assertError("'done' is not allowed")
