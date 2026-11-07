@@ -86,7 +86,7 @@ served from the app (no third-party font or script requests).
 | | Milestone | Result to review |
 |---|---|---|
 | M1 ✓ | Skeleton and content index | `flask run` shows the course map, units and plain passage pages; the shared parser; tests |
-| M2 | Passage reader | glosses, pinyin toggle, view toggles, translation reveal, notes; works on phone |
+| M2 ✓ | Passage reader | glosses, pinyin toggle, view toggles, translation reveal, notes; works on phone |
 | M3 | Grammar, toolkit, glossary | all pages linked, tooltips, glossary search, reign-year converter |
 | M4 | Exercises and progress | interactive exercises; progress and preferences in `localStorage` |
 | M5 | Sign-in and reviewer mode | OIDC sign-in, development bypass, reviewer view of REVIEW notes, draft labels and release setting |

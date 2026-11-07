@@ -1,7 +1,10 @@
 """Page routes."""
 from __future__ import annotations
 
-from flask import Blueprint, abort, current_app, g, render_template
+from flask import Blueprint, abort, current_app, g, render_template, request
+
+from .content.reader import gloss_length, original_segments, text_segments
+from .content.render import render_inline
 
 bp = Blueprint("pages", __name__)
 
@@ -50,13 +53,44 @@ def unit(uid: str):
                            prev=g.course.units.get(prev_id), next=g.course.units.get(next_id))
 
 
+VIEWS = {
+    "modern": "Punctuated",
+    "unpunctuated": "Unpunctuated",
+    "vertical": "Vertical",
+    "vertical-unpunctuated": "Vertical, unpunctuated",
+}
+
+
+def gloss_data(p) -> list[dict]:
+    """The glosses as the reader's JavaScript needs them."""
+    out = []
+    for i, gl in enumerate(p.glosses):
+        out.append({
+            "term": gl.term,
+            "pinyin": gl.pinyin,
+            "gloss": str(render_inline(gl.gloss, p.path, g.course.urls)),
+            "ref": ref_url(gl.grammar) if gl.grammar else None,
+            "refTitle": ref_title(gl.grammar) if gl.grammar else None,
+            "len": gloss_length(p, i),
+        })
+    return out
+
+
 @bp.route("/units/<uid>/<num>")
 def passage(uid: str, num: str):
     p = get_or_404(g.course.passages, f"{uid}-{num}")
     u = g.course.units[uid]
     prev_id, next_id = g.course.neighbours(u.passage_ids, p.id)
-    return render_template("passage.html", p=p, unit=u,
-                           prev=g.course.passages.get(prev_id), next=g.course.passages.get(next_id))
+    default_view = p.meta.get("default_view", "modern")
+    view = request.args.get("view", default_view)
+    if view not in VIEWS:
+        view = default_view if default_view in VIEWS else "modern"
+    return render_template(
+        "passage.html", p=p, unit=u,
+        prev=g.course.passages.get(prev_id), next=g.course.passages.get(next_id),
+        view=view, views=VIEWS, default_view=default_view,
+        segments=text_segments(p), original=original_segments(p), glosses=gloss_data(p),
+    )
 
 
 @bp.route("/grammar/<gid>")

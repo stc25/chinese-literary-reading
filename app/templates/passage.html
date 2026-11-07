@@ -19,49 +19,88 @@
   </section>
   {% endif %}
 
-  <section aria-labelledby="text-h">
+  {% macro render_segments(paras, extra_class='') -%}
+    {%- for para in paras -%}
+    <p{% if extra_class %} class="{{ extra_class }}"{% endif %}>
+      {%- for s in para -%}
+        {%- if s.occ -%}<button type="button" class="g{{ ' pu' if s.punct }}" data-occ="{{ s.occ | join(' ') }}" aria-haspopup="dialog" aria-expanded="false">{{ s.text }}</button>
+        {%- elif s.punct -%}<span class="pu">{{ s.text }}</span>
+        {%- else -%}{{ s.text }}{%- endif -%}
+      {%- endfor -%}
+    </p>
+    {%- endfor -%}
+  {%- endmacro %}
+
+  <section aria-labelledby="text-h" class="reader view-{{ view }}{{ ' has-original' if original }}" data-view="{{ view }}">
     <h2 id="text-h">Text</h2>
-    <div class="zh-text" lang="zh-Hant" data-default-view="{{ p.meta.get('default_view', 'modern') }}">
-      {% for para in p.paragraphs %}<p>{{ para }}</p>{% endfor %}
+    <div class="reader-toolbar">
+      <nav class="view-switch" aria-label="Text layout">
+        <span class="toolbar-label" id="view-label">Layout</span>
+        <ul aria-labelledby="view-label">
+          {%- for key, label in views.items() %}
+          <li><a href="?view={{ key }}#text-h" data-view="{{ key }}"{% if key == view %} aria-current="true"{% endif %}>{{ label }}</a></li>
+          {%- endfor %}
+        </ul>
+      </nav>
+      <p class="reader-hint">Select a highlighted word to see its gloss.</p>
     </div>
-    {% if p.original %}
-    <details class="original">
-      <summary>Original text</summary>
-      <div class="zh-text" lang="zh-Hant">{% for para in p.original %}<p class="preserve-spaces">{{ para }}</p>{% endfor %}</div>
-    </details>
-    {% endif %}
+    <div class="text-block">
+      <div class="zh-text text-modern" lang="zh-Hant">{{ render_segments(segments) }}</div>
+      {% if original %}
+      <div class="zh-text text-original" lang="zh-Hant">{{ render_segments(original, 'preserve-spaces') }}</div>
+      {% endif %}
+    </div>
+    {% if original %}<p class="muted view-note">The unpunctuated and vertical layouts show the text as printed in the source.</p>{% endif %}
   </section>
+
+  <div id="gloss-panel" class="gloss-panel" role="dialog" aria-modal="false" aria-labelledby="gloss-panel-title" tabindex="-1" hidden>
+    <div class="gloss-panel-head">
+      <h2 id="gloss-panel-title" class="gloss-panel-title">Gloss</h2>
+      <button type="button" class="gloss-panel-close" aria-label="Close gloss">×</button>
+    </div>
+    <div class="gloss-panel-body"></div>
+  </div>
+  <script type="application/json" id="gloss-data">{{ glosses | tojson }}</script>
 
   <section aria-labelledby="gloss-h">
     <h2 id="gloss-h">Glosses</h2>
-    <div class="table-wrap">
-      <table class="glosses">
-        <thead><tr><th scope="col">Term</th><th scope="col">Pinyin</th><th scope="col">Gloss</th><th scope="col">Grammar</th></tr></thead>
-        <tbody>
-          {% for gl in p.glosses %}
-          <tr>
-            <td class="zh" lang="zh-Hant">{{ gl.term }}{% if gl.occurrences %}<span class="occ" title="Only these occurrences in the text"> #{{ gl.occurrences | join(' #') }}</span>{% endif %}</td>
-            <td class="pinyin" lang="zh-Latn-pinyin">{{ gl.pinyin }}</td>
-            <td>{{ md_inline(gl.gloss, p) }}</td>
-            <td>{% if gl.grammar and ref_url(gl.grammar) %}<a class="xref" href="{{ ref_url(gl.grammar) }}">{{ ref_title(gl.grammar) }}</a>{% endif %}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
+    <details class="gloss-table">
+      <summary>All glosses in a table ({{ p.glosses | length }})</summary>
+      <div class="table-wrap">
+        <table class="glosses">
+          <thead><tr><th scope="col">Term</th><th scope="col" class="pinyin-col">Pinyin</th><th scope="col">Gloss</th><th scope="col">Grammar</th></tr></thead>
+          <tbody>
+            {% for gl in p.glosses %}
+            <tr>
+              <td class="zh" lang="zh-Hant">{{ gl.term }}{% if gl.occurrences %}<span class="occ" title="Only these occurrences in the text"> #{{ gl.occurrences | join(' #') }}</span>{% endif %}</td>
+              <td class="pinyin pinyin-col" lang="zh-Latn-pinyin">{{ gl.pinyin }}</td>
+              <td>{{ md_inline(gl.gloss, p) }}</td>
+              <td>{% if gl.grammar and ref_url(gl.grammar) %}<a class="xref" href="{{ ref_url(gl.grammar) }}">{{ ref_title(gl.grammar) }}</a>{% endif %}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </details>
   </section>
 
-  <section aria-labelledby="trans-h">
+  <section aria-labelledby="trans-h" class="translations">
     <h2 id="trans-h">Translation</h2>
-    <details class="translation">
-      <summary>Show translation</summary>
-      <div class="prose">{% for para in p.translation %}<p>{{ md_inline(para, p) }}</p>{% endfor %}</div>
+    <p class="translation-controls" hidden><button type="button" class="btn" data-action="toggle-all-translations" aria-pressed="false">Show all</button></p>
+    {% for para in p.translation %}
+    <details class="translation-para">
+      <summary><span class="visually-hidden">Translation of paragraph </span><span class="para-num">{{ loop.index }}</span> <span class="zh para-start" lang="zh-Hant">{{ p.paragraphs[loop.index0][:14] }}{% if p.paragraphs[loop.index0] | length > 14 %}…{% endif %}</span></summary>
+      <div class="prose"><p>{{ md_inline(para, p) }}</p></div>
     </details>
+    {% endfor %}
     {% if p.literal %}
-    <details class="translation">
-      <summary>Show literal translation</summary>
-      <div class="prose">{% for para in p.literal %}<p>{{ md_inline(para, p) }}</p>{% endfor %}</div>
+    <h3>Literal translation</h3>
+    {% for para in p.literal %}
+    <details class="translation-para">
+      <summary><span class="visually-hidden">Literal translation of paragraph </span><span class="para-num">{{ loop.index }}</span> <span class="zh para-start" lang="zh-Hant">{{ p.paragraphs[loop.index0][:14] }}{% if p.paragraphs[loop.index0] | length > 14 %}…{% endif %}</span></summary>
+      <div class="prose"><p>{{ md_inline(para, p) }}</p></div>
     </details>
+    {% endfor %}
     {% endif %}
   </section>
 
@@ -97,3 +136,4 @@
   {% if next %}<a class="pager-next" href="{{ url_for('pages.passage', uid=unit.id, num=next.number) }}" rel="next">{{ next.title }} →</a>{% else %}<a class="pager-next" href="{{ url_for('pages.unit', uid=unit.id) }}">Back to unit {{ unit.number }} →</a>{% endif %}
 </nav>
 {% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/reader.js') }}" defer></script>{% endblock %}

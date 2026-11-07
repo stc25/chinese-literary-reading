@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}{{ course.title }}{% endblock %}</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/site.css') }}">
+  <script>document.documentElement.classList.add("js");</script>
+  <script src="{{ url_for('static', filename='js/site.js') }}"></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -15,6 +17,7 @@
         <ul class="nav-list">
           <li><a href="{{ url_for('pages.course_map') }}#units">Units</a></li>
           <li><a href="{{ url_for('pages.course_map') }}#toolkit">Toolkit</a></li>
+          <li><button type="button" class="btn btn-small" data-action="toggle-pinyin" aria-pressed="false" hidden>Pinyin: <span class="state">off</span></button></li>
         </ul>
       </nav>
     </div>

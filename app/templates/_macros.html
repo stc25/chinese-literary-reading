@@ -45,7 +45,7 @@
         {%- endfor %}
       </ul>
       {%- endif %}
-      {%- if ex.answer %}<div class="{{ 'zh' if ex.type == 'punctuate' }}" {% if ex.type == 'punctuate' %}lang="zh-Hant"{% endif %}>{{ md(ex.answer, page) }}</div>{% endif %}
+      {%- if ex.answer %}{% if ex.type == 'punctuate' %}<div class="zh" lang="zh-Hant">{% else %}<div>{% endif %}{{ md(ex.answer, page) }}</div>{% endif %}
       {%- if ex.explanation %}<div class="explanation">{{ md(ex.explanation, page) }}</div>{% endif %}
     </details>
   </li>

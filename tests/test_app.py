@@ -15,6 +15,7 @@ sys.path.insert(0, str(ROOT))
 from app import create_app  # noqa: E402
 from app.content import ContentError, load  # noqa: E402
 from app.content.loader import find_spans  # noqa: E402
+from app.content.reader import original_segments, text_segments  # noqa: E402
 
 FIXTURE = ROOT / "tests" / "fixtures" / "valid"
 CONTENT = ROOT / "content"
@@ -34,6 +35,39 @@ class Spans(unittest.TestCase):
 
     def test_split_term_missing_second_part(self):
         self.assertEqual(find_spans("非禮勿視", ["非", "不"]), [])
+
+
+class Segments(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.course = load(CONTENT)
+
+    def test_segments_rebuild_the_text(self):
+        for p in self.course.passages.values():
+            paras = ["".join(s.text for s in para) for para in text_segments(p)]
+            self.assertEqual(paras, p.paragraphs, p.id)
+
+    def test_punctuation_is_marked(self):
+        p = self.course.passages["u17-p02"]
+        for para in text_segments(p):
+            for s in para:
+                if s.text in ("，", "。"):
+                    self.assertTrue(s.punct)
+
+    def test_overlapping_glosses(self):
+        # 由散入群 is glossed as a phrase, and its 由 also as the 7th 由
+        p = self.course.passages["u17-p02"]
+        segs = [s for para in text_segments(p) for s in para]
+        self.assertTrue(any(len(s.occ) > 1 for s in segs))
+
+    def test_original_text_keeps_every_gloss(self):
+        for p in self.course.passages.values():
+            if not p.original:
+                continue
+            orig = {o for para in original_segments(p) for s in para for o in s.occ}
+            text = {o for para in text_segments(p) for s in para for o in s.occ}
+            self.assertEqual(orig, text, p.id)
+            self.assertEqual(["".join(s.text for s in para) for para in original_segments(p)], p.original)
 
 
 class Loader(unittest.TestCase):
@@ -93,7 +127,20 @@ class Pages(unittest.TestCase):
         self.assertEqual(r.status_code, 200)
         html = r.get_data(as_text=True)
         self.assertIn('lang="zh-Hant"', html)
-        self.assertIn("Show translation", html)
+        self.assertIn('class="translation-para"', html)
+        self.assertIn('id="gloss-data"', html)
+
+    def test_glossed_words_are_buttons(self):
+        html = self.client.get("/units/u01/p01").get_data(as_text=True)
+        self.assertIn('<button type="button" class="g" data-occ="0-0"', html)
+        # the second 曰 is the second occurrence of gloss 8
+        self.assertIn('data-occ="8-1"', html)
+
+    def test_view_parameter(self):
+        html = self.client.get("/units/u01/p01?view=vertical").get_data(as_text=True)
+        self.assertIn('class="reader view-vertical"', html)
+        html = self.client.get("/units/u01/p01?view=sideways").get_data(as_text=True)
+        self.assertIn('class="reader view-modern"', html)
 
     def test_draft_label(self):
         html = self.client.get("/units/u01/p01").get_data(as_text=True)
