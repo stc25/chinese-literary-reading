@@ -165,8 +165,9 @@ Grammar ids in `code` become files in `content/grammar/`.
 - **Skills**: legal drafting (凡, 均, 得, 不得, 但, 其…者); treaty articles and how parallel texts in two languages relate.
 - **Grammar/skills**: `legal-language`, `treaty-language`
 - **Genres**: legal, diplomatic
-- **Candidate sources**: 南京條約 (1842), 馬關條約 (1895); 臨時約法 (1912), full text;
-  大清新刑律 (1911).
+- **Sources**: 臨時約法 (1912), articles 15, 30–36 and 40; 馬關條約 (1895), articles 1 and 5 and the
+  separate article on the English text; 中英天津條約 (1858), articles 1, 50 and 51. *(南京條約 and the
+  penal code were already used in U06, U08 and U11.)*
 
 ### U16 The press and the new vocabulary
 - **Skills**: new terms, many borrowed from Japanese (經濟, 社會, 革命, 自由, 權利);
