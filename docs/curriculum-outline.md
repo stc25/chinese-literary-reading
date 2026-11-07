@@ -57,9 +57,9 @@ Grammar ids in `code` become files in `content/grammar/`.
 ### U02 Naming and defining
 - **Skills**: A 者 B 也 definitions; 謂之, 曰 "is called"; 爲 "is, serves as"; 非 "is not".
 - **Grammar**: `zhe-ye-definition`, `weizhi`, `yue-naming`, `wei-copula`, `fei-negation`
-- **Genres**: scholarly
-- **Candidate sources**: 新爾雅 (1903), a glossary of new terms. Its
-  "X者，Y也" definitions are ideal for this unit and introduce period vocabulary early.
+- **Genres**: textbook, essay
+- **Sources**: 澄衷蒙學堂字課圖說 (1901), definition entries; 梁啟超〈新民說〉(1902),
+  section 3. *(Replaced 新爾雅 (1903), which is not available as a text.)*
 
 ### U03 Verbs, objects and negation
 - **Skills**: verb–object order; 不, 未, 無, 勿/毋; existence with 有/無.
@@ -240,7 +240,6 @@ Candidates that need care:
 | Source | Issue |
 |---|---|
 | 胡適 (d. 1962) | In copyright until 2032. Short excerpts under fair dealing for instruction |
-| 新爾雅 (1903) | Co-author 葉瀾: dates to be confirmed |
 
 All candidate sources above still have to be checked against an actual edition before
 any passage is written.

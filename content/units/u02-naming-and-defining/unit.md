@@ -4,13 +4,13 @@ title: Naming and defining
 level: beginner
 prerequisites: []
 grammar: [zhe-ye-definition, weizhi, yue-naming, wei-copula, fei-negation]
-genres: [scholarly]
-status: planned
+genres: [textbook, essay]
+status: draft
 ---
 
 ## Introduction
 
-Definitions are an easy way into literary prose, and a good source of the period's new vocabulary.
+Definitions are an easy way into literary prose. Two passages come from the 1901 primer used in the previous unit; the third is from Liang Qichao's 〈新民說〉 (1902), which also introduces some of the period's new vocabulary.
 
 ## Objectives
 
@@ -22,9 +22,9 @@ By the end of this unit you will be able to:
 
 ## Passages
 
-1. 新爾雅 (1903): definitions of political terms (planned)
-2. 新爾雅 (1903): definitions of economic terms (planned)
-3. 新爾雅 (1903): definitions of educational terms (planned)
+1. [Eclipses](u02-p01-eclipses.md)
+2. [Heaven, air and stars](u02-p02-heaven-air-stars.md)
+3. [Two great principles](u02-p03-two-principles.md)
 
 ## Grammar
 
