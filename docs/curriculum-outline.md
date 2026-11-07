@@ -192,8 +192,9 @@ Grammar ids in `code` become files in `content/grammar/`.
   commentary and citation (卷, 按/案, 云, 注); prefaces and colophons; local gazetteers (方志).
 - **Grammar/skills**: `biography-conventions`, `citation-conventions`
 - **Genres**: scholarly
-- **Candidate sources**: 《清史稿》(1927) biographies; 梁啟超《清代學術概論》(1920);
-  王國維〈殷周制度論〉(1917), opening; a county gazetteer entry.
+- **Sources**: 《清史稿》卷486, 文苑三, the biography of 嚴復 (1927); 王國維〈殷周制度論〉(1917), opening,
+  thesis and the discussion of the 左傳 and 公羊 rules of succession; 張森楷《民國新脩合川縣志》(1921) 卷66,
+  古蹟, entries 釣魚山, 石子山, 龜山, 牟山. *(梁啟超《清代學術概論》 is not yet transcribed on Wikisource.)*
 
 ### U19 Letters, diaries and polite language
 - **Skills**: letter formulas (敬啟者, 台鑒, 專此, 順頌時祺, 頓首); honorific and humble

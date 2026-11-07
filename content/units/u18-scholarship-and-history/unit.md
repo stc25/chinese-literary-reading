@@ -5,12 +5,12 @@ level: intermediate
 prerequisites: []
 grammar: [biography-conventions, citation-conventions]
 genres: [scholarly]
-status: planned
+status: draft
 ---
 
 ## Introduction
 
-Biographies, scholarly essays and gazetteers have their own conventions of structure and citation.
+Biographies, scholarly essays and gazetteers have their own conventions of structure and citation. In this unit you read the official biography of Yan Fu in the 清史稿 (1927), the thesis and a source discussion from Wang Guowei's 〈殷周制度論〉 (1917), and four entries from a county gazetteer of 1921 on the site where the Mongol khan Möngke died. Each shows a different way of building a text out of earlier texts: quoting, judging and adding notes.
 
 ## Objectives
 
@@ -22,9 +22,9 @@ By the end of this unit you will be able to:
 
 ## Passages
 
-1. 清史稿 (1927): a biography (planned)
-2. 梁啟超《清代學術概論》(1920): an excerpt (planned)
-3. A county gazetteer entry (planned)
+1. [The biography of Yan Fu](u18-p01-the-biography-of-yan-fu.md)
+2. [Shang and Zhou institutions](u18-p02-shang-and-zhou-institutions.md)
+3. [Fishing Mountain](u18-p03-fishing-mountain.md)
 
 ## Grammar
 
