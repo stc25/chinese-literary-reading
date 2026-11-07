@@ -201,7 +201,9 @@ Grammar ids in `code` become files in `content/grammar/`.
   forms (令尊, 家父, 貴, 敝, 拙); diary conventions.
 - **Grammar/skills**: `epistolary-formulas`, `honorific-humble`
 - **Genres**: letter
-- **Candidate sources**: formal letters from 曾國藩 and others; 翁同龢日記; letter-writing manuals (尺牘) of the period.
+- **Sources**: 孫文〈上李鴻章書〉(1894), opening and closing; 曾國藩家書, 稟父母 (1842) and 諭紀澤紀鴻 (1862);
+  許思湄《秋水軒尺牘》, letters 1 and 3. *(翁同龢日記 is not on Wikisource; diary conventions are covered by
+  薛福成's diary in U16.)*
 
 ### U20 Between literary and vernacular
 - **Skills**: recognising vernacular elements (的, 了, 這, 們, 是 as copula) inside
