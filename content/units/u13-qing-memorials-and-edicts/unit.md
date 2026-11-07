@@ -5,12 +5,12 @@ level: intermediate
 prerequisites: []
 grammar: [memorial-formulas, edict-formulas]
 genres: [official]
-status: planned
+status: draft
 ---
 
 ## Introduction
 
-Memorials and edicts are central sources for Qing history, and they follow fixed forms.
+Memorials and edicts are central sources for Qing history, and they follow fixed forms. Once you know the frame of each, you can find your way through even a long document: where it begins, whose words are being quoted, what is being asked, and what was decided. The three passages are a reform edict of 1898, a memorial of 1905 with the edict that answered it, and a routine memorial of 1907 with its rescript, complete as it was printed in a gazette.
 
 ## Objectives
 
@@ -22,9 +22,9 @@ By the end of this unit you will be able to:
 
 ## Passages
 
-1. 明定國是詔 (1898) (planned)
-2. 袁世凱 等: joint memorial on ending the examination system (1905) (planned)
-3. A memorial and rescript from the 京報 (planned)
+1. [Settling the course of the state](u13-p01-settling-the-course-of-the-state.md)
+2. [Ending the examinations](u13-p02-ending-the-examinations.md)
+3. [A seal and a rescript](u13-p03-a-seal-and-a-rescript.md)
 
 ## Grammar
 

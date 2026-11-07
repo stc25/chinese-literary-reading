@@ -146,8 +146,9 @@ Grammar ids in `code` become files in `content/grammar/`.
   (上諭, 著…, 欽此); a minister's humble language (臣, 竊, 伏, 謹); the vermilion rescript (知道了).
 - **Grammar/skills**: `memorial-formulas`, `edict-formulas`
 - **Genres**: official
-- **Candidate sources**: the 明定國是詔 edict (1898); the 1905 joint memorial asking to
-  end the examination system (袁世凱 等); memorials and edicts printed in the 京報.
+- **Sources**: the 明定國是詔 edict (1898); the 1905 joint memorial asking to end the
+  examination system (袁世凱 等) with the edict 停罷科舉詔; 民政部奏啓用印信日期摺 (1907), a complete
+  memorial with rescript from the 北洋官報. *(No 京報 text is available; the gazette memorial stands in for it.)*
 
 ### U14 The Republican state: orders, petitions and regulations
 - **Skills**: document types (令, 呈, 咨, 批, 訓令, 布告); directive language
