@@ -5,7 +5,7 @@ level: beginner
 prerequisites: []
 grammar: [zhi-attributive, zhi-nominaliser, ye-topic]
 genres: [essay, newspaper]
-status: draft
+status: reviewed
 ---
 
 ## Introduction

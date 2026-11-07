@@ -3,7 +3,7 @@ id: zhi-attributive
 title: 之 joining modifier and noun
 forms: [之]
 level: beginner
-status: draft
+status: reviewed
 ---
 
 ## Summary

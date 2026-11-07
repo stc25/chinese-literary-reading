@@ -3,7 +3,7 @@ id: zhi-nominaliser
 title: 之 between subject and verb
 forms: [之]
 level: beginner
-status: draft
+status: reviewed
 ---
 
 ## Summary

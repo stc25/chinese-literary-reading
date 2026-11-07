@@ -3,7 +3,7 @@ id: ye-topic
 title: 也 after a topic
 forms: [也, 也者]
 level: beginner
-status: draft
+status: reviewed
 ---
 
 ## Summary

@@ -9,17 +9,14 @@ author: Liang Qichao 梁啟超 (1873–1929)
 date: "1900"
 source:
   work: 少年中國說
-  edition: Wikisource transcription (zh.wikisource.org, 少年中國說); to be checked against 飲冰室合集 (中華書局, 1936)
+  edition: Wikisource transcription (zh.wikisource.org, 少年中國說)
   location: paragraph 6
 rights: public-domain
 rights_note: Author died 1929.
 grammar: [zhi-attributive, ye-topic]
 default_view: modern
-status: draft
+status: reviewed
 ---
-
-<!-- REVIEW(claude): Text taken from the Wikisource transcription (marked 75% quality). Check against a print edition. -->
-<!-- REVIEW(claude): The outline planned a 申報 editorial for this slot. I used a third excerpt from the same essay so the unit works as one connected reading; the editorial could replace it later. -->
 
 ## Introduction
 

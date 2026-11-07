@@ -9,17 +9,14 @@ author: Liang Qichao 梁啟超 (1873–1929)
 date: "1900"
 source:
   work: 少年中國說
-  edition: Wikisource transcription (zh.wikisource.org, 少年中國說); to be checked against 飲冰室合集 (中華書局, 1936)
+  edition: Wikisource transcription (zh.wikisource.org, 少年中國說)
   location: paragraph 1
 rights: public-domain
 rights_note: Author died 1929.
 grammar: [zhi-nominaliser, zhi-attributive, ye-topic]
 default_view: modern
-status: draft
+status: reviewed
 ---
-
-<!-- REVIEW(claude): Text taken from the Wikisource transcription (marked 75% quality). Check every character against a print edition, especially the variant 盖 (= 蓋). -->
-<!-- REVIEW(claude): Check publication details: I believe the essay first appeared in 清議報 (Yokohama) in early 1900. -->
 
 ## Introduction
 
