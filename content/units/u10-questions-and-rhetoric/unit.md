@@ -5,12 +5,12 @@ level: beginner
 prerequisites: []
 grammar: [question-particles, question-words, rhetorical-questions, qi-modal]
 genres: [essay]
-status: planned
+status: draft
 ---
 
 ## Introduction
 
-Reform-era essays use questions to persuade far more often than to ask.
+Reform-era essays use questions to persuade far more often than to ask. Two passages return to Liang Qichao's 〈少年中國說〉; the third comes from his essay on freedom in 〈新民說〉.
 
 ## Objectives
 
@@ -22,9 +22,9 @@ By the end of this unit you will be able to:
 
 ## Passages
 
-1. 梁啟超〈新民說〉(1902–06): an excerpt (planned)
-2. 譚嗣同《仁學》: an excerpt (planned)
-3. A second 新民說 excerpt (planned)
+1. [Old or young?](u10-p01-old-or-young.md)
+2. [Freedom of the group, freedom of the individual](u10-p02-freedom.md)
+3. [Can he or can he not?](u10-p03-can-he-or-can-he-not.md)
 
 ## Grammar
 

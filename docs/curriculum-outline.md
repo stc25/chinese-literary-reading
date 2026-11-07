@@ -116,7 +116,7 @@ Grammar ids in `code` become files in `content/grammar/`.
   rhetorical questions (豈…哉, 不亦…乎); exclamation.
 - **Grammar**: `question-particles`, `question-words`, `rhetorical-questions`, `qi-modal` (added after the U05 pilot)
 - **Genres**: essay
-- **Candidate sources**: 梁啟超〈新民說〉(1902–06); 譚嗣同《仁學》(c. 1897), short excerpts.
+- **Sources**: 梁啟超〈少年中國說〉(1900), paragraphs 3–5; 〈新民說·論自由〉(1902).
 
 ---
 
