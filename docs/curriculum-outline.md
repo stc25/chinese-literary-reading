@@ -50,8 +50,9 @@ Grammar ids in `code` become files in `content/grammar/`.
   nominal sentences ending in 也.
 - **Grammar**: `word-classes`, `topic-comment`, `ye-final`
 - **Genres**: textbook, other
-- **Candidate sources**: 最新國文教科書 (Commercial Press, 1904), early lessons;
-  short maxims and mottoes from period school readers.
+- **Sources**: 澄衷蒙學堂字課圖說 (1901), compiled by 劉樹屏 (1857–1917): character
+  definitions and the guide to word classes. *(Replaced the 1904 國文教科書, which
+  is not available as a text and has an open rights question.)*
 
 ### U02 Naming and defining
 - **Skills**: A 者 B 也 definitions; 謂之, 曰 "is called"; 爲 "is, serves as"; 非 "is not".
@@ -239,7 +240,6 @@ Candidates that need care:
 | Source | Issue |
 |---|---|
 | 胡適 (d. 1962) | In copyright until 2032. Short excerpts under fair dealing for instruction |
-| 最新國文教科書 (1904) | Several compilers, including 蔣維喬 (d. 1958). Check who wrote it, or treat as fair dealing |
 | 新爾雅 (1903) | Co-author 葉瀾: dates to be confirmed |
 
 All candidate sources above still have to be checked against an actual edition before
