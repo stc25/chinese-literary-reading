@@ -117,6 +117,8 @@ Each phase ends with something you can review.
 - Units written in batches; each batch reviewed by us before the next.
 
 ### Phase 4 — Web app (Flask)
+> Planned in [docs/app-plan.md](docs/app-plan.md): decisions, architecture and milestones M1–M6.
+
 - Renders the Markdown content: course map, passage reader with glosses,
   pinyin toggle, punctuation and vertical-text toggles, grammar links, exercises.
 - Reading-assistant unit: Flask calls the Ollama model server-side, so the API key stays off the browser.

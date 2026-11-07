@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% from "_macros.html" import status_badge, draft_notice, breadcrumbs, exercises with context %}
+{% block title %}{{ p.title }} · Unit {{ unit.number }} · {{ course.title }}{% endblock %}
+{% block breadcrumbs %}{{ breadcrumbs([('Course', url_for('pages.course_map')), ('Unit ' ~ unit.number, url_for('pages.unit', uid=unit.id)), (p.title, None)]) }}{% endblock %}
+{% block content %}
+<article class="passage">
+  <header class="passage-header">
+    <p class="eyebrow">Unit {{ unit.number }} · Passage {{ p.number[1:] | int }}</p>
+    <h1>{{ p.title }} {{ status_badge(p) }}</h1>
+    <p class="zh passage-title-zh" lang="zh-Hant">{{ p.title_zh }}</p>
+    <p class="passage-meta">{{ p.meta.get('author', '') }} · {{ p.meta.get('date', '') }}</p>
+  </header>
+  {{ draft_notice(p) }}
+
+  {% if p.sections.get('Introduction') %}
+  <section aria-labelledby="intro-h">
+    <h2 id="intro-h">Introduction</h2>
+    <div class="prose">{{ md(p.sections['Introduction'], p) }}</div>
+  </section>
+  {% endif %}
+
+  <section aria-labelledby="text-h">
+    <h2 id="text-h">Text</h2>
+    <div class="zh-text" lang="zh-Hant" data-default-view="{{ p.meta.get('default_view', 'modern') }}">
+      {% for para in p.paragraphs %}<p>{{ para }}</p>{% endfor %}
+    </div>
+    {% if p.original %}
+    <details class="original">
+      <summary>Original text</summary>
+      <div class="zh-text" lang="zh-Hant">{% for para in p.original %}<p class="preserve-spaces">{{ para }}</p>{% endfor %}</div>
+    </details>
+    {% endif %}
+  </section>
+
+  <section aria-labelledby="gloss-h">
+    <h2 id="gloss-h">Glosses</h2>
+    <div class="table-wrap">
+      <table class="glosses">
+        <thead><tr><th scope="col">Term</th><th scope="col">Pinyin</th><th scope="col">Gloss</th><th scope="col">Grammar</th></tr></thead>
+        <tbody>
+          {% for gl in p.glosses %}
+          <tr>
+            <td class="zh" lang="zh-Hant">{{ gl.term }}{% if gl.occurrences %}<span class="occ" title="Only these occurrences in the text"> #{{ gl.occurrences | join(' #') }}</span>{% endif %}</td>
+            <td class="pinyin" lang="zh-Latn-pinyin">{{ gl.pinyin }}</td>
+            <td>{{ md_inline(gl.gloss, p) }}</td>
+            <td>{% if gl.grammar and ref_url(gl.grammar) %}<a class="xref" href="{{ ref_url(gl.grammar) }}">{{ ref_title(gl.grammar) }}</a>{% endif %}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section aria-labelledby="trans-h">
+    <h2 id="trans-h">Translation</h2>
+    <details class="translation">
+      <summary>Show translation</summary>
+      <div class="prose">{% for para in p.translation %}<p>{{ md_inline(para, p) }}</p>{% endfor %}</div>
+    </details>
+    {% if p.literal %}
+    <details class="translation">
+      <summary>Show literal translation</summary>
+      <div class="prose">{% for para in p.literal %}<p>{{ md_inline(para, p) }}</p>{% endfor %}</div>
+    </details>
+    {% endif %}
+  </section>
+
+  {% if p.sections.get('Notes') %}
+  <section aria-labelledby="notes-h">
+    <h2 id="notes-h">Notes</h2>
+    <div class="prose">{{ md(p.sections['Notes'], p) }}</div>
+  </section>
+  {% endif %}
+
+  {% if p.exercises %}
+  <section aria-labelledby="ex-h">
+    <h2 id="ex-h">Exercises</h2>
+    {{ exercises(p.exercises, p) }}
+  </section>
+  {% endif %}
+
+  <section aria-labelledby="src-h" class="source">
+    <h2 id="src-h">Source</h2>
+    {% set src = p.meta.get('source', {}) %}
+    <dl class="source-list">
+      <dt>Work</dt><dd><span lang="zh-Hant">{{ src.get('work', '') }}</span></dd>
+      <dt>Edition</dt><dd>{{ src.get('edition', '') }}</dd>
+      <dt>Passage</dt><dd>{{ src.get('location', '') }}</dd>
+      {% if src.get('punctuation') %}<dt>Punctuation</dt><dd>{{ {'original': "the source's own, modernised", 'edition': 'added by the edition used', 'course': 'added by the course'}[src['punctuation']] }}</dd>{% endif %}
+      <dt>Rights</dt><dd>{{ p.meta.get('rights', '') | replace('-', ' ') }}{% if p.meta.get('rights_note') %}. {{ p.meta['rights_note'] }}{% endif %}</dd>
+    </dl>
+  </section>
+</article>
+
+<nav class="pager" aria-label="Passages">
+  {% if prev %}<a class="pager-prev" href="{{ url_for('pages.passage', uid=unit.id, num=prev.number) }}" rel="prev">← {{ prev.title }}</a>{% else %}<a class="pager-prev" href="{{ url_for('pages.unit', uid=unit.id) }}">← Unit {{ unit.number }}</a>{% endif %}
+  {% if next %}<a class="pager-next" href="{{ url_for('pages.passage', uid=unit.id, num=next.number) }}" rel="next">{{ next.title }} →</a>{% else %}<a class="pager-next" href="{{ url_for('pages.unit', uid=unit.id) }}">Back to unit {{ unit.number }} →</a>{% endif %}
+</nav>
+{% endblock %}

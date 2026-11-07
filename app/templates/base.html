@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ course.title }}{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/site.css') }}">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="site-title" href="{{ url_for('pages.course_map') }}">{{ course.title }}</a>
+      <nav aria-label="Main">
+        <ul class="nav-list">
+          <li><a href="{{ url_for('pages.course_map') }}#units">Units</a></li>
+          <li><a href="{{ url_for('pages.course_map') }}#toolkit">Toolkit</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  {% if content_error %}
+  <div class="wrap">
+    <div class="alert alert-error" role="alert">
+      <p><strong>The content has validation errors.</strong> The site is showing the last valid version.
+        Run <code>python3 tools/validate.py</code> for details.</p>
+      <ul>{% for m in content_error.messages[:10] %}<li><code>{{ m }}</code></li>{% endfor %}</ul>
+    </div>
+  </div>
+  {% endif %}
+
+  <main id="main" class="wrap" tabindex="-1">
+    {% block breadcrumbs %}{% endblock %}
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p>{{ course.title }} · Course materials in development. Texts are from public-domain sources; see each passage for details.</p>
+    </div>
+  </footer>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

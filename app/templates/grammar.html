@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% from "_macros.html" import status_badge, draft_notice, breadcrumbs with context %}
+{% block title %}{{ gr.title }} · Grammar · {{ course.title }}{% endblock %}
+{% block breadcrumbs %}{{ breadcrumbs([('Course', url_for('pages.course_map')), ('Grammar', None), (gr.title, None)]) }}{% endblock %}
+{% block content %}
+<p class="eyebrow">Grammar</p>
+<h1>{{ gr.title }} {{ status_badge(gr) }}</h1>
+{% if gr.meta.get('forms') %}<p class="forms zh" lang="zh-Hant">{{ gr.meta['forms'] | join('　') }}</p>{% endif %}
+{{ draft_notice(gr) }}
+
+<div class="prose lead">{{ md(gr.summary, gr) }}</div>
+
+{% if gr.sections.get('Explanation') %}
+<section aria-labelledby="expl-h">
+  <h2 id="expl-h">Explanation</h2>
+  <div class="prose">{{ md(gr.sections['Explanation'], gr) }}</div>
+</section>
+{% endif %}
+
+{% if gr.examples %}
+<section aria-labelledby="exm-h">
+  <h2 id="exm-h">Examples</h2>
+  <ul class="examples">
+    {% for zh, pinyin, tr, src in gr.examples %}
+    <li>
+      <p class="zh example-zh" lang="zh-Hant">{{ zh }}</p>
+      <p class="pinyin" lang="zh-Latn-pinyin">{{ pinyin }}</p>
+      <p class="example-tr">{{ md_inline(tr, gr) }}
+        <span class="example-src">{% if src in course.passages %}{% set sp = course.passages[src] %}<a href="{{ url_for('pages.passage', uid=sp.unit_id, num=sp.number) }}">{{ sp.title }}</a>{% else %}{{ md_inline(src, gr) }}{% endif %}</span></p>
+    </li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+
+{% if gr.sections.get('See also') %}
+<section aria-labelledby="see-h">
+  <h2 id="see-h">See also</h2>
+  <div class="prose">{{ md(gr.sections['See also'], gr) }}</div>
+</section>
+{% endif %}
+
+{% if used %}
+<section aria-labelledby="used-h">
+  <h2 id="used-h">Passages that use this</h2>
+  <ul class="used-list">
+    {% for p in used %}
+    <li><a href="{{ url_for('pages.passage', uid=p.unit_id, num=p.number) }}">{{ p.title }}</a> <span class="zh" lang="zh-Hant">{{ p.title_zh }}</span> <span class="muted">Unit {{ course.units[p.unit_id].number }}</span></li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+{% endblock %}

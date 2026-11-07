@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% from "_macros.html" import status_badge with context %}
+{% block content %}
+<h1>{{ course.title }}</h1>
+
+<section aria-labelledby="intro-h">
+  <h2 id="intro-h" class="visually-hidden">Introduction</h2>
+  <div class="prose lead">{{ md(course.sections.get('Introduction', '')) }}</div>
+</section>
+
+<section aria-labelledby="how-h">
+  <h2 id="how-h">How to use this course</h2>
+  <div class="prose">{{ md(course.sections.get('How to use this course', '')) }}</div>
+</section>
+
+<section id="units" aria-labelledby="units-h">
+  <h2 id="units-h">Units</h2>
+  {% for level, label in [('beginner', 'Beginner'), ('intermediate', 'Intermediate')] %}
+  <h3>{{ label }}</h3>
+  <ol class="unit-list">
+    {% for uid in course.levels[level] %}{% set u = course.units[uid] %}{% if visible(u) %}
+    <li class="unit-card">
+      <a href="{{ url_for('pages.unit', uid=uid) }}">
+        <span class="unit-number">Unit {{ u.number }}</span>
+        <span class="unit-title">{{ u.title }}</span>
+      </a>
+      <span class="unit-meta">{{ u.passage_ids | length }} passages {{ status_badge(u) }}</span>
+    </li>
+    {% endif %}{% endfor %}
+  </ol>
+  {% endfor %}
+</section>
+
+<section id="toolkit" aria-labelledby="toolkit-h">
+  <h2 id="toolkit-h">Toolkit</h2>
+  <p>Reference pages you can use at any time.</p>
+  <ul class="toolkit-list">
+    {% for tid in course.toolkit_ids %}{% set t = course.toolkit[tid] %}{% if visible(t) %}
+    <li>
+      <a href="{{ url_for('pages.toolkit', tid=tid) }}">{{ t.title }}</a> {{ status_badge(t) }}
+      <div class="summary">{{ md_inline(t.summary, t) }}</div>
+    </li>
+    {% endif %}{% endfor %}
+  </ul>
+</section>
+{% endblock %}

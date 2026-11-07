@@ -1,0 +1,189 @@
+/* Reading Modern Literary Chinese: base styles.
+   A neutral design meant to be restyled later. Colours are tokens on :root. */
+
+:root {
+  --bg: #fbfaf7;
+  --surface: #ffffff;
+  --text: #1f1d1a;
+  --muted: #5f5a52;
+  --rule: #e2ddd3;
+  --accent: #8a2c1f;        /* vermilion, used sparingly */
+  --accent-soft: #f6e9e5;
+  --link: #1d4f86;
+  --draft-bg: #fff6d6;
+  --draft-text: #6b5300;
+  --error-bg: #fde8e6;
+  --error-text: #8a1c12;
+  --focus: #2b6cb0;
+
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-serif: Georgia, "Times New Roman", serif;
+  --font-zh: "Noto Serif TC", "Source Han Serif TC", "Songti TC", "STSong", "PMingLiU", "MingLiU", serif;
+
+  --measure: 42rem;
+  --wide: 60rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #171614;
+    --surface: #1f1e1b;
+    --text: #ece8e1;
+    --muted: #a8a196;
+    --rule: #3a3731;
+    --accent: #e08a73;
+    --accent-soft: #3a2621;
+    --link: #8db8e8;
+    --draft-bg: #3b3218;
+    --draft-text: #f0d98a;
+    --error-bg: #3d1f1b;
+    --error-text: #f4b3a8;
+    --focus: #8db8e8;
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 1.0625rem;
+  line-height: 1.6;
+}
+
+.wrap { max-width: var(--wide); margin: 0 auto; padding: 0 1rem; }
+
+a { color: var(--link); text-underline-offset: 0.15em; }
+a:hover { text-decoration-thickness: 2px; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 2px; }
+
+h1, h2, h3 { font-family: var(--font-serif); line-height: 1.25; font-weight: 600; }
+h1 { font-size: 2rem; margin: 0.5rem 0 0.75rem; }
+h2 { font-size: 1.4rem; margin: 2.25rem 0 0.75rem; padding-bottom: 0.25rem; border-bottom: 1px solid var(--rule); }
+h3 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem; }
+
+code { font-size: 0.9em; }
+
+.visually-hidden {
+  position: absolute !important; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap;
+}
+
+.skip-link { position: absolute; left: -999px; top: 0; background: var(--surface); padding: 0.5rem 1rem; z-index: 10; }
+.skip-link:focus { left: 1rem; }
+
+/* Header and footer */
+.site-header { background: var(--surface); border-bottom: 1px solid var(--rule); }
+.header-inner { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem 1.5rem; padding-top: 0.75rem; padding-bottom: 0.75rem; }
+.site-title { font-family: var(--font-serif); font-size: 1.15rem; font-weight: 600; color: var(--text); text-decoration: none; }
+.site-title::before { content: "文"; font-family: var(--font-zh); color: var(--accent); margin-right: 0.4rem; }
+.nav-list { list-style: none; display: flex; gap: 1.25rem; margin: 0; padding: 0; }
+.nav-list a { color: var(--text); text-decoration: none; }
+.nav-list a:hover { text-decoration: underline; }
+
+main { padding-top: 1rem; padding-bottom: 3rem; }
+main:focus { outline: none; }
+
+.site-footer { border-top: 1px solid var(--rule); color: var(--muted); font-size: 0.9rem; padding: 1.5rem 0; }
+
+/* Text blocks */
+.prose { max-width: var(--measure); }
+.prose p, .prose li { overflow-wrap: anywhere; }
+.lead { font-size: 1.1rem; }
+.eyebrow { color: var(--muted); font-size: 0.9rem; letter-spacing: 0.03em; margin: 0; text-transform: uppercase; }
+.muted { color: var(--muted); font-size: 0.9rem; }
+.summary { color: var(--muted); font-size: 0.95rem; }
+
+.table-wrap { overflow-x: auto; margin: 1rem 0; max-width: 100%; }
+table { border-collapse: collapse; font-size: 0.95rem; }
+th, td { border-bottom: 1px solid var(--rule); padding: 0.4rem 0.6rem; text-align: left; vertical-align: top; }
+th { font-weight: 600; background: var(--surface); }
+
+/* Chinese */
+.zh, [lang="zh-Hant"] { font-family: var(--font-zh); }
+.zh-text { font-family: var(--font-zh); font-size: 1.5rem; line-height: 2; letter-spacing: 0.04em; max-width: var(--measure); }
+.zh-text p { margin: 0 0 1rem; }
+.preserve-spaces { white-space: pre-wrap; }
+.passage-title-zh { font-size: 1.25rem; margin: 0; }
+.pinyin { font-style: italic; color: var(--muted); }
+.forms { font-size: 1.4rem; color: var(--accent); margin: 0 0 0.5rem; }
+
+/* Badges and notices */
+.badge { display: inline-block; font-family: var(--font-sans); font-size: 0.75rem; font-weight: 600; line-height: 1.4;
+  padding: 0.05rem 0.45rem; border-radius: 999px; background: var(--rule); color: var(--muted); vertical-align: middle; }
+.badge-draft { background: var(--draft-bg); color: var(--draft-text); }
+.notice { padding: 0.6rem 0.9rem; border-radius: 6px; font-size: 0.95rem; max-width: var(--measure); }
+.notice-draft { background: var(--draft-bg); color: var(--draft-text); }
+.alert { padding: 0.75rem 1rem; border-radius: 6px; margin-top: 1rem; }
+.alert-error { background: var(--error-bg); color: var(--error-text); }
+
+/* Breadcrumbs */
+.breadcrumbs ol { list-style: none; display: flex; flex-wrap: wrap; gap: 0.25rem; margin: 0 0 0.5rem; padding: 0; font-size: 0.9rem; color: var(--muted); }
+.breadcrumbs li + li::before { content: "›"; margin-right: 0.25rem; }
+
+/* Course map and unit lists */
+.unit-list, .passage-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.6rem; }
+.unit-list { grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr)); }
+.unit-card, .passage-card { background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; padding: 0.75rem 0.9rem; }
+.unit-card a, .passage-card a { display: block; text-decoration: none; }
+.unit-number { display: block; font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.03em; }
+.unit-title, .passage-title { font-family: var(--font-serif); font-size: 1.1rem; color: var(--text); }
+.unit-card a:hover .unit-title, .passage-card a:hover .passage-title { text-decoration: underline; }
+.unit-meta, .passage-meta { font-size: 0.85rem; color: var(--muted); }
+.passage-card .passage-title-zh { display: block; font-size: 1.1rem; color: var(--text); }
+.passage-card.planned { color: var(--muted); }
+.toolkit-list, .grammar-list, .used-list { padding-left: 1.2rem; }
+.toolkit-list li, .grammar-list li { margin-bottom: 0.6rem; }
+
+/* Passage */
+.passage-header h1 { margin-bottom: 0.25rem; }
+.passage-header .passage-meta { margin-top: 0.25rem; }
+.glosses td.zh { font-size: 1.15rem; white-space: nowrap; }
+.occ { font-family: var(--font-sans); font-size: 0.75rem; color: var(--muted); }
+details { margin: 0.75rem 0; max-width: var(--measure); }
+details > summary { cursor: pointer; color: var(--link); font-weight: 600; }
+details[open] > summary { margin-bottom: 0.5rem; }
+.original .zh-text { font-size: 1.3rem; }
+
+.source-list { display: grid; grid-template-columns: max-content 1fr; gap: 0.25rem 1rem; font-size: 0.95rem; max-width: var(--measure); }
+.source-list dt { font-weight: 600; color: var(--muted); }
+.source-list dd { margin: 0; }
+
+/* Exercises */
+.exercises { list-style: none; padding: 0; margin: 0; }
+.exercise { background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 0.9rem; max-width: var(--measure); }
+.exercise-heading { font-size: 1rem; margin: 0 0 0.25rem; border: 0; }
+.exercise-type { font-family: var(--font-sans); font-weight: 400; font-size: 0.85rem; color: var(--muted); margin-left: 0.25rem; }
+.exercise-prompt p { margin: 0.25rem 0; }
+.exercise-text { font-size: 1.3rem; letter-spacing: 0.05em; overflow-wrap: anywhere; }
+.choice-options { padding-left: 1.2rem; }
+.answer { margin-bottom: 0; }
+
+/* Grammar examples */
+.examples { list-style: none; padding: 0; max-width: var(--measure); }
+.examples li { border-left: 3px solid var(--accent-soft); padding: 0.25rem 0 0.25rem 0.9rem; margin-bottom: 1rem; }
+.examples p { margin: 0.1rem 0; }
+.example-zh { font-size: 1.3rem; }
+.example-src { color: var(--muted); font-size: 0.9rem; margin-left: 0.4rem; }
+.example-src::before { content: "— "; }
+
+/* Pager */
+.pager { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem; margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--rule); }
+.pager-next { margin-left: auto; text-align: right; }
+
+@media (max-width: 40rem) {
+  body { font-size: 1rem; }
+  h1 { font-size: 1.6rem; }
+  .zh-text { font-size: 1.35rem; }
+  .source-list { grid-template-columns: 1fr; }
+  .source-list dd { margin-bottom: 0.4rem; }
+}
+
+@media print {
+  .site-header nav, .pager, .skip-link { display: none; }
+  details { display: block; }
+}

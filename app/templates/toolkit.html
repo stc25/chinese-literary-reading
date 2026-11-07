@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% from "_macros.html" import status_badge, draft_notice, breadcrumbs, exercises with context %}
+{% block title %}{{ t.title }} · Toolkit · {{ course.title }}{% endblock %}
+{% block breadcrumbs %}{{ breadcrumbs([('Course', url_for('pages.course_map')), ('Toolkit', url_for('pages.course_map') ~ '#toolkit'), (t.title, None)]) }}{% endblock %}
+{% block content %}
+<p class="eyebrow">Toolkit</p>
+<h1>{{ t.title }} {{ status_badge(t) }}</h1>
+{{ draft_notice(t) }}
+<div class="prose lead">{{ md(t.summary, t) }}</div>
+
+{% for name, body in t.sections.items() if name not in ('Summary', 'Practice') %}
+<section aria-labelledby="s{{ loop.index }}-h">
+  <h2 id="s{{ loop.index }}-h">{{ name }}</h2>
+  <div class="prose">{{ md(body, t) }}</div>
+</section>
+{% endfor %}
+
+{% if t.practice %}
+<section aria-labelledby="practice-h">
+  <h2 id="practice-h">Practice</h2>
+  {{ exercises(t.practice, t) }}
+</section>
+{% endif %}
+{% endblock %}

@@ -11,12 +11,29 @@ See [PLAN.md](PLAN.md) for the project plan and
 | `content/` | The course: units, grammar points, toolkit pages |
 | `docs/` | Specifications |
 | `templates/` | Blank templates and a worked example passage |
+| `app/` | The Flask web app |
 | `tools/` | Scripts (validator) |
-| `tests/` | Validator tests and test fixtures |
+| `tests/` | Validator and app tests, and test fixtures |
+
+## Running the web app
+
+Requires Python 3.10+ and the packages in `requirements.txt` (`pip install -r requirements.txt`).
+
+```bash
+flask --app app run --debug --port 5050
+```
+
+Then open <http://localhost:5050/>. In debug mode the app reloads the content when a file in
+`content/` changes. The app will not start if the validator reports errors. See
+[docs/app-plan.md](docs/app-plan.md) for the plan.
+
+Run all tests (validator and app) with:
+
+```bash
+python3 -m unittest discover -s tests
+```
 
 ## Checking content
-
-Requires Python 3.10+ and PyYAML (`pip install -r requirements.txt`).
 
 ```bash
 python3 tools/validate.py

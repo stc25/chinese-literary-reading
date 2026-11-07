@@ -1082,12 +1082,20 @@ def check_data_files(idx: Index, rep: Report) -> None:
 # --------------------------------------------------------------------------
 
 def validate(root: Path, spec: Path = DEFAULT_SPEC) -> Report:
+    return build(root, spec)[0]
+
+
+def build(root: Path, spec: Path = DEFAULT_SPEC) -> tuple[Report, Index]:
+    """Parse and check every file; return the report and the index of parsed files.
+
+    The web app uses the index, so that it reads the content exactly as the validator does.
+    """
     rep = Report()
     controlled = load_controlled(spec)
+    idx = Index(root, controlled=controlled)
     if not root.is_dir():
         rep.error(root, None, "content folder not found")
-        return rep
-    idx = Index(root, controlled=controlled)
+        return rep, idx
     docs: list[Doc] = []
     for path, kind in discover(root, rep, idx):
         doc = parse_doc(path, kind, rep)
@@ -1115,7 +1123,7 @@ def validate(root: Path, spec: Path = DEFAULT_SPEC) -> Report:
             if doc.kind == kind:
                 check(doc, idx, rep)
     check_data_files(idx, rep)
-    return rep
+    return rep, idx
 
 
 def main(argv: list[str] | None = None) -> int:

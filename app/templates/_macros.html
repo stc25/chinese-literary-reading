@@ -1,0 +1,54 @@
+{% macro status_badge(page) -%}
+  {%- if not page.reviewed -%}
+  <span class="badge badge-draft" title="This page has not yet been reviewed">Draft</span>
+  {%- endif -%}
+{%- endmacro %}
+
+{% macro draft_notice(page) -%}
+  {%- if not page.reviewed -%}
+  <p class="notice notice-draft">Draft: this page has not yet been reviewed and may contain errors.</p>
+  {%- endif -%}
+{%- endmacro %}
+
+{% macro breadcrumbs(items) -%}
+<nav class="breadcrumbs" aria-label="Breadcrumb">
+  <ol>
+    {%- for label, href in items %}
+    <li>{% if href %}<a href="{{ href }}">{{ label }}</a>{% else %}<span aria-current="page">{{ label }}</span>{% endif %}</li>
+    {%- endfor %}
+  </ol>
+</nav>
+{%- endmacro %}
+
+{% macro exercises(items, page, heading_level=3) -%}
+<ol class="exercises">
+  {%- for ex in items %}
+  <li class="exercise" id="ex-{{ ex.number }}" data-type="{{ ex.type }}">
+    <h{{ heading_level }} class="exercise-heading">Exercise {{ ex.number }} <span class="exercise-type">{{ ex.type | replace('-', ' ') }}</span></h{{ heading_level }}>
+    <div class="exercise-prompt">{{ md(ex.prompt, page) }}</div>
+    {%- if ex.type == 'choice' %}
+    <ul class="choice-options">
+      {%- for correct, text in ex.options %}
+      <li>{{ md_inline(text, page) }}</li>
+      {%- endfor %}
+    </ul>
+    {%- endif %}
+    {%- if ex.type == 'punctuate' %}
+    <p class="zh exercise-text" lang="zh-Hant">{{ ex.text }}</p>
+    {%- endif %}
+    <details class="answer">
+      <summary>Show answer</summary>
+      {%- if ex.type == 'choice' %}
+      <ul>
+        {%- for correct, text in ex.options if correct %}
+        <li>{{ md_inline(text, page) }}</li>
+        {%- endfor %}
+      </ul>
+      {%- endif %}
+      {%- if ex.answer %}<div class="{{ 'zh' if ex.type == 'punctuate' }}" {% if ex.type == 'punctuate' %}lang="zh-Hant"{% endif %}>{{ md(ex.answer, page) }}</div>{% endif %}
+      {%- if ex.explanation %}<div class="explanation">{{ md(ex.explanation, page) }}</div>{% endif %}
+    </details>
+  </li>
+  {%- endfor %}
+</ol>
+{%- endmacro %}
