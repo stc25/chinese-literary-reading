@@ -112,7 +112,7 @@ Grammar ids in `code` become files in `content/grammar/`.
 ### U10 Questions and rhetoric
 - **Skills**: final particles 乎 歟 耶 哉; question words 何 安 孰 誰 奚 焉;
   rhetorical questions (豈…哉, 不亦…乎); exclamation.
-- **Grammar**: `question-particles`, `question-words`, `rhetorical-questions`
+- **Grammar**: `question-particles`, `question-words`, `rhetorical-questions`, `qi-modal` (added after the U05 pilot)
 - **Genres**: essay
 - **Candidate sources**: 梁啟超〈新民說〉(1902–06); 譚嗣同《仁學》(c. 1897), short excerpts.
 

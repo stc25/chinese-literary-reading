@@ -4,6 +4,7 @@ title: 也 after a topic
 forms: [也, 也者]
 level: beginner
 status: reviewed
+reviewed_by: CZ
 ---
 
 ## Summary
@@ -30,7 +31,7 @@ phrase with 之: 日本人之稱我中國也 "as for the Japanese speaking of ou
 
 **Reading tip.** In unpunctuated text, a 也 that is followed by more of the same sentence
 usually marks the end of a topic. Put a comma after it. A 也 that ends a sentence takes a
-full stop. Unit 11 returns to this.
+full stop. See [Dividing unpunctuated text (句讀)](judou.md).
 
 ## Examples
 

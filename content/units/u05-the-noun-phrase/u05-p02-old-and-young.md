@@ -11,11 +11,13 @@ source:
   work: 少年中國說
   edition: Wikisource transcription (zh.wikisource.org, 少年中國說)
   location: paragraph 2, second half
+  punctuation: edition
 rights: public-domain
 rights_note: Author died 1929.
 grammar: [zhi-attributive, zhi-nominaliser]
 default_view: modern
 status: reviewed
+reviewed_by: CZ
 ---
 
 ## Introduction
@@ -146,7 +148,7 @@ Which of Liang's images use foreign things? Name at least three.
 
 **Answer:** 潑蘭地酒 (brandy), 埃及沙漠之金字塔 (the pyramids of Egypt), 西伯利亞之鐵路 (the Siberian railway), 死海 (the Dead Sea).
 
-**Explanation:** Mixing traditional and foreign images was typical of Liang's new essay style. Unit 16 returns to it.
+**Explanation:** Mixing traditional and foreign images was typical of Liang's new essay style. See [The press and the new vocabulary](../u16-the-press-and-new-vocabulary/unit.md).
 
 ### 4. punctuate
 

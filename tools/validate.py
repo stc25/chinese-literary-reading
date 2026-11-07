@@ -64,6 +64,11 @@ FIELDS = {
 LIST_FIELDS = {"prerequisites", "grammar", "genres", "forms", "data"}
 EMPTY_LIST_OK = {"prerequisites", "grammar", "genres", "forms", "data"}
 SOURCE_FIELDS = ["work", "edition", "location"]
+SOURCE_OPTIONAL = ["punctuation"]
+# optional frontmatter fields, allowed in every file type except the course
+OPTIONAL_FIELDS = ["reviewed_by", "expert_reviewed_by"]
+REVIEWED = {"reviewed", "expert-reviewed"}
+EXTRA_CONTROLLED = {"punctuation", "gloss_label"}  # lists in the spec not tied to a top-level field
 # frontmatter field -> controlled-values list in spec section 2
 CONTROLLED = {
     "level": "level",
@@ -120,7 +125,7 @@ def load_controlled(spec: Path) -> dict[str, set[str]]:
         row = re.match(r"^\|\s*`([a-z_]+)`\s*\|(.*)\|\s*$", line)
         if row:
             values[row.group(1)] = set(re.findall(r"`([^`]+)`", row.group(2)))
-    missing = set(CONTROLLED.values()) - values.keys()
+    missing = (set(CONTROLLED.values()) | EXTRA_CONTROLLED) - values.keys()
     if missing:
         sys.exit(f"Controlled values missing from spec: {', '.join(sorted(missing))}")
     return values
@@ -342,11 +347,16 @@ def parse_table(doc: Doc, sec: Section, header: list[str], rep: Report) -> list[
 
 def check_meta(doc: Doc, rep: Report, controlled: dict[str, set[str]]) -> None:
     fields = FIELDS[doc.kind]
+    optional = OPTIONAL_FIELDS if doc.kind != "course" else []
     for f in fields:
         if f not in doc.meta:
             rep.error(doc.path, 1, f"missing frontmatter field `{f}`")
     for k in doc.meta:
-        if k not in fields:
+        if k in optional:
+            v = doc.meta[k]
+            if not isinstance(v, str) or not v.strip():
+                rep.error(doc.path, doc.line_of(k), f"`{k}` must be the reviewer's initials, e.g. {k}: AB")
+        elif k not in fields:
             rep.warn(doc.path, doc.line_of(k), f"unknown frontmatter field `{k}`")
 
     for k in fields:
@@ -370,8 +380,11 @@ def check_meta(doc: Doc, rep: Report, controlled: dict[str, set[str]]) -> None:
                 if not isinstance(v.get(sf), str) or not v[sf].strip():
                     rep.error(doc.path, line, f"`source.{sf}` is missing or empty")
             for sf in v:
-                if sf not in SOURCE_FIELDS:
+                if sf not in SOURCE_FIELDS + SOURCE_OPTIONAL:
                     rep.warn(doc.path, line, f"unknown field `source.{sf}`")
+            if "punctuation" in v and v["punctuation"] not in controlled["punctuation"]:
+                rep.error(doc.path, line, f"`source.punctuation`: '{v['punctuation']}' is not allowed; "
+                          f"use one of: {', '.join(sorted(controlled['punctuation']))}")
             values = []
         elif k == "version":
             if not isinstance(v, (str, int, float)):
@@ -436,7 +449,11 @@ def check_sections(doc: Doc, rep: Report) -> None:
         last = max(last, idx)
         doc.sections[sec.name] = sec
     if doc.planned:
-        return  # placeholders may have missing or empty sections
+        # placeholders may have missing or empty sections, except the Summary
+        # of grammar and toolkit files, which the app shows when they are linked
+        if doc.kind in ("grammar", "toolkit") and not doc.filled("Summary"):
+            rep.error(doc.path, 1, "planned grammar and toolkit files still need a ## Summary")
+        return
     for name, required in spec:
         sec = doc.sections.get(name)
         if sec is None:
@@ -485,6 +502,7 @@ class Index:
     units: dict[str, Doc] = field(default_factory=dict)
     passages: dict[str, Doc] = field(default_factory=dict)
     grammar: dict[str, Doc] = field(default_factory=dict)
+    controlled: dict[str, set[str]] = field(default_factory=dict)
     toolkit: dict[str, Doc] = field(default_factory=dict)
     data_files: list[Path] = field(default_factory=list)
     by_path: dict[Path, Doc] = field(default_factory=dict)
@@ -822,6 +840,9 @@ def check_glosses(doc: Doc, sec: Section, idx: Index, rep: Report) -> None:
         check_pinyin(doc, n, pinyin, base, rep)
         if not gloss:
             rep.error(doc.path, n, f"no gloss for “{base}”")
+        label = re.match(r"^\*([^*]+)\*", gloss)
+        if label and label.group(1) not in idx.controlled.get("gloss_label", ()):
+            rep.warn(doc.path, n, f"gloss label *{label.group(1)}* is not in the spec's gloss_label list")
         if gram and gram not in idx.grammar and gram not in idx.toolkit:
             rep.error(doc.path, n, f"unknown grammar or toolkit id '{gram}'")
 
@@ -1055,7 +1076,7 @@ def validate(root: Path, spec: Path = DEFAULT_SPEC) -> Report:
     if not root.is_dir():
         rep.error(root, None, "content folder not found")
         return rep
-    idx = Index(root)
+    idx = Index(root, controlled=controlled)
     docs: list[Doc] = []
     for path, kind in discover(root, rep, idx):
         doc = parse_doc(path, kind, rep)
@@ -1067,8 +1088,13 @@ def validate(root: Path, spec: Path = DEFAULT_SPEC) -> Report:
         register(doc, idx, rep)
         docs.append(doc)
         rep.kinds[kind] += 1
-        if isinstance(doc.meta.get("status"), str):
-            rep.status[doc.meta["status"]] += 1
+        status = doc.meta.get("status")
+        if isinstance(status, str):
+            rep.status[status] += 1
+            if status in REVIEWED:
+                for path, line, _ in rep.reviews:
+                    if path == doc.path:
+                        rep.error(path, line, f"file has status '{status}' but still contains a REVIEW comment")
 
     # Passages before grammar: grammar examples are checked against passage text.
     for kind, check in (("course", check_course), ("unit", check_unit),

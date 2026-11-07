@@ -59,12 +59,21 @@ content/
 | `genre` | `official`, `newspaper`, `essay`, `letter`, `scholarly`, `legal`, `diplomatic`, `literary`, `textbook`, `other` |
 | `rights` | `public-domain`, `fair-dealing` |
 | `default_view` | `modern`, `unpunctuated`, `vertical`, `vertical-unpunctuated` |
+| `punctuation` | `original`, `edition`, `course` |
+| `gloss_label` | `n.`, `v.`, `adj.`, `adv.`, `pron.`, `part.`, `prep.`, `conj.`, `interj.`, `num.`, `mw.` |
 
 New values may be added to this table. The validator reads its lists from here.
 
 **`planned`** marks a placeholder created from the curriculum outline. In a planned
 file the validator checks the frontmatter and the section names, but required
-sections may be missing or empty. The app lists planned units and pages as "in preparation".
+sections may be missing or empty. The one exception: planned grammar and toolkit
+files must still have a `## Summary`, because the app shows it whenever another page links to them.
+The app lists planned units and pages as "in preparation".
+
+**Review tracking.** Every file except `course.md` may have two optional frontmatter fields,
+`reviewed_by` and `expert_reviewed_by`, holding the reviewers' initials (e.g. `reviewed_by: AB`).
+A file with status `reviewed` or `expert-reviewed` must not contain any
+`<!-- REVIEW … -->` comments: resolve or remove them before changing the status.
 
 ---
 
@@ -131,6 +140,7 @@ source:
   work: 少年中國說
   edition: 飲冰室合集                  # edition the text was taken from
   location: opening sentence        # page, juan, section, etc.
+  punctuation: edition              # optional: who punctuated ## Text (see 5.1)
 rights: public-domain
 rights_note: Author died 1929.
 grammar: [zhi-nominaliser, ye-topic]   # grammar points this passage practises
@@ -159,6 +169,14 @@ status: draft
   - 《》 for book titles, 〈〉 for article or chapter titles; 「」 for quotations, 『』 nested.
 - Keep the character forms of the source edition (e.g. 爲, 眞, 衞), and do not normalise them to 為, 真, 衛.
   Note the common equivalent in the gloss where it would help.
+- Apart from punctuation, reproduce the source edition **exactly**. Mark any omission
+  inside the passage with …… and mention it in the Introduction or Notes.
+- `source.punctuation` records who punctuated the text: `original` (the source's own
+  punctuation, modernised), `edition` (punctuation added by the modern edition or
+  transcription used), or `course` (added by us). Researchers need to know whether a
+  sentence division is the author's or an editor's.
+- When a unit uses several excerpts from one work, number them in `title_zh`:
+  少年中國說（節選一）, 少年中國說（節選二）. A single excerpt is （節選）.
 - Paragraphs are separated by a blank line. Line breaks inside a paragraph are ignored.
 - No Markdown formatting inside the text (no bold, links or notes).
 - The app produces the **unpunctuated** view by removing punctuation and the
@@ -192,6 +210,9 @@ The glosses are a single Markdown table with these four columns, in this order:
 - `#n` (e.g. `之 #2`) limits it to the nth occurrence, counting from 1 through the whole
   text. Several occurrences can be listed: `之 #1 #3`. Use this when one character
   has different functions in the same passage. Each occurrence then has its own row.
+- **Counting includes occurrences inside longer words.** If 老年人 appears nine times
+  and 老年 once more on its own, the lone 老年 is `老年 #10`, not `老年 #1`. To list the
+  numbered occurrences of a term, run `python3 tools/occurrences.py FILE TERM`.
 - `A … B` glosses a split construction (e.g. 非…不, 既…又). The app highlights both
   parts. B is matched to the nearest occurrence after A.
 - Terms may overlap (e.g. `帝國` and `老大帝國`). When a character is tapped, the app
@@ -208,7 +229,8 @@ The glosses are a single Markdown table with these four columns, in this order:
 **Gloss**
 
 - A short English meaning *in this context*. Separate alternatives with `;`.
-- It may start with a brief grammatical label in italics: `*part.* final particle`.
+- It may start with one grammatical label in italics, taken from the `gloss_label` list
+  in section 2: `*part.* final particle`, `*pron.* it, this`. Labels are defined in toolkit page T7.
 
 **Grammar**
 
@@ -335,6 +357,10 @@ meanings gets one row per distinct gloss.
 - **Names**: pinyin followed by characters at first mention in each file, e.g. Liang Qichao 梁啟超. If a period
   romanisation is well known, add it in brackets at first mention: Sun Yat-sen (Sun Zhongshan 孫中山).
 - **Dates**: reign or Republican year first, Western year in brackets: 光緒二十六年 (1900), 民國八年 (1919).
+  Early dates use BCE/CE and "c." for traditional or approximate dates: Shang (c. 1600–1046 BCE).
+- **Pinyin of proper names** is capitalised: Rèngōng, Xībólìyà.
+- **Cross-references**: refer to other material with a link to the grammar file or
+  unit, not by number ("see [也 after a topic](…)", not "see unit 5"), because unit order may change.
 - **Chinese in English prose**: characters, with pinyin in italics where helpful: 之 *zhī*.
 - **Terminology**: use a small, consistent set of grammatical terms. Every term is
   defined in toolkit page T7 (Grammatical terms).

@@ -11,11 +11,13 @@ source:
   work: 少年中國說
   edition: Wikisource transcription (zh.wikisource.org, 少年中國說)
   location: paragraph 1
+  punctuation: edition
 rights: public-domain
 rights_note: Author died 1929.
 grammar: [zhi-nominaliser, zhi-attributive, ye-topic]
 default_view: modern
 status: reviewed
+reviewed_by: CZ
 ---
 
 ## Introduction
@@ -54,7 +56,7 @@ Liang heard in Japan. Liang refers to himself here by his style name, 任公 Ren
 | 言 | yán | words, speech; talk | |
 | 也 #3 | yě | *part.* ends a statement | ye-final |
 | 嗚呼 | wūhū | alas! | |
-| 其 | qí | *part.* here expresses doubt: "can it really be that…?" | |
+| 其 | qí | *part.* here expresses doubt: "can it really be that…?" | qi-modal |
 | 果 | guǒ | really, in fact | |
 | 矣乎 | yǐhū | *part.* 矣 marks a change, 乎 makes a question: "has it become…?" | question-particles |
 | 任公 | Rèngōng | Rengong, Liang Qichao's style name | t03 |
@@ -88,7 +90,7 @@ joining a modifier to it. If it is a verb with its own object (稱我中國), �
 speaking of our China" and 是語也 "as for this expression". The comment follows.
 
 **其 is not always "his, its".** In 我中國其果老大矣乎, 其 is not a pronoun. Placed before
-the verb in a question, it expresses doubt or disbelief: "can it really be that…?" The pronoun 其 is taught in
+the verb in a question, it expresses doubt or disbelief: "can it really be that…?" See [其 expressing doubt](../../grammar/qi-modal.md); the pronoun 其 is taught in
 [其: "his, her, its, their"](../../grammar/qi-pronoun.md).
 
 **有…在** "there is … (right here)". Adding 在 at the end stresses that the young China really exists.

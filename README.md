@@ -37,8 +37,15 @@ Options:
 Messages look like `path:line: error: message`. **Errors** break the spec and must
 be fixed. **Warnings** point to things that are probably wrong but may be intended.
 
-The validator reads the allowed values for `level`, `status`, `genre`, `rights` and
-`default_view` from section 2 of the spec, so a new genre only needs adding there.
+The validator reads the allowed values for `level`, `status`, `genre`, `rights`,
+`default_view`, `source.punctuation` and gloss labels from section 2 of the spec, so a
+new genre or label only needs adding there.
+
+To find the right `#n` for an occurrence-specific gloss, list a term's numbered occurrences:
+
+```bash
+python3 tools/occurrences.py content/units/u05-the-noun-phrase/u05-p02-old-and-young.md 之
+```
 
 Run the validator's own tests with:
 

@@ -3,7 +3,7 @@ id: u10
 title: Questions and rhetoric
 level: beginner
 prerequisites: []
-grammar: [question-particles, question-words, rhetorical-questions]
+grammar: [question-particles, question-words, rhetorical-questions, qi-modal]
 genres: [essay]
 status: planned
 ---
@@ -31,3 +31,4 @@ By the end of this unit you will be able to:
 - [Question particles: 乎, 歟, 耶, 哉](../../grammar/question-particles.md)
 - [Question words: 何, 安, 孰, 誰, 奚, 焉](../../grammar/question-words.md)
 - [Rhetorical questions](../../grammar/rhetorical-questions.md)
+- [其 expressing doubt or urging](../../grammar/qi-modal.md)

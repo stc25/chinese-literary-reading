@@ -4,13 +4,14 @@ title: <English title>
 title_zh: <Chinese title>
 unit: uNN
 level: beginner
-genre: <official | newspaper | essay | letter | scholarly | legal | diplomatic | literary | other>
+genre: <official | newspaper | essay | letter | scholarly | legal | diplomatic | literary | textbook | other>
 author: <Name 姓名 (dates)>
 date: "<year>"
 source:
   work: <work title>
   edition: <edition used>
   location: <page / juan / section>
+  punctuation: <original | edition | course>
 rights: public-domain
 rights_note: <why the text may be used>
 grammar: []

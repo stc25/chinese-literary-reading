@@ -11,11 +11,13 @@ source:
   work: 少年中國說
   edition: Wikisource transcription (zh.wikisource.org, 少年中國說)
   location: paragraph 6
+  punctuation: edition
 rights: public-domain
 rights_note: Author died 1929.
 grammar: [zhi-attributive, ye-topic]
 default_view: modern
 status: reviewed
+reviewed_by: CZ
 ---
 
 ## Introduction
@@ -101,8 +103,9 @@ the first 宋 is the Liu Song dynasty, the second the Song dynasty. The gloss ta
 `#1` and `#2` to tell them apart. The list follows the traditional sequence of
 dynasties but leaves out some periods, such as the Five Dynasties (907–960).
 
-**Grammar from later units.** 所謂…者 (unit 8), 則 and 既 (units 7 and 9) and the final 矣 are
-glossed here and taught later.
+**Grammar from later units.** 所謂…者 ([所 + verb](../../grammar/suo.md)), 則
+([則](../../grammar/ze.md)), 既 ([aspect](../../grammar/aspect-markers.md)) and the final 矣
+([矣](../../grammar/yi-final.md)) are glossed here and taught later.
 
 ## Exercises
 

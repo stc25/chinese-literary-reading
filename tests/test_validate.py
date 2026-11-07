@@ -27,8 +27,8 @@ class ValidFixture(unittest.TestCase):
         self.assertEqual(len(rep.reviews), 1)
 
 
-class BrokenContent(unittest.TestCase):
-    """Each test breaks one thing in a copy of the valid fixture."""
+class FixtureCopy(unittest.TestCase):
+    """Base class: works on a fresh copy of the valid fixture."""
 
     def setUp(self):
         self.tmp = Path(tempfile.mkdtemp())
@@ -53,6 +53,9 @@ class BrokenContent(unittest.TestCase):
         rep = validate.validate(self.root)
         msgs = [i.msg for i in rep.warnings]
         self.assertTrue(any(fragment in m for m in msgs), f"no warning containing {fragment!r}; got {msgs}")
+
+class BrokenContent(FixtureCopy):
+    """Each test breaks one thing in a copy of the valid fixture."""
 
     # frontmatter -----------------------------------------------------------
     def test_missing_frontmatter(self):
@@ -281,6 +284,63 @@ class BrokenContent(unittest.TestCase):
         rep = validate.validate(self.root)
         self.assertEqual(rep.issues, [])
         self.assertEqual(rep.planned_passages, 1)
+
+
+class SpecRefinements(FixtureCopy):
+    """Rules added after the U05 pilot."""
+
+    def test_unknown_gloss_label(self):
+        self.edit(PASSAGE, "*part.* placed between", "*particle* placed between")
+        self.assertWarning("gloss label *particle* is not in")
+
+    def test_known_gloss_label(self):
+        rep = validate.validate(self.root)
+        self.assertFalse(any("gloss label" in i.msg for i in rep.issues))
+
+    def test_source_punctuation_allowed(self):
+        self.edit(PASSAGE, "  location: opening sentence", "  location: opening sentence\n  punctuation: edition")
+        self.assertEqual(validate.validate(self.root).issues, [])
+
+    def test_source_punctuation_bad_value(self):
+        self.edit(PASSAGE, "  location: opening sentence", "  location: opening sentence\n  punctuation: editor")
+        self.assertError("`source.punctuation`: 'editor' is not allowed")
+
+    def test_reviewer_initials_allowed(self):
+        self.edit(PASSAGE, "status: draft", "status: draft\nreviewed_by: AB")
+        self.assertEqual(validate.validate(self.root).issues, [])
+
+    def test_reviewer_initials_not_text(self):
+        self.edit(PASSAGE, "status: draft", "status: draft\nreviewed_by: [AB, CD]")
+        self.assertError("must be the reviewer's initials")
+
+    def test_reviewed_file_with_review_comment(self):
+        self.edit(PASSAGE, "status: draft", "status: reviewed")
+        self.assertError("still contains a REVIEW comment")
+
+    def test_planned_grammar_needs_summary(self):
+        (self.root / "grammar" / "er-conjunction.md").write_text(
+            "---\nid: er-conjunction\ntitle: 而\nforms: [而]\nlevel: beginner\nstatus: planned\n---\n\n"
+            "## Summary\n\n## Explanation\n\n## Examples\n", encoding="utf-8")
+        self.assertError("still need a ## Summary")
+
+
+class Occurrences(unittest.TestCase):
+    def setUp(self):
+        import occurrences
+        self.occ = occurrences.occurrences
+        self.path = FIXTURE / PASSAGE
+
+    def test_lists_occurrences(self):
+        found = self.occ(self.path, "曰")
+        self.assertEqual(len(found), 2)
+        self.assertTrue(found[0].startswith("#1: "))
+        self.assertIn("【曰】", found[1])
+
+    def test_split_term(self):
+        self.assertEqual(len(self.occ(self.path, "一則 … 再則")), 1)
+
+    def test_absent_term(self):
+        self.assertEqual(self.occ(self.path, "王國"), [])
 
 
 class CommandLine(unittest.TestCase):

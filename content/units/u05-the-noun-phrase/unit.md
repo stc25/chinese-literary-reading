@@ -6,6 +6,7 @@ prerequisites: []
 grammar: [zhi-attributive, zhi-nominaliser, ye-topic]
 genres: [essay, newspaper]
 status: reviewed
+reviewed_by: CZ
 ---
 
 ## Introduction
