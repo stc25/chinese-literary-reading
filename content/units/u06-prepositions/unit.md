@@ -4,13 +4,13 @@ title: Prepositions
 level: beginner
 prerequisites: []
 grammar: [yi-preposition, yu-preposition, wei-preposition, yu-with, zi-you-from]
-genres: [official, diplomatic]
-status: planned
+genres: [diplomatic]
+status: draft
 ---
 
 ## Introduction
 
-Official notices and treaty articles rely on a small set of prepositions to say how, where, for whom and from where.
+Treaty articles rely on a small set of prepositions to say how, where, for whom and from where. All three passages come from the Treaty of Nanjing (1842), which ended the First Opium War.
 
 ## Objectives
 
@@ -22,9 +22,9 @@ By the end of this unit you will be able to:
 
 ## Passages
 
-1. An official notice (告示) printed in 申報 (planned)
-2. 南京條約 (1842): a short article (planned)
-3. A second treaty article (planned)
+1. [Peace and five ports](u06-p01-peace-and-five-ports.md)
+2. [Hong Kong](u06-p02-hong-kong.md)
+3. [Opium and silver](u06-p03-opium-and-silver.md)
 
 ## Grammar
 

@@ -87,9 +87,8 @@ Grammar ids in `code` become files in `content/grammar/`.
 - **Skills**: 以 "by means of, with"; 於/于 "at, in, to, than"; 爲 "for"; 與 "with";
   自/由 "from"; 至 "to"; 及 "and, up to".
 - **Grammar**: `yi-preposition`, `yu-preposition`, `wei-preposition`, `yu-with`, `zi-you-from`
-- **Genres**: official, diplomatic
-- **Candidate sources**: official notices (告示) reprinted in 申報; simple articles of
-  the 南京條約 (1842) and other treaties.
+- **Genres**: diplomatic
+- **Sources**: 南京條約 (1842), articles 1–5 and 7 *(no 申報 notices are available as text)*.
 
 ### U07 Time, aspect and modality
 - **Skills**: 已, 既, 嘗, 將, 方; final 矣; modal verbs 可 能 得 足 宜 當 須 必.
