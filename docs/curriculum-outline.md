@@ -183,8 +183,9 @@ Grammar ids in `code` become files in `content/grammar/`.
   rendered Western concepts; argument and refutation.
 - **Grammar/skills**: `philosophical-terms`, `argument-structure`
 - **Genres**: essay, scholarly
-- **Candidate sources**: 嚴復《天演論》(1898), especially 〈譯例言〉 (信、達、雅);
-  康有為《大同書》; 章炳麟's political essays (difficult, selected excerpts).
+- **Sources**: 嚴復《天演論》(1898), 導言一〈察變〉 and 導言十三〈制私〉 with Yan's 復案 (the 〈譯例言〉
+  is already read in U12); 章炳麟〈俱分進化論〉(民報, 1906), opening. *(康有為《大同書》 was a candidate; it
+  could replace or follow the Zhang passage.)*
 
 ### U18 Scholarship and history writing
 - **Skills**: biographical conventions (字, 號, 籍貫, career summaries);

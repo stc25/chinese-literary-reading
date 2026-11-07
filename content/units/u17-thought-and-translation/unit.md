@@ -4,13 +4,13 @@ title: Thought and translation
 level: intermediate
 prerequisites: []
 grammar: [philosophical-terms, argument-structure]
-genres: [essay, scholarly]
-status: planned
+genres: [scholarly, essay]
+status: draft
 ---
 
 ## Introduction
 
-Reformers and translators adapted the vocabulary of Chinese philosophy to new ideas.
+From the 1890s Chinese thinkers argued about Western ideas in the language of Chinese philosophy. In this unit you read two chapters of Yan Fu's 《天演論》 (1898), his free translation of Huxley's *Evolution and Ethics*, and part of Zhang Binglin's essay 〈俱分進化論〉 (1906). Yan builds new terms from old ones (天演, 物競, 天擇, 群) and adds his own comments to argue with his author; Zhang accepts evolution as a fact but denies that it leads to anything good. Together they show how old philosophical terms were reused and how a classical argument is built and refuted.
 
 ## Objectives
 
@@ -22,9 +22,9 @@ By the end of this unit you will be able to:
 
 ## Passages
 
-1. 嚴復《天演論》(1898): 譯例言 (planned)
-2. 嚴復《天演論》: a chapter excerpt (planned)
-3. 康有為《大同書》: an excerpt (planned)
+1. [Struggle and selection](u17-p01-struggle-and-selection.md)
+2. [Self-interest and the group](u17-p02-self-interest-and-the-group.md)
+3. [Good and evil both evolve](u17-p03-good-and-evil-both-evolve.md)
 
 ## Grammar
 
