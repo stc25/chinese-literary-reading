@@ -155,6 +155,14 @@ class BrokenContent(unittest.TestCase):
         self.edit(PASSAGE, "| 稱 | chēng |", "| 稱 | cheng1 |")
         self.assertError("tone numbers")
 
+    def test_pinyin_with_sentence_punctuation(self):
+        self.edit(GRAMMAR, "| Rìběnrén zhī chēng wǒ Zhōngguó yě |", "| Rìběnrén zhī chēng wǒ Zhōngguó yě, ... |")
+        self.assertError("three dots")
+
+    def test_pinyin_comma_allowed(self):
+        self.edit(GRAMMAR, "| Rìběnrén zhī chēng wǒ Zhōngguó yě |", "| Rìběnrén zhī chēng wǒ Zhōngguó yě, yīzé |")
+        self.assertEqual(validate.validate(self.root).errors, [])
+
     def test_duplicate_general_gloss(self):
         self.edit(PASSAGE, "| 稱 | chēng | to call; to refer to as | |",
                   "| 稱 | chēng | to call; to refer to as | |\n| 稱 | chèng | steelyard | |")

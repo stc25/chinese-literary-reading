@@ -89,7 +89,8 @@ TEXT_PUNCT = set("，。、；：？！「」『』《》〈〉（）—…·・
 MARKDOWN_CHARS = set("*_[]`#<>|~\\")
 ASCII_PUNCT = set(",.;:?!\"'()")
 TONE_VOWELS = set("āáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜĀÁǍÀĒÉĚÈĪÍǏÌŌÓǑÒŪÚǓÙ")
-PINYIN_CHARS = re.compile(r"^[A-Za-züÜ" + "".join(sorted(TONE_VOWELS)) + r"' …·\-]+$")
+# letters, tone marks, apostrophe, space, ellipsis, hyphen, and sentence punctuation for longer examples
+PINYIN_CHARS = re.compile(r"^[A-Za-züÜ" + "".join(sorted(TONE_VOWELS)) + r"' …·,;:.?!\-]+$")
 
 GLOSS_HEADER = ["Term", "Pinyin", "Gloss", "Grammar"]
 EXAMPLE_HEADER = ["Chinese", "Pinyin", "Translation", "Source"]

@@ -5,12 +5,12 @@ level: beginner
 prerequisites: []
 grammar: [zhi-attributive, zhi-nominaliser, ye-topic]
 genres: [essay, newspaper]
-status: planned
+status: draft
 ---
 
 ## Introduction
 
-之 is one of the most frequent characters in literary prose. This unit sorts out its main jobs inside the noun phrase.
+之 is one of the most frequent characters in literary prose. This unit sorts out its main jobs inside the noun phrase, through three excerpts from Liang Qichao's essay 〈少年中國說〉 ("On Young China", 1900).
 
 ## Objectives
 
@@ -22,9 +22,9 @@ By the end of this unit you will be able to:
 
 ## Passages
 
-1. 梁啟超〈少年中國說〉(1900): opening (planned)
-2. 梁啟超〈少年中國說〉(1900): a later paragraph (planned)
-3. A short 申報 editorial (planned)
+1. [The "old empire"](u05-p01-old-empire.md)
+2. [The old and the young](u05-p02-old-and-young.md)
+3. [Dynasty and state](u05-p03-dynasty-and-state.md)
 
 ## Grammar
 
