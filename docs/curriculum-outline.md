@@ -209,10 +209,10 @@ Grammar ids in `code` become files in `content/grammar/`.
 - **Skills**: recognising vernacular elements (的, 了, 這, 們, 是 as copula) inside
   literary prose; mixed registers in 1910s–20s writing; the language debates themselves.
 - **Grammar/skills**: `vernacular-elements`, `mixed-register`
-- **Genres**: essay, newspaper
-- **Candidate sources**: 陳獨秀〈文學革命論〉(1917); 胡適〈文學改良芻議〉(1917),
-  which argues for the vernacular but is itself written in literary Chinese; magazine
-  editorials from the 1920s.
+- **Genres**: essay, letter
+- **Sources**: 陳獨秀〈文學革命論〉(新青年, 1917), paragraphs 1 and 3; 林紓〈致蔡鶴卿書〉(公言報, 18 March 1919), on
+  the vernacular; 蔡元培〈答林琴南書〉(1919), on Lin's second point. *(胡適〈文學改良芻議〉 is excluded by the rights
+  rule: Hu Shi died in 1962. A 1920s magazine editorial could be added later.)*
 
 ### Reading assistant (intermediate)
 - **Skills**: a method for tackling an unfamiliar text: segmenting, identifying

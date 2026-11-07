@@ -61,6 +61,7 @@ content/
 | `default_view` | `modern`, `unpunctuated`, `vertical`, `vertical-unpunctuated` |
 | `punctuation` | `original`, `edition`, `course` |
 | `gloss_label` | `n.`, `v.`, `adj.`, `adv.`, `pron.`, `part.`, `prep.`, `conj.`, `interj.`, `num.`, `mw.` |
+| `neutral_tone` | `de`, `le`, `zhe`, `guo`, `ma`, `ne`, `ba`, `a`, `ya`, `me`, `men`, `zi`, `tou` |
 
 New values may be added to this table. The validator reads its lists from here.
 
@@ -224,6 +225,9 @@ The glosses are a single Markdown table with these four columns, in this order:
 - Give the reading **in context**, including classical readings: 說 shuì "to persuade",
   見 xiàn "to appear", 惡 wù "to hate".
 - Separate the parts of split constructions with ` … `.
+- Write neutral-tone syllables without a tone mark (的 de, 了 le, 們 men). A pinyin entry with no tone marks
+  at all is accepted only if every word in it is in the `neutral_tone` list (section 2); otherwise the validator
+  warns.
 - The app hides pinyin by default.
 
 **Gloss**

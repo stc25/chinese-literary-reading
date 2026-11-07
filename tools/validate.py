@@ -68,7 +68,7 @@ SOURCE_OPTIONAL = ["punctuation"]
 # optional frontmatter fields, allowed in every file type except the course
 OPTIONAL_FIELDS = ["reviewed_by", "expert_reviewed_by"]
 REVIEWED = {"reviewed", "expert-reviewed"}
-EXTRA_CONTROLLED = {"punctuation", "gloss_label"}  # lists in the spec not tied to a top-level field
+EXTRA_CONTROLLED = {"punctuation", "gloss_label", "neutral_tone"}  # lists in the spec not tied to a top-level field
 # frontmatter field -> controlled-values list in spec section 2
 CONTROLLED = {
     "level": "level",
@@ -794,7 +794,14 @@ def find_term(text: str, parts: list[str]) -> list[int]:
     return positions
 
 
-def check_pinyin(doc: Doc, n: int, pinyin: str, term: str, rep: Report) -> None:
+def is_neutral_tone(pinyin: str, neutral: set[str] | frozenset[str]) -> bool:
+    """True if every word of a toneless pinyin string is a neutral-tone syllable from the spec."""
+    words = re.findall(r"[A-Za-züÜ]+", pinyin)
+    return bool(words) and all(w.lower() in neutral for w in words)
+
+
+def check_pinyin(doc: Doc, n: int, pinyin: str, term: str, rep: Report,
+                 neutral: set[str] | frozenset[str] = frozenset()) -> None:
     if not pinyin:
         rep.error(doc.path, n, f"no pinyin for “{term}”")
         return
@@ -805,7 +812,7 @@ def check_pinyin(doc: Doc, n: int, pinyin: str, term: str, rep: Report) -> None:
         rep.error(doc.path, n, f"pinyin “{pinyin}” uses tone numbers; use tone marks (ā á ǎ à)")
     elif not PINYIN_CHARS.match(pinyin):
         rep.error(doc.path, n, f"pinyin “{pinyin}” contains unexpected characters")
-    elif not TONE_VOWELS & set(pinyin):
+    elif not TONE_VOWELS & set(pinyin) and not is_neutral_tone(pinyin, neutral):
         rep.warn(doc.path, n, f"pinyin “{pinyin}” has no tone marks; check it")
     if pinyin.count("…") != term.count("…"):
         rep.error(doc.path, n, f"pinyin “{pinyin}” and term “{term}” must have the same number of … parts")
@@ -841,7 +848,7 @@ def check_glosses(doc: Doc, sec: Section, idx: Index, rep: Report) -> None:
         if len(occ) != len(set(occ)):
             rep.error(doc.path, n, f"“{term}” lists the same occurrence twice")
         claims[base].append((n, occ))
-        check_pinyin(doc, n, pinyin, base, rep)
+        check_pinyin(doc, n, pinyin, base, rep, idx.controlled.get("neutral_tone", frozenset()))
         if not gloss:
             rep.error(doc.path, n, f"no gloss for “{base}”")
         label = re.match(r"^\*([^*]+)\*", gloss)
@@ -1008,7 +1015,7 @@ def check_grammar(doc: Doc, idx: Index, rep: Report) -> None:
         if not zh:
             rep.error(doc.path, n, "example has no Chinese")
             continue
-        check_pinyin(doc, n, pinyin, zh, rep)
+        check_pinyin(doc, n, pinyin, zh, rep, idx.controlled.get("neutral_tone", frozenset()))
         if not tr:
             rep.error(doc.path, n, "example has no translation")
         if not src:

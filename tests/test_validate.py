@@ -162,6 +162,19 @@ class BrokenContent(FixtureCopy):
         self.edit(PASSAGE, "| 稱 | chēng |", "| 稱 | cheng1 |")
         self.assertError("tone numbers")
 
+    def test_toneless_pinyin_warns(self):
+        self.edit(PASSAGE, "| 稱 | chēng |", "| 稱 | cheng |")
+        self.assertWarning("has no tone marks")
+
+    def test_neutral_tone_particle_allowed(self):
+        self.edit(PASSAGE, "| 稱 | chēng |", "| 稱 | de |")
+        msgs = [i.msg for i in validate.validate(self.root).warnings]
+        self.assertFalse(any("has no tone marks" in m for m in msgs), msgs)
+
+    def test_neutral_tone_needs_every_word_listed(self):
+        self.edit(PASSAGE, "| 稱 | chēng |", "| 稱 | de cheng |")
+        self.assertWarning("has no tone marks")
+
     def test_pinyin_with_sentence_punctuation(self):
         self.edit(GRAMMAR, "| Rìběnrén zhī chēng wǒ Zhōngguó yě |", "| Rìběnrén zhī chēng wǒ Zhōngguó yě, ... |")
         self.assertError("three dots")
