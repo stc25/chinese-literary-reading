@@ -1,0 +1,10 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Obsidian: per-user window state (other settings are shared)
+.obsidian/workspace*.json
