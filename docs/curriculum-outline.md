@@ -173,9 +173,10 @@ Grammar ids in `code` become files in `content/grammar/`.
 - **Skills**: new terms, many borrowed from Japanese (經濟, 社會, 革命, 自由, 權利);
   transliteration of foreign names and places; the essay style of the reform-era periodicals (新民體).
 - **Grammar/skills**: `neologisms`, `transliteration`
-- **Genres**: newspaper, essay
-- **Candidate sources**: 新民叢報 (1902–07), 東方雜誌 (from 1904); envoys' diaries such as
-  薛福成《出使英法義比四國日記》(1890s), which are rich in transliterations.
+- **Genres**: essay, diary
+- **Sources**: 梁啟超《新史學》(新民叢報, 1902), opening of 中國之舊史; 王國維《論新學語之輸入》(1905);
+  薛福成《出使英法義比四國日記》, entries for 光緒十六年五月初二日 and 六月初四日. *(A 東方雜誌 article has not yet
+  been found as text by an author who died in 1956 or earlier; one could be added later.)*
 
 ### U17 Thought and translation
 - **Skills**: philosophical vocabulary (性, 理, 氣, 道, 群, 公/私); how translators
