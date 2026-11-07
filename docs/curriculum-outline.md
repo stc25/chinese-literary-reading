@@ -137,8 +137,9 @@ Grammar ids in `code` become files in `content/grammar/`.
   allusion (典故) and quotation of the Classics; how to trace an allusion.
 - **Grammar/skills**: `parallelism`, `allusion`, `four-character-phrases`
 - **Genres**: essay, literary
-- **Candidate sources**: prefaces (序) and memorial addresses (祭文); 林紓's
-  translation prefaces; 王國維《人間詞話》(1908), selected entries.
+- **Sources**: 嚴復《天演論·譯例言》(1898), items 1 and 3; 林紓《黑奴籲天錄·序》(1901);
+  王國維《人間詞話》(1908), entries 1, 26 and 17 (unpublished). *(No 祭文 used: a parallel-prose
+  祭文 could be added as an optional extra passage.)*
 
 ### U13 The Qing state: memorials and edicts
 - **Skills**: the structure of a memorial (奏爲…事、竊…、伏乞…、謹奏) and of an edict
