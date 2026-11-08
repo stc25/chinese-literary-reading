@@ -122,6 +122,7 @@ Each phase ends with something you can review.
 - Renders the Markdown content: course map, passage reader with glosses,
   pinyin toggle, punctuation and vertical-text toggles, grammar links, exercises.
 - Reading-assistant unit: Flask calls the Ollama model server-side, so the API key stays off the browser.
+  Planned in [docs/assistant-plan.md](docs/assistant-plan.md).
 - Should start by roughly **February 2027** to leave time for piloting.
 
 ### Phase 5 — Testing and evaluation

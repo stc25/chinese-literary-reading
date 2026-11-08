@@ -91,7 +91,7 @@ served from the app (no third-party font or script requests).
 | M4 ✓ | Exercises and progress | interactive exercises; progress and preferences in `localStorage` |
 | M5 ✓ | Sign-in and reviewer mode | OIDC sign-in, development bypass, reviewer view of REVIEW notes, draft labels and release setting |
 | M6 ✓ | Accessibility and deployment | WCAG 2.2 AA check, device testing, Gunicorn/nginx and Docker setup, deployment guide |
-| — | Reading assistant (second stage) | specified separately; Flask calls Ollama server-side |
+| — | Reading assistant (second stage) | planned in [assistant-plan.md](assistant-plan.md), milestones A1–A5 |
 
 ## Open points
 
@@ -99,4 +99,4 @@ served from the app (no third-party font or script requests).
   application) by someone with authority in the Language Centre. Until then, sign-in is bypassed
   locally.
 - **Server details**: OS, web server, Python version and who maintains it.
-- **Reading assistant**: specification, model choice, and usage limits.
+- **Reading assistant**: planned in [assistant-plan.md](assistant-plan.md); Ollama cloud account, terms and budget still open.

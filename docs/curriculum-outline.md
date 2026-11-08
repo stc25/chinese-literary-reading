@@ -218,8 +218,9 @@ Grammar ids in `code` become files in `content/grammar/`.
 - **Skills**: a method for tackling an unfamiliar text: segmenting, identifying
   function words, finding terms and allusions, checking against reference works; using
   the AI assistant critically (what it is good at, how it fails).
-- **Content**: guided walkthroughs with 2–3 passages, then the learner's own text in the assistant.
-- To be specified in detail later (`content/assistant/`).
+- **Content**: the learner's own text in the assistant, with a help page, *Using the assistant
+  critically*, instead of guided walkthroughs (decided 2026-11-08).
+- Specified in [assistant-plan.md](assistant-plan.md).
 
 ---
 
