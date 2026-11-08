@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block title %}Signed out · {{ course.title }}{% endblock %}
+{% block content %}
+<h1>You have signed out</h1>
+<p>You have signed out of the course. Your University account may still be signed in to other services; close the
+  browser to end that session.</p>
+<p><a href="{{ url_for('auth.login') }}">Sign in again</a></p>
+{% endblock %}

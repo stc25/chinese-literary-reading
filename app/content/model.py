@@ -11,7 +11,9 @@ REVIEWED = {"reviewed", "expert-reviewed"}
 class Review:
     """A <!-- REVIEW(...): ... --> comment (shown only in reviewer mode)."""
     line: int
-    body: str
+    body: str                       # the comment text, without "REVIEW(...):"
+    author: str = ""                # the initials or name in REVIEW(...)
+    section: str | None = None      # the ## section it is in; None if before the first section
 
 
 @dataclass

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "_macros.html" import status_badge, draft_notice, breadcrumbs with context %}
+{% from "_macros.html" import status_badge, draft_notice, review_notes, breadcrumbs with context %}
 {% block title %}{{ gr.title }} · Grammar · {{ course.title }}{% endblock %}
 {% block breadcrumbs %}{{ breadcrumbs([('Course', url_for('pages.course_map')), ('Grammar', url_for('pages.grammar_index')), (gr.title, None)]) }}{% endblock %}
 {% block content %}
@@ -7,12 +7,14 @@
 <h1>{{ gr.title }} {{ status_badge(gr) }}</h1>
 {% if gr.meta.get('forms') %}<p class="forms zh" lang="zh-Hant">{{ gr.meta['forms'] | join('　') }}</p>{% endif %}
 {{ draft_notice(gr) }}
+{{ review_notes(gr, [None, 'Summary']) }}
 
 <div class="prose lead">{{ md(gr.summary, gr) }}</div>
 
 {% if gr.sections.get('Explanation') %}
 <section aria-labelledby="expl-h">
   <h2 id="expl-h">Explanation</h2>
+    {{ review_notes(gr, ['Explanation']) }}
   <div class="prose">{{ md(gr.sections['Explanation'], gr) }}</div>
 </section>
 {% endif %}
@@ -20,6 +22,7 @@
 {% if gr.examples %}
 <section aria-labelledby="exm-h">
   <h2 id="exm-h">Examples</h2>
+    {{ review_notes(gr, ['Examples']) }}
   <ul class="examples">
     {% for zh, pinyin, tr, src in gr.examples %}
     <li>
@@ -36,6 +39,7 @@
 {% if gr.sections.get('See also') %}
 <section aria-labelledby="see-h">
   <h2 id="see-h">See also</h2>
+    {{ review_notes(gr, ['See also']) }}
   <div class="prose">{{ md(gr.sections['See also'], gr) }}</div>
 </section>
 {% endif %}

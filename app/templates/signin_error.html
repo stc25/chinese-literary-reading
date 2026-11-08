@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block title %}Sign-in problem · {{ course.title }}{% endblock %}
+{% block content %}
+<h1>Sign-in problem</h1>
+<p>{{ reason }}</p>
+<p><a href="{{ url_for('auth.login') }}">Try signing in again</a></p>
+{% endblock %}

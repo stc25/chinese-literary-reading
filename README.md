@@ -27,6 +27,31 @@ Then open <http://localhost:5050/>. In debug mode the app reloads the content wh
 `content/` changes. The app will not start if the validator reports errors. See
 [docs/app-plan.md](docs/app-plan.md) for the plan.
 
+### Settings
+
+Settings are read from environment variables starting with `MLC_` (lists are written as JSON):
+
+| Setting | Meaning |
+|---|---|
+| `MLC_AUTH_MODE` | `oidc` (Cambridge sign-in required) or `none` (no sign-in, for development). Default: `none` with `--debug`, otherwise `oidc` |
+| `MLC_OIDC_METADATA_URL` | The sign-in provider's discovery URL, e.g. `https://login.microsoftonline.com/<tenant-id>/v2.0/.well-known/openid-configuration` |
+| `MLC_OIDC_CLIENT_ID`, `MLC_OIDC_CLIENT_SECRET` | From the app's registration with University Information Services |
+| `MLC_SECRET_KEY` | A long random string that signs the session cookie (required with `oidc`) |
+| `MLC_ALLOWED_DOMAINS` | Accounts allowed to sign in; default `["cam.ac.uk"]` |
+| `MLC_REVIEWERS` | CRSids allowed to switch on reviewer notes, e.g. `["cz201"]` |
+| `MLC_DEV_USER` | With `none`, the user to act as, e.g. `cz201` to try reviewer mode |
+| `MLC_SHOW_UNREVIEWED` | `false` at release: hide pages not yet reviewed (reviewers still see them) |
+| `MLC_TRUST_PROXY` | Number of reverse proxies in front of the app, e.g. `1` behind nginx |
+
+The sign-in callback URL to register is `https://<host>/auth/callback`. Nothing about users is stored
+on the server: the signed-in user's id and name are kept in the session cookie.
+
+To try reviewer mode locally:
+
+```bash
+MLC_DEV_USER=cz201 MLC_REVIEWERS='["cz201"]' flask --app app run --debug --port 5050
+```
+
 The glossary (`content/glossary.md`) is generated from the passage gloss tables. After changing
 glosses, regenerate it (a test fails if it is out of date):
 

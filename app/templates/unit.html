@@ -1,21 +1,24 @@
 {% extends "base.html" %}
-{% from "_macros.html" import status_badge, draft_notice, breadcrumbs with context %}
+{% from "_macros.html" import status_badge, draft_notice, review_notes, breadcrumbs with context %}
 {% block title %}Unit {{ unit.number }}: {{ unit.title }} · {{ course.title }}{% endblock %}
 {% block breadcrumbs %}{{ breadcrumbs([('Course', url_for('pages.course_map')), ('Unit ' ~ unit.number, None)]) }}{% endblock %}
 {% block content %}
 <p class="eyebrow">Unit {{ unit.number }} · {{ unit.level | capitalize }}</p>
 <h1>{{ unit.title }} {{ status_badge(unit) }}</h1>
 {{ draft_notice(unit) }}
+{{ review_notes(unit, [None, 'Introduction']) }}
 
 <div class="prose">{{ md(unit.sections.get('Introduction', ''), unit) }}</div>
 
 <section aria-labelledby="obj-h">
   <h2 id="obj-h">Objectives</h2>
+    {{ review_notes(unit, ['Objectives']) }}
   <div class="prose">{{ md(unit.sections.get('Objectives', ''), unit) }}</div>
 </section>
 
 <section aria-labelledby="pass-h">
   <h2 id="pass-h">Passages</h2>
+    {{ review_notes(unit, ['Passages']) }}
   <ol class="passage-list">
     {% for p in passages %}
     <li class="passage-card" data-passage="{{ p.id }}" data-exercises="{{ p.exercises | length }}">
@@ -35,6 +38,7 @@
 
 <section aria-labelledby="gram-h">
   <h2 id="gram-h">Grammar</h2>
+    {{ review_notes(unit, ['Grammar']) }}
   <ul class="grammar-list">
     {% for gid in unit.grammar_ids %}{% set gr = course.grammar[gid] %}
     <li><a href="{{ url_for('pages.grammar', gid=gid) }}">{{ gr.title }}</a>

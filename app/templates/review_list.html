@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% from "_macros.html" import breadcrumbs, status_badge with context %}
+{% block title %}Review notes · {{ course.title }}{% endblock %}
+{% block breadcrumbs %}{{ breadcrumbs([('Course', url_for('pages.course_map')), ('Review notes', None)]) }}{% endblock %}
+{% block content %}
+<h1>Review notes</h1>
+<p class="prose">{{ total }} open REVIEW {{ 'comment' if total == 1 else 'comments' }} in {{ pages | length }} files. These are
+  visible only to reviewers. To resolve one, edit the Markdown file and remove the comment.</p>
+
+{% for pg, url, rel in pages %}
+<section aria-labelledby="rv-{{ loop.index }}">
+  <h2 id="rv-{{ loop.index }}"><a href="{{ url }}">{{ pg.title }}</a> {{ status_badge(pg) }}</h2>
+  <p class="muted"><code>content/{{ rel }}</code></p>
+  {% for r in pg.reviews %}
+  <aside class="review-note" role="note">
+    <span class="review-where">{% if r.author %}{{ r.author }} · {% endif %}{{ r.section or 'top of file' }} · line {{ r.line }}</span>
+    {{ r.body }}
+  </aside>
+  {% endfor %}
+</section>
+{% endfor %}
+
+{% if warnings %}
+<section aria-labelledby="warn-h">
+  <h2 id="warn-h">Validator warnings</h2>
+  <ul>{% for w in warnings %}<li><code>{{ w }}</code></li>{% endfor %}</ul>
+</section>
+{% endif %}
+{% endblock %}

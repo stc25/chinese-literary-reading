@@ -5,6 +5,7 @@ import re
 
 from flask import Blueprint, abort, current_app, g, jsonify, render_template, request, url_for
 
+from .auth import current_user, reviewer_mode, reviewer_required
 from .content.glossary import build as build_glossary
 from .content.glossary import initial as glossary_initial
 from .content.glossary import plain_pinyin
@@ -17,7 +18,10 @@ bp = Blueprint("pages", __name__)
 
 
 def visible(page) -> bool:
-    return current_app.config["SHOW_UNREVIEWED"] or page.reviewed
+    if current_app.config["SHOW_UNREVIEWED"] or page.reviewed:
+        return True
+    user = current_user()
+    return bool(user and user.get("reviewer"))
 
 
 def get_or_404(mapping: dict, key: str):
@@ -219,6 +223,26 @@ def glossary():
         groups.setdefault(glossary_initial(e), []).append(e)
     return render_template("glossary.html", groups=groups, q=q, count=len(entries),
                            plain_pinyin=plain_pinyin, strip_html=strip_html)
+
+
+def page_url(page) -> str:
+    return g.course.urls.get(page.path.resolve(), "/")
+
+
+@bp.route("/review")
+@reviewer_required
+def review_list():
+    """Every REVIEW comment in the course, for reviewers."""
+    course = g.course
+    groups = []
+    ordered = [course.units[u] for u in course.unit_order()]
+    for u in ordered:
+        groups.append(u)
+        groups.extend(course.passages[p] for p in u.passage_ids)
+    groups += sorted(course.grammar.values(), key=lambda x: x.id) + sorted(course.toolkit.values(), key=lambda x: x.id)
+    pages = [(pg, page_url(pg), pg.path.relative_to(current_app.config["CONTENT_DIR"])) for pg in groups if pg.reviews]
+    total = sum(len(pg.reviews) for pg, _, _ in pages)
+    return render_template("review_list.html", pages=pages, total=total, warnings=course.warnings)
 
 
 @bp.app_errorhandler(404)

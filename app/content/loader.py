@@ -122,6 +122,16 @@ def linked_docs(doc: v.Doc, idx: v.Index, name: str, pattern: re.Pattern) -> lis
     return out
 
 
+def place_reviews(doc: v.Doc, reviews: list[Review]) -> list[Review]:
+    """Attach each review comment to the section it appears in."""
+    for r in reviews:
+        r.section = None
+        for sec in doc.order:
+            if sec.line <= r.line:
+                r.section = sec.name
+    return reviews
+
+
 def page_fields(doc: v.Doc, reviews: dict[Path, list[Review]]) -> dict:
     return dict(
         id=str(doc.meta.get("id", "")),
@@ -130,7 +140,7 @@ def page_fields(doc: v.Doc, reviews: dict[Path, list[Review]]) -> dict:
         path=doc.path,
         meta=doc.meta,
         sections={sec.name: section_md(doc, sec.name) for sec in doc.order},
-        reviews=reviews.get(doc.path, []),
+        reviews=place_reviews(doc, reviews.get(doc.path, [])),
     )
 
 
@@ -142,7 +152,9 @@ def load(root: Path, spec: Path = v.DEFAULT_SPEC) -> Course:
         ])
     reviews: dict[Path, list[Review]] = defaultdict(list)
     for path, line, body in rep.reviews:
-        reviews[path].append(Review(line, " ".join(body.split())))
+        m = re.match(r"^REVIEW\(([^)]*)\):?\s*(.*)$", " ".join(body.split()), re.S)
+        author, text = (m.group(1), m.group(2)) if m else ("", " ".join(body.split()))
+        reviews[path].append(Review(line, text, author))
 
     urls: dict[Path, str] = {}
     units: dict[str, Unit] = {}

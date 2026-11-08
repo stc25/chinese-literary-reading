@@ -88,3 +88,15 @@
   {%- endfor %}
 </ol>
 {%- endmacro %}
+
+
+{% macro review_notes(page, sections) -%}
+  {%- if reviewer_mode -%}
+  {%- for r in page.reviews if r.section in sections %}
+  <aside class="review-note" role="note">
+    <span class="review-where">Review note{% if r.author %} ({{ r.author }}){% endif %}{% if r.section %} · {{ r.section }}{% endif %} · line {{ r.line }}</span>
+    {{ r.body }}
+  </aside>
+  {%- endfor -%}
+  {%- endif -%}
+{%- endmacro %}

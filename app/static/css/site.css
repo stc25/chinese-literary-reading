@@ -376,3 +376,23 @@ h2 a:hover { text-decoration: underline; }
 @media (prefers-color-scheme: dark) {
   .fb-right, .choice-options li.opt-right .option-mark, .progress-mark.done, .exercise-status.status-correct { color: #8bd18f; }
 }
+
+/* ------------------------------------------------------------------------
+   M5: sign-in and reviewer mode
+   ------------------------------------------------------------------------ */
+
+.user-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--muted); }
+.inline-form { display: inline; margin: 0; }
+.small-link { font-size: 0.85rem; }
+.dev-mode { background: var(--draft-bg); color: var(--draft-text); border-radius: 999px; padding: 0.05rem 0.5rem; }
+.btn-review-on { background: #efe3fb; border-color: #6b3fa0; color: #4a2a72; }
+.review-note { border-left: 4px solid #6b3fa0; background: #f5effb; color: #2d1a45; border-radius: 4px;
+  padding: 0.45rem 0.75rem; margin: 0.5rem 0; font-size: 0.9rem; max-width: var(--measure); }
+.review-note .review-where { display: block; font-size: 0.75rem; color: #6b3fa0; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; }
+.review-note code { font-size: 0.8rem; }
+.review-table td { font-size: 0.9rem; }
+@media (prefers-color-scheme: dark) {
+  .btn-review-on { background: #3a2a52; border-color: #b892e6; color: #e7d8fb; }
+  .review-note { background: #2a2038; color: #e7d8fb; border-left-color: #b892e6; }
+  .review-note .review-where { color: #c9a8ef; }
+}

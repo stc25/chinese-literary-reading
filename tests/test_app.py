@@ -323,3 +323,144 @@ class Exercises(unittest.TestCase):
         self.assertIn('data-action="reset-progress"', html)
         html = self.client.get("/units/u05").get_data(as_text=True)
         self.assertIn('data-passage="u05-p01"', html)
+
+
+OIDC = {
+    "AUTH_MODE": "oidc",
+    "OIDC_METADATA_URL": "https://login.example.test/.well-known/openid-configuration",
+    "OIDC_CLIENT_ID": "client",
+    "OIDC_CLIENT_SECRET": "secret",
+    "SECRET_KEY": "a-long-random-test-key-0123456789",
+    "REVIEWERS": ["cz201"],
+}
+
+
+class SignIn(unittest.TestCase):
+    """OIDC sign-in, with the identity provider replaced by a stub."""
+
+    def setUp(self):
+        self.app = make_app(CONTENT, **OIDC)
+        self.client = self.app.test_client()
+        self.sso = self.app.extensions["oauth_sso"]
+
+    def sign_in(self, username="cz201@cam.ac.uk", name="C. Z."):
+        from unittest import mock
+        token = {"userinfo": {"preferred_username": username, "name": name, "sub": "x"}}
+        with mock.patch.object(self.sso, "authorize_access_token", return_value=token):
+            return self.client.get("/auth/callback")
+
+    def csrf(self, html):
+        return re.search(r'name="csrf" value="([^"]+)"', html).group(1)
+
+    def test_pages_need_sign_in(self):
+        r = self.client.get("/units/u01")
+        self.assertEqual(r.status_code, 302)
+        self.assertIn("/login?next=/units/u01", r.location)
+
+    def test_open_pages(self):
+        self.assertEqual(self.client.get("/healthz").status_code, 200)
+        self.assertEqual(self.client.get("/static/css/site.css").status_code, 200)
+
+    def test_login_redirects_to_provider(self):
+        from unittest import mock
+        from flask import redirect
+        with mock.patch.object(self.sso, "authorize_redirect", return_value=redirect("https://login.example.test/auth")) as m:
+            r = self.client.get("/login?next=/glossary")
+        self.assertEqual(r.location, "https://login.example.test/auth")
+        self.assertTrue(m.call_args[0][0].endswith("/auth/callback"))
+
+    def test_sign_in_and_return(self):
+        with self.client.session_transaction() as s:
+            s["next"] = "/glossary"
+        r = self.sign_in()
+        self.assertEqual(r.location, "/glossary")
+        html = self.client.get("/").get_data(as_text=True)
+        self.assertIn("C. Z.", html)
+        self.assertIn("Reviewer notes: off", html)
+
+    def test_non_cambridge_account_refused(self):
+        r = self.sign_in("someone@example.com")
+        self.assertEqual(r.status_code, 403)
+        self.assertEqual(self.client.get("/").status_code, 302)
+
+    def test_failed_exchange(self):
+        from unittest import mock
+        with mock.patch.object(self.sso, "authorize_access_token", side_effect=ValueError("bad state")):
+            self.assertEqual(self.client.get("/auth/callback").status_code, 400)
+
+    def test_learner_is_not_reviewer(self):
+        self.sign_in("ab123@cam.ac.uk", "A. B.")
+        html = self.client.get("/").get_data(as_text=True)
+        self.assertNotIn("Reviewer notes", html)
+        self.assertEqual(self.client.get("/review").status_code, 404)
+
+    def test_no_open_redirect(self):
+        with self.client.session_transaction() as s:
+            s["next"] = "//evil.example.com/"
+        self.assertEqual(self.sign_in().location, "/")
+
+    def test_logout_needs_token(self):
+        self.sign_in()
+        self.assertEqual(self.client.post("/logout").status_code, 400)
+        token = self.csrf(self.client.get("/").get_data(as_text=True))
+        r = self.client.post("/logout", data={"csrf": token})
+        self.assertIn("/signed-out", r.location)
+        self.assertEqual(self.client.get("/").status_code, 302)
+
+    def test_session_cookie_is_secure(self):
+        r = self.sign_in()
+        cookie = r.headers.get("Set-Cookie", "")
+        self.assertIn("Secure", cookie)
+        self.assertIn("HttpOnly", cookie)
+
+    def test_missing_settings(self):
+        with self.assertRaises(RuntimeError):
+            make_app(CONTENT, AUTH_MODE="oidc")
+        with self.assertRaises(RuntimeError):
+            make_app(CONTENT, **{**OIDC, "SECRET_KEY": ""})
+
+
+class Reviewers(unittest.TestCase):
+    def client_for(self, user, **config):
+        return make_app(CONTENT, DEV_USER=user, REVIEWERS=["cz201"], **config).test_client()
+
+    def turn_on(self, client):
+        html = client.get("/").get_data(as_text=True)
+        token = re.search(r'name="csrf" value="([^"]+)"', html).group(1)
+        client.post("/reviewer-mode", data={"csrf": token, "on": "1", "next": "/"})
+
+    def test_notes_hidden_until_switched_on(self):
+        c = self.client_for("cz201")
+        self.assertNotIn('class="review-note"', c.get("/units/u17/p01").get_data(as_text=True))
+        self.turn_on(c)
+        self.assertIn('class="review-note"', c.get("/units/u17/p01").get_data(as_text=True))
+
+    def test_learners_never_see_notes(self):
+        c = self.client_for("ab123")
+        self.assertEqual(c.post("/reviewer-mode", data={"on": "1"}).status_code, 400)  # no token
+        self.assertNotIn('class="review-note"', c.get("/units/u17/p01").get_data(as_text=True))
+
+    def test_every_note_is_placed(self):
+        course = load(CONTENT)
+        pages = [*course.units.values(), *course.passages.values(), *course.grammar.values(), *course.toolkit.values()]
+        notes = [r for pg in pages for r in pg.reviews]
+        self.assertTrue(notes)
+        for r in notes:
+            self.assertTrue(r.body and not r.body.startswith("REVIEW"))
+        c = self.client_for("cz201")
+        self.turn_on(c)
+        shown = 0
+        for pg in pages:
+            if pg.reviews:
+                url = course.urls[pg.path.resolve()]
+                shown += c.get(url).get_data(as_text=True).count('class="review-note"')
+        self.assertEqual(shown, len(notes), "every REVIEW comment appears on its page")
+
+    def test_review_list(self):
+        c = self.client_for("cz201")
+        self.assertEqual(c.get("/review").status_code, 200)
+        self.assertEqual(self.client_for("ab123").get("/review").status_code, 404)
+
+    def test_reviewers_see_unreviewed_pages_at_release(self):
+        self.assertEqual(self.client_for("ab123", SHOW_UNREVIEWED=False).get("/units/u17/p01").status_code, 404)
+        self.assertEqual(self.client_for("cz201", SHOW_UNREVIEWED=False).get("/units/u17/p01").status_code, 200)

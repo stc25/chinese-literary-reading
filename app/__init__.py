@@ -6,7 +6,9 @@ Run in development with:
 """
 from __future__ import annotations
 
+import secrets
 import threading
+from datetime import timedelta
 from pathlib import Path
 
 from flask import Flask, g
@@ -48,11 +50,32 @@ def create_app(config: dict | None = None) -> Flask:
     app.config.update(
         CONTENT_DIR=REPO / "content",
         RELOAD_CONTENT=None,       # None: reload when debug is on
-        SHOW_UNREVIEWED=True,      # False at release: hide pages below `reviewed`
+        SHOW_UNREVIEWED=True,      # False at release: hide pages below `reviewed` (reviewers still see them)
+        AUTH_MODE=None,            # "oidc" or "none"; None: "none" in debug and testing, otherwise "oidc"
+        OIDC_METADATA_URL="",
+        OIDC_CLIENT_ID="",
+        OIDC_CLIENT_SECRET="",
+        ALLOWED_DOMAINS=["cam.ac.uk"],
+        REVIEWERS=[],
+        DEV_USER="dev",
+        TRUST_PROXY=0,             # number of reverse proxies in front of the app (sets the https scheme)
+        SESSION_COOKIE_SAMESITE="Lax",
+        SESSION_COOKIE_HTTPONLY=True,
+        PERMANENT_SESSION_LIFETIME=timedelta(hours=12),
     )
     app.config.from_prefixed_env("MLC")
     if config:
         app.config.update(config)
+    if app.config["AUTH_MODE"] is None:
+        app.config["AUTH_MODE"] = "none" if (app.debug or app.testing) else "oidc"
+    if app.config["AUTH_MODE"] == "none" and not app.config.get("SECRET_KEY"):
+        app.config["SECRET_KEY"] = secrets.token_hex(32)   # development only: sessions end when the app restarts
+    if app.config["AUTH_MODE"] == "oidc":
+        app.config["SESSION_COOKIE_SECURE"] = True
+    if app.config["TRUST_PROXY"]:
+        from werkzeug.middleware.proxy_fix import ProxyFix
+        n = int(app.config["TRUST_PROXY"])
+        app.wsgi_app = ProxyFix(app.wsgi_app, x_for=n, x_proto=n, x_host=n)
 
     reload = app.config["RELOAD_CONTENT"]
     if reload is None:
@@ -86,8 +109,14 @@ def create_app(config: dict | None = None) -> Flask:
 
     app.jinja_env.filters["passage_progress_item"] = passage_progress_item
 
-    from . import views
+    from . import auth, views
+    auth.init_app(app)
     app.register_blueprint(views.bp)
+
+    @app.route("/healthz", endpoint="health")
+    def health():
+        return {"status": "ok"}
+
     return app
 
 

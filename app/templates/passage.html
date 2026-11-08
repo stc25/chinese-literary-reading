@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "_macros.html" import status_badge, draft_notice, breadcrumbs, exercises with context %}
+{% from "_macros.html" import status_badge, draft_notice, review_notes, breadcrumbs, exercises with context %}
 {% block title %}{{ p.title }} · Unit {{ unit.number }} · {{ course.title }}{% endblock %}
 {% block breadcrumbs %}{{ breadcrumbs([('Course', url_for('pages.course_map')), ('Unit ' ~ unit.number, url_for('pages.unit', uid=unit.id)), (p.title, None)]) }}{% endblock %}
 {% block content %}
@@ -11,10 +11,12 @@
     <p class="passage-meta">{{ p.meta.get('author', '') }} · {{ p.meta.get('date', '') }}</p>
   </header>
   {{ draft_notice(p) }}
+{{ review_notes(p, [None]) }}
 
   {% if p.sections.get('Introduction') %}
   <section aria-labelledby="intro-h">
     <h2 id="intro-h">Introduction</h2>
+    {{ review_notes(p, ['Introduction']) }}
     <div class="prose">{{ md(p.sections['Introduction'], p) }}</div>
   </section>
   {% endif %}
@@ -33,6 +35,7 @@
 
   <section aria-labelledby="text-h" class="reader view-{{ view }}{{ ' has-original' if original }}" data-view="{{ view }}">
     <h2 id="text-h">Text</h2>
+    {{ review_notes(p, ['Text', 'Original text']) }}
     <div class="reader-toolbar">
       <nav class="view-switch" aria-label="Text layout">
         <span class="toolbar-label" id="view-label">Layout</span>
@@ -64,6 +67,7 @@
 
   <section aria-labelledby="gloss-h">
     <h2 id="gloss-h">Glosses</h2>
+    {{ review_notes(p, ['Glosses']) }}
     <details class="gloss-table">
       <summary>All glosses in a table ({{ p.glosses | length }})</summary>
       <div class="table-wrap">
@@ -86,6 +90,7 @@
 
   <section aria-labelledby="trans-h" class="translations">
     <h2 id="trans-h">Translation</h2>
+    {{ review_notes(p, ['Translation', 'Literal translation']) }}
     <p class="translation-controls" hidden><button type="button" class="btn" data-action="toggle-all-translations" aria-pressed="false">Show all</button></p>
     {% for para in p.translation %}
     <details class="translation-para">
@@ -107,6 +112,7 @@
   {% if p.sections.get('Notes') %}
   <section aria-labelledby="notes-h">
     <h2 id="notes-h">Notes</h2>
+    {{ review_notes(p, ['Notes']) }}
     <div class="prose">{{ md(p.sections['Notes'], p) }}</div>
   </section>
   {% endif %}
@@ -114,6 +120,7 @@
   {% if p.exercises %}
   <section aria-labelledby="ex-h">
     <h2 id="ex-h">Exercises</h2>
+    {{ review_notes(p, ['Exercises']) }}
     <p class="ex-progress muted" data-ex-progress="{{ p.id }}" data-count="{{ p.exercises | length }}" hidden></p>
     {{ exercises(p.exercises, p, p.id) }}
   </section>
