@@ -171,17 +171,40 @@
     if (e.key === "Escape" && !panel.hidden) { e.preventDefault(); close(true); }
   });
 
-  // Arrow keys move between glossed words in reading order.
+  /* The text is a single Tab stop ("roving tabindex"): one glossed word is
+     focusable at a time, and the arrow keys move between words in reading order. */
+  function words() {
+    return Array.prototype.filter.call(visibleBlock().querySelectorAll(".g"), function (b) {
+      return b.offsetParent !== null;  // skip hidden punctuation
+    });
+  }
+
+  function makeCurrent(btn) {
+    reader.querySelectorAll('.g[tabindex="0"]').forEach(function (b) { b.setAttribute("tabindex", "-1"); });
+    if (btn) btn.setAttribute("tabindex", "0");
+  }
+
+  function resetRoving() {
+    var all = words();
+    makeCurrent(all[0]);
+  }
+
+  reader.addEventListener("focusin", function (e) {
+    var btn = e.target.closest(".g");
+    if (btn) makeCurrent(btn);
+  });
+
   reader.addEventListener("keydown", function (e) {
     var btn = e.target.closest(".g");
     if (!btn) return;
-    var keys = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 };
-    if (!(e.key in keys)) return;
-    var all = Array.prototype.filter.call(visibleBlock().querySelectorAll(".g"), function (b) {
-      return b.offsetParent !== null;  // skip hidden punctuation
-    });
-    var i = all.indexOf(btn) + keys[e.key];
-    if (i >= 0 && i < all.length) { e.preventDefault(); all[i].focus(); }
+    var all = words(), i = all.indexOf(btn), j = null;
+    if (e.key === "ArrowRight" || e.key === "ArrowDown") j = i + 1;
+    else if (e.key === "ArrowLeft" || e.key === "ArrowUp") j = i - 1;
+    else if (e.key === "Home") j = 0;
+    else if (e.key === "End") j = all.length - 1;
+    if (j === null) return;
+    e.preventDefault();
+    if (j >= 0 && j < all.length) { makeCurrent(all[j]); all[j].focus(); }
   });
 
   window.addEventListener("resize", function () { if (current && !panel.hidden) position(current); });
@@ -198,6 +221,7 @@
       if (a.getAttribute("data-view") === view) a.setAttribute("aria-current", "true");
       else a.removeAttribute("aria-current");
     });
+    resetRoving();
     if (push) {
       var url = new URL(window.location.href);
       url.searchParams.set("view", view);
@@ -233,5 +257,6 @@
     sync();
   }
 
+  resetRoving();
   document.documentElement.classList.add("reader-ready");
 })();

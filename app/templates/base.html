@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}{{ course.title }}{% endblock %}</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/site.css') }}">
-  <script>document.documentElement.classList.add("js");</script>
   <script src="{{ url_for('static', filename='js/site.js') }}" data-summaries="{{ url_for('pages.summaries') }}"></script>
 </head>
 <body>
@@ -65,6 +64,7 @@
   <footer class="site-footer">
     <div class="wrap">
       <p>{{ course.title }} · Course materials in development. Texts are from public-domain sources; see each passage for details.</p>
+      <p><a href="{{ url_for('pages.accessibility') }}">Accessibility</a></p>
     </div>
   </footer>
   {% block scripts %}{% endblock %}

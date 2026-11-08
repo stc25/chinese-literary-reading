@@ -2,6 +2,7 @@
    A neutral design meant to be restyled later. Colours are tokens on :root. */
 
 :root {
+  color-scheme: light dark;
   --bg: #fbfaf7;
   --surface: #ffffff;
   --text: #1f1d1a;
@@ -18,7 +19,7 @@
 
   --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-serif: Georgia, "Times New Roman", serif;
-  --font-zh: "Noto Serif TC", "Source Han Serif TC", "Songti TC", "STSong", "PMingLiU", "MingLiU", serif;
+  --font-zh: "MLC Serif TC", "Noto Serif TC", "Source Han Serif TC", "Songti TC", "STSong", "PMingLiU", "MingLiU", serif;
 
   --measure: 42rem;
   --wide: 60rem;
@@ -40,6 +41,15 @@
     --error-text: #f4b3a8;
     --focus: #8db8e8;
   }
+}
+
+/* Noto Serif CJK TC (SIL Open Font License, see /static/fonts/OFL.txt), cut down by tools/build_font.py
+   to the characters used in the course. Other characters fall back to the system fonts. */
+@font-face {
+  font-family: "MLC Serif TC";
+  src: url("../fonts/noto-serif-tc-subset.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -197,7 +207,8 @@ details[open] > summary { margin-bottom: 0.5rem; }
   border-radius: 6px; padding: 0.3rem 0.7rem; cursor: pointer; }
 .btn:hover { border-color: var(--muted); }
 .btn[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); }
-.btn-small { font-size: 0.85rem; padding: 0.15rem 0.55rem; white-space: nowrap; }
+.btn-small { font-size: 0.85rem; padding: 0.15rem 0.55rem; white-space: nowrap; min-height: 1.5rem; }
+.view-switch a, .letter-nav a { min-height: 1.5rem; }
 .nav-list { align-items: center; }
 
 /* Pinyin is hidden by default once JavaScript can offer the toggle */

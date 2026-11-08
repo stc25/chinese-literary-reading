@@ -25,7 +25,7 @@
     {%- for para in paras -%}
     <p{% if extra_class %} class="{{ extra_class }}"{% endif %}>
       {%- for s in para -%}
-        {%- if s.occ -%}<button type="button" class="g{{ ' pu' if s.punct }}{{ ' g-earlier' if s.occ | map('first_index') | min >= own }}" data-occ="{{ s.occ | join(' ') }}" aria-haspopup="dialog" aria-expanded="false">{{ s.text }}</button>
+        {%- if s.occ -%}<button type="button" class="g{{ ' pu' if s.punct }}{{ ' g-earlier' if s.occ | map('first_index') | min >= own }}" data-occ="{{ s.occ | join(' ') }}" aria-haspopup="dialog" aria-expanded="false" tabindex="-1">{{ s.text }}</button>
         {%- elif s.punct -%}<span class="pu">{{ s.text }}</span>
         {%- else -%}{{ s.text }}{%- endif -%}
       {%- endfor -%}
@@ -45,12 +45,12 @@
           {%- endfor %}
         </ul>
       </nav>
-      <p class="reader-hint">Select a highlighted word to see its gloss.</p>
+      <p class="reader-hint" id="reader-hint">Select an underlined word to see its gloss. With a keyboard, Tab into the text, move between words with the arrow keys and press Enter.</p>
     </div>
     <div class="text-block">
-      <div class="zh-text text-modern" lang="zh-Hant">{{ render_segments(segments) }}</div>
+      <div class="zh-text text-modern" lang="zh-Hant" aria-describedby="reader-hint">{{ render_segments(segments) }}</div>
       {% if original %}
-      <div class="zh-text text-original" lang="zh-Hant">{{ render_segments(original, 'preserve-spaces') }}</div>
+      <div class="zh-text text-original" lang="zh-Hant" aria-describedby="reader-hint">{{ render_segments(original, 'preserve-spaces') }}</div>
       {% endif %}
     </div>
     {% if original %}<p class="muted view-note">The unpunctuated and vertical layouts show the text as printed in the source.</p>{% endif %}

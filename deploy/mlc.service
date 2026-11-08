@@ -1,0 +1,25 @@
+# systemd unit for the course app.
+#   sudo cp deploy/mlc.service /etc/systemd/system/mlc.service
+#   sudo systemctl daemon-reload && sudo systemctl enable --now mlc
+[Unit]
+Description=Reading Modern Literary Chinese (Flask app)
+After=network.target
+
+[Service]
+Type=simple
+User=mlc
+Group=mlc
+WorkingDirectory=/srv/mlc
+EnvironmentFile=/etc/mlc/mlc.env
+ExecStart=/srv/mlc/.venv/bin/gunicorn -c deploy/gunicorn.conf.py wsgi:application
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=on-failure
+# Hardening: the app only reads its own files.
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadOnlyPaths=/srv/mlc
+
+[Install]
+WantedBy=multi-user.target

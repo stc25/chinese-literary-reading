@@ -26,7 +26,8 @@ from flask import Blueprint, abort, current_app, redirect, render_template, requ
 bp = Blueprint("auth", __name__)
 
 # Pages that do not need sign-in
-OPEN_ENDPOINTS = {"auth.login", "auth.callback", "auth.logout", "auth.signed_out", "static", "health"}
+OPEN_ENDPOINTS = {"auth.login", "auth.callback", "auth.logout", "auth.signed_out", "static", "health",
+                  "pages.accessibility"}
 
 
 def user_id_from_claims(claims: dict) -> str:

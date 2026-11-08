@@ -464,3 +464,49 @@ class Reviewers(unittest.TestCase):
     def test_reviewers_see_unreviewed_pages_at_release(self):
         self.assertEqual(self.client_for("ab123", SHOW_UNREVIEWED=False).get("/units/u17/p01").status_code, 404)
         self.assertEqual(self.client_for("cz201", SHOW_UNREVIEWED=False).get("/units/u17/p01").status_code, 200)
+
+
+class Deployment(unittest.TestCase):
+    def test_accessibility_statement_is_public(self):
+        client = make_app(CONTENT, **OIDC).test_client()
+        r = client.get("/accessibility")
+        self.assertEqual(r.status_code, 200)
+        self.assertIn("Accessibility statement", r.get_data(as_text=True))
+
+    def test_security_headers(self):
+        client = make_app(CONTENT, **OIDC).test_client()
+        r = client.get("/healthz")
+        self.assertIn("default-src 'self'", r.headers["Content-Security-Policy"])
+        self.assertEqual(r.headers["X-Content-Type-Options"], "nosniff")
+        self.assertIn("max-age", r.headers["Strict-Transport-Security"])
+
+    def test_no_inline_scripts(self):
+        """The CSP forbids inline scripts; JSON data blocks are allowed."""
+        client = make_app(CONTENT).test_client()
+        for url in ("/", "/units/u17/p02", "/glossary?q=qun", "/toolkit/t02"):
+            html = client.get(url).get_data(as_text=True)
+            for attrs in re.findall(r"<script([^>]*)>", html):
+                self.assertTrue("src=" in attrs or 'type="application/json"' in attrs, f"{url}: inline script")
+            self.assertNotRegex(html, r"\son(click|load|change)=", url)
+
+    def test_text_is_one_tab_stop(self):
+        html = make_app(CONTENT).test_client().get("/units/u17/p02").get_data(as_text=True)
+        buttons = re.findall(r'<button type="button" class="g(?: [^"]*)?"[^>]*>', html)
+        self.assertTrue(buttons)
+        self.assertTrue(all('tabindex="-1"' in b for b in buttons))
+
+    def test_wsgi_entry_point(self):
+        import importlib
+        import os
+        old = {k: os.environ.get(k) for k in ("MLC_AUTH_MODE",)}
+        os.environ["MLC_AUTH_MODE"] = "none"
+        try:
+            sys.modules.pop("wsgi", None)
+            wsgi = importlib.import_module("wsgi")
+            self.assertEqual(wsgi.application.test_client().get("/healthz").status_code, 200)
+        finally:
+            for k, val in old.items():
+                if val is None:
+                    os.environ.pop(k, None)
+                else:
+                    os.environ[k] = val

@@ -2,6 +2,9 @@
 (function () {
   "use strict";
 
+  // Loaded in <head>: lets the CSS know that JavaScript is available before the page is drawn.
+  document.documentElement.classList.add("js");
+
   var KEY = "mlc.prefs";
 
   function readPrefs() {

@@ -90,7 +90,7 @@ served from the app (no third-party font or script requests).
 | M3 ✓ | Grammar, toolkit, glossary | all pages linked, tooltips, glossary search, reign-year converter |
 | M4 ✓ | Exercises and progress | interactive exercises; progress and preferences in `localStorage` |
 | M5 ✓ | Sign-in and reviewer mode | OIDC sign-in, development bypass, reviewer view of REVIEW notes, draft labels and release setting |
-| M6 | Accessibility and deployment | WCAG 2.2 AA check, device testing, Gunicorn/nginx and Docker setup, deployment guide |
+| M6 ✓ | Accessibility and deployment | WCAG 2.2 AA check, device testing, Gunicorn/nginx and Docker setup, deployment guide |
 | — | Reading assistant (second stage) | specified separately; Flask calls Ollama server-side |
 
 ## Open points

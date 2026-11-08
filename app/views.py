@@ -245,6 +245,12 @@ def review_list():
     return render_template("review_list.html", pages=pages, total=total, warnings=course.warnings)
 
 
+@bp.route("/accessibility")
+def accessibility():
+    """The accessibility statement (public, as required for public-sector websites)."""
+    return render_template("accessibility.html", contact=current_app.config.get("ACCESSIBILITY_CONTACT", ""))
+
+
 @bp.app_errorhandler(404)
 def not_found(e):
     return render_template("404.html"), 404

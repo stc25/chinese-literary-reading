@@ -11,7 +11,7 @@ import threading
 from datetime import timedelta
 from pathlib import Path
 
-from flask import Flask, g
+from flask import Flask, g, request
 
 from .content import ContentError, content_signature, load
 from .content.render import render, render_inline
@@ -58,7 +58,8 @@ def create_app(config: dict | None = None) -> Flask:
         ALLOWED_DOMAINS=["cam.ac.uk"],
         REVIEWERS=[],
         DEV_USER="dev",
-        TRUST_PROXY=0,             # number of reverse proxies in front of the app (sets the https scheme)
+        TRUST_PROXY=0,
+        ACCESSIBILITY_CONTACT="",  # e-mail address for accessibility problems, shown on /accessibility             # number of reverse proxies in front of the app (sets the https scheme)
         SESSION_COOKIE_SAMESITE="Lax",
         SESSION_COOKIE_HTTPONLY=True,
         PERMANENT_SESSION_LIFETIME=timedelta(hours=12),
@@ -112,6 +113,24 @@ def create_app(config: dict | None = None) -> Flask:
     from . import auth, views
     auth.init_app(app)
     app.register_blueprint(views.bp)
+
+    @app.after_request
+    def security_headers(resp):
+        # The pages load no third-party scripts, styles or fonts, and contain no inline scripts.
+        resp.headers.setdefault("Content-Security-Policy",
+                                "default-src 'self'; img-src 'self' data:; object-src 'none'; "
+                                "base-uri 'self'; form-action 'self'; frame-ancestors 'none'")
+        resp.headers.setdefault("X-Content-Type-Options", "nosniff")
+        resp.headers.setdefault("Referrer-Policy", "same-origin")
+        resp.headers.setdefault("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
+        if app.config["AUTH_MODE"] == "oidc":
+            resp.headers.setdefault("Strict-Transport-Security", "max-age=31536000")
+        if request.path.startswith("/static/"):
+            resp.cache_control.public = True
+        else:
+            resp.cache_control.private = True   # pages may show reviewer notes or the user's name
+            resp.cache_control.no_cache = True
+        return resp
 
     @app.route("/healthz", endpoint="health")
     def health():

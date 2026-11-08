@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Accessibility statement · {{ course.title }}{% endblock %}
+{% block content %}
+<h1>Accessibility statement</h1>
+<div class="prose">
+  <p>This statement applies to the website <em>{{ course.title }}</em>, run by the Language Centre of the
+    University of Cambridge. We want as many people as possible to be able to use it. You should be able to:</p>
+  <ul>
+    <li>zoom in up to 400% without the text spilling off the screen;</li>
+    <li>use the whole site with a keyboard, including the glosses in the reading passages (Tab into the text,
+      move between words with the arrow keys, press Enter to open a gloss and Escape to close it);</li>
+    <li>use the site with a screen reader: Chinese text is marked as traditional Chinese, so a screen reader
+      with a Chinese voice can read it;</li>
+    <li>use the site in dark mode, and with JavaScript switched off (glosses are then shown in tables, and
+      answers to exercises under "Show answer").</li>
+  </ul>
+
+  <h2>How accessible this website is</h2>
+  <p>The site is being developed to meet the Web Content Accessibility Guidelines (WCAG) 2.2 at level AA.
+    It has been checked with automated tests (structure, labels, headings, colour contrast) and by hand with
+    a keyboard, at phone, tablet and desktop sizes, and in light and dark mode. It has not yet had a full
+    audit with assistive technology. We know of these limitations:</p>
+  <ul>
+    <li>Vertical (top-to-bottom, right-to-left) text, offered as an option in some passages, may be read in an
+      unexpected order by some screen readers. The same text is always available in horizontal layout.</li>
+    <li>A small number of rare or old character forms may be shown in a fallback font.</li>
+    <li>Most teaching content is still a draft awaiting review, and is labelled as such.</li>
+  </ul>
+
+  <h2>Feedback and contact</h2>
+  <p>If you find a problem or need information in a different format, please contact
+    {% if contact %}<a href="mailto:{{ contact }}">{{ contact }}</a>{% else %}the Language Centre{% endif %}.
+    We will reply within 10 working days.</p>
+
+  <h2>Enforcement procedure</h2>
+  <p>The Equality and Human Rights Commission (EHRC) is responsible for enforcing the Public Sector Bodies
+    (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018. If you are not happy with how
+    we respond to your complaint, contact the Equality Advisory and Support Service (EASS).</p>
+
+  <h2>Preparation of this statement</h2>
+  <p>This statement was prepared on 8 November 2026. It will be reviewed after the accessibility audit
+    planned before release.</p>
+</div>
+{% endblock %}
