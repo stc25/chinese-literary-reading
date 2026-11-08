@@ -31,7 +31,19 @@ Then open <http://localhost:5050/>. For production, see [docs/deployment.md](doc
 
 ### Settings
 
-Settings are read from environment variables starting with `MLC_` (lists are written as JSON):
+Settings are read from environment variables starting with `MLC_` (lists are written as JSON).
+For local development they can also go in `app/.env`, one `MLC_NAME=value` per line; the API key may
+be given there as `Ollama_API=…`. Real environment variables win over the file. `.env` files are
+ignored by git: never commit one. On the server, use `mlc.env` (see `docs/deployment.md`).
+
+To use the cloud model locally, `app/.env` holds:
+
+```
+Ollama_API=<key>
+MLC_OLLAMA_HOST=https://ollama.com
+MLC_ASSISTANT_MODEL=gemma4:31b
+```
+
 
 | Setting | Meaning |
 |---|---|

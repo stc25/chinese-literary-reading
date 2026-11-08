@@ -510,3 +510,35 @@ class Deployment(unittest.TestCase):
                     os.environ.pop(k, None)
                 else:
                     os.environ[k] = val
+
+
+class EnvFile(unittest.TestCase):
+    def write(self, text):
+        d = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, d)
+        (d / ".env").write_text(text, encoding="utf-8")
+        return d / ".env"
+
+    def test_read(self):
+        from app import read_env_file
+        f = self.write('# comment\nOllama_API="abc"\nMLC_OLLAMA_HOST=https://ollama.com\n'
+                       'export MLC_ASSISTANT_DAILY_LIMIT=10\nMLC_REVIEWERS=["a"]\nOTHER=x\n\n')
+        self.assertEqual(read_env_file(f), {"OLLAMA_API_KEY": "abc", "OLLAMA_HOST": "https://ollama.com",
+                                            "ASSISTANT_DAILY_LIMIT": 10, "REVIEWERS": ["a"]})
+        self.assertEqual(read_env_file(f.parent / "missing"), {})
+
+    def test_app_uses_file_but_environment_and_config_win(self):
+        import os
+        from unittest import mock
+        f = self.write("MLC_ASSISTANT_MODEL=from-file\nMLC_OLLAMA_HOST=from-file\nOllama_API=k\n")
+        with mock.patch.dict(os.environ, {"MLC_OLLAMA_HOST": "from-env"}):
+            app = make_app(ENV_FILE=f, ASSISTANT_DAILY_LIMIT=5)
+        self.assertEqual(app.config["ASSISTANT_MODEL"], "from-file")
+        self.assertEqual(app.config["OLLAMA_HOST"], "from-env")
+        self.assertEqual(app.config["OLLAMA_API_KEY"], "k")
+
+    def test_tests_ignore_the_real_file(self):
+        self.assertEqual(make_app().config["OLLAMA_API_KEY"], "")
+
+    def test_env_files_are_ignored_by_git(self):
+        self.assertIn(".env", (Path(__file__).resolve().parent.parent / ".gitignore").read_text().split())

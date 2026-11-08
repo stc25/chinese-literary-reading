@@ -6,6 +6,7 @@ Run in development with:
 """
 from __future__ import annotations
 
+import json
 import secrets
 import threading
 from datetime import timedelta
@@ -45,6 +46,39 @@ class CourseStore:
         return self.course
 
 
+ENV_FILE = Path(__file__).resolve().parent / ".env"
+ENV_ALIASES = {"Ollama_API": "OLLAMA_API_KEY", "OLLAMA_API_KEY": "OLLAMA_API_KEY"}
+
+
+def read_env_file(path: Path) -> dict:
+    """Settings from a local .env file (development): MLC_NAME=value lines, as in the environment.
+
+    `Ollama_API` and `OLLAMA_API_KEY` are also accepted for the API key. Values are parsed as
+    JSON where possible (true, 40, ["a"]), like Flask's from_prefixed_env. A missing file is
+    no error. The file is ignored by git and must never be committed.
+    """
+    out = {}
+    if not path.is_file():
+        return out
+    for line in path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = (x.strip() for x in line.split("=", 1))
+        if key.startswith("export "):
+            key = key[7:].strip()
+        if len(value) >= 2 and value[0] == value[-1] and value[0] in "\"'":
+            value = value[1:-1]
+        if key in ENV_ALIASES:
+            out[ENV_ALIASES[key]] = value
+        elif key.startswith("MLC_"):
+            try:
+                out[key[4:]] = json.loads(value)
+            except ValueError:
+                out[key[4:]] = value
+    return out
+
+
 def create_app(config: dict | None = None) -> Flask:
     app = Flask(__name__)
     app.config.update(
@@ -67,12 +101,15 @@ def create_app(config: dict | None = None) -> Flask:
         ASSISTANT_DAILY_LIMIT=40,     # AI calls per user per day (one full analysis is 5, each question 1)
         ASSISTANT_HOURLY_LIMIT=150,   # AI calls per hour for everyone together
         OLLAMA_HOST="http://localhost:11434",   # the cloud service: https://ollama.com
-        OLLAMA_API_KEY="",                      # cloud only; kept on the server  # e-mail address for accessibility problems, shown on /accessibility             # number of reverse proxies in front of the app (sets the https scheme)
+        OLLAMA_API_KEY="",                      # cloud only; kept on the server
         SESSION_COOKIE_SAMESITE="Lax",
         SESSION_COOKIE_HTTPONLY=True,
         PERMANENT_SESSION_LIFETIME=timedelta(hours=12),
     )
-    app.config.from_prefixed_env("MLC")
+    env_file = (config or {}).get("ENV_FILE", None if (config or {}).get("TESTING") else ENV_FILE)
+    if env_file:
+        app.config.update(read_env_file(Path(env_file)))
+    app.config.from_prefixed_env("MLC")       # the real environment wins over the file
     if config:
         app.config.update(config)
     if app.config["AUTH_MODE"] is None:

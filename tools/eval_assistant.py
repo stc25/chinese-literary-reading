@@ -17,7 +17,7 @@ For each passage (whose glosses and translation are reviewed):
 - translation: the judge compares the model's translation with the course translation.
 
 Tokens and time are recorded per step, to estimate the cost of a full analysis.
-Use --host https://ollama.com and OLLAMA_API_KEY for cloud models.
+Use --host https://ollama.com for cloud models; the key is read from OLLAMA_API_KEY or app/.env.
 """
 from __future__ import annotations
 
@@ -34,6 +34,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
+from app import ENV_FILE, read_env_file  # noqa: E402
 from app.assistant import steps  # noqa: E402
 from app.assistant.client import ModelError, OllamaClient, Usage  # noqa: E402
 from app.assistant.evaluate import (PRF, boundaries, glosses_agree, score_major_breaks,  # noqa: E402
@@ -359,7 +360,7 @@ def main(argv=None):
     else:
         chosen = order
 
-    key_env = os.environ.get("OLLAMA_API_KEY", "")
+    key_env = os.environ.get("OLLAMA_API_KEY", "") or read_env_file(ENV_FILE).get("OLLAMA_API_KEY", "")
     client = OllamaClient(args.host, args.model, api_key=key_env, timeout=180)
     judge = OllamaClient(args.judge_host or args.host, args.judge_model, api_key=key_env, timeout=180) if args.judge_model else None
     usage_by_step: dict[str, list[Usage]] = defaultdict(list)

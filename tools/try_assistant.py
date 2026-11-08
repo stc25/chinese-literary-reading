@@ -6,7 +6,7 @@ Usage:
     echo "……" | python3 tools/try_assistant.py -
 
 Uses a local Ollama server by default (http://localhost:11434). For the cloud service,
-pass --host https://ollama.com and set OLLAMA_API_KEY in the environment.
+pass --host https://ollama.com; the key is read from OLLAMA_API_KEY or app/.env.
 """
 from __future__ import annotations
 
@@ -18,6 +18,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
+from app import ENV_FILE, read_env_file  # noqa: E402
 from app.assistant import steps  # noqa: E402
 from app.assistant.client import ModelError, OllamaClient, Usage  # noqa: E402
 from app.assistant.lookup import analyse  # noqa: E402
@@ -47,7 +48,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Date: {d.text} → {'; '.join(d.lines)}")
     print(f"Model: {args.model} at {args.host}; prompts {PROMPT_VERSION}\n")
 
-    client = OllamaClient(args.host, args.model, api_key=os.environ.get("OLLAMA_API_KEY", ""), timeout=120)
+    client = OllamaClient(args.host, args.model, api_key=os.environ.get("OLLAMA_API_KEY", "") or read_env_file(ENV_FILE).get("OLLAMA_API_KEY", ""), timeout=120)
     total = Usage()
     for step in [s.strip() for s in args.steps.split(",") if s.strip()]:
         try:
