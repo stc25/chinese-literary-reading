@@ -133,9 +133,11 @@ def grammar_notes(client: OllamaClient, analysis: Analysis, course: Course) -> S
             continue
         fw, clause = items[n - 1]
         gid = note.get("grammar_id")
+        gid = gid if gid in fw.grammar_ids else None                   # only a grammar point we offered
         notes.append({
             "form": fw.form, "start": fw.start, "end": fw.end, "clause": clause,
-            "grammar_id": gid if gid in fw.grammar_ids else None,     # only a grammar point we offered
+            "grammar_id": gid,
+            "grammar_title": course.grammar[gid].title if gid else None,
             "candidates": fw.grammar_ids,
             "note": str(note["note"]).strip(),
         })
@@ -181,3 +183,29 @@ def translate(client: OllamaClient, text: str, literal: bool = False) -> StepRes
     if literal and reply.data.get("literal"):
         data["literal"] = reply.data["literal"].strip()
     return StepResult(data, reply.usage)
+
+
+# --------------------------------------------------------------------------
+# Follow-up questions
+# --------------------------------------------------------------------------
+
+MAX_QUESTIONS = 10
+MAX_QUESTION_CHARS = 500
+
+
+def ask(client: OllamaClient, text: str, history: list[dict], question: str) -> StepResult:
+    """Answer a question about the text. The conversation so far is sent by the browser each
+    time (nothing is kept on the server), and is cut to the last few exchanges."""
+    past = ""
+    for turn in history[-4:]:
+        q = str(turn.get("q", ""))[:MAX_QUESTION_CHARS]
+        a = str(turn.get("a", ""))[:2000]
+        past += f"\nEarlier question: {q}\nYour answer: {a}"
+
+    def check(d):
+        if not d["answer"].strip():
+            raise ValueError("empty answer")
+
+    prompt = P.ASK.format(text=P.text_block(text), history=past, question=question[:MAX_QUESTION_CHARS])
+    reply = client.chat_json(P.SYSTEM, prompt, P.ASK_SCHEMA, check)
+    return StepResult({"answer": reply.data["answer"].strip()}, reply.usage)

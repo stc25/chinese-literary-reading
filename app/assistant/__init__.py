@@ -11,9 +11,10 @@ import secrets
 
 from flask import Blueprint, abort, current_app, g, jsonify, render_template, request, session
 
-from ..auth import check_csrf
+from ..auth import check_csrf, current_user
 from . import steps
 from .client import ModelError, client_from_config
+from .limits import Limits
 from ..content.reader import Segment, _segments
 from ..content.render import render_inline
 from .lookup import Analysis, analyse
@@ -89,11 +90,26 @@ def page():
     return resp
 
 
+@bp.route("/help")
+def help():
+    return render_template("assistant_help.html",
+                           daily=int(current_app.config.get("ASSISTANT_DAILY_LIMIT", 40)))
+
+
 # --------------------------------------------------------------------------
 # AI steps (JSON)
 # --------------------------------------------------------------------------
 
-STEPS = ("punctuate", "words", "grammar", "names", "translate")
+STEPS = ("punctuate", "words", "grammar", "names", "translate", "ask")
+
+
+def get_limits() -> Limits:
+    limits = current_app.extensions.get("assistant_limits")
+    if limits is None:
+        limits = current_app.extensions["assistant_limits"] = Limits(
+            int(current_app.config.get("ASSISTANT_DAILY_LIMIT", 40)),
+            int(current_app.config.get("ASSISTANT_HOURLY_LIMIT", 150)))
+    return limits
 
 
 def get_client():
@@ -119,6 +135,20 @@ def api(step: str):
     p = analysis.prepared
     if not p.text or p.too_long:
         return jsonify(ok=False, error=f"Paste between 1 and {max_chars} characters."), 400
+    question = ""
+    history: list = []
+    if step == "ask":
+        question = str(body.get("question", "")).strip()
+        history = body.get("history") if isinstance(body.get("history"), list) else []
+        if not question:
+            return jsonify(ok=False, error="Type a question first."), 400
+        if len(history) >= steps.MAX_QUESTIONS:
+            return jsonify(ok=False, error=f"You can ask up to {steps.MAX_QUESTIONS} questions about one text. "
+                                           "Analyse the text again to start a new conversation."), 400
+    user = (current_user() or {}).get("id", "anonymous")
+    refused = get_limits().check_and_count(user)
+    if refused:
+        return jsonify(ok=False, error=refused), 429
     client = get_client()
     try:
         if step == "punctuate":
@@ -129,10 +159,13 @@ def api(step: str):
             result = steps.grammar_notes(client, analysis, g.course)
         elif step == "names":
             result = steps.names(client, analysis)
-        else:
+        elif step == "translate":
             result = steps.translate(client, p.text, literal=bool(body.get("literal")))
+        else:
+            result = steps.ask(client, p.text, history, question)
     except ModelError as e:
         return jsonify(ok=False, error=str(e)), 502
-    resp = jsonify(ok=True, step=step, source="ai", model=client.model, data=result.data)
+    resp = jsonify(ok=True, step=step, source="ai", model=client.model, data=result.data,
+                   remaining=get_limits().remaining(user))
     resp.headers["Cache-Control"] = "no-store"
     return resp

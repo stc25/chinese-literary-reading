@@ -422,3 +422,33 @@ h2 a:hover { text-decoration: underline; }
   padding: 0 0.4rem; border-radius: 999px; background: color-mix(in srgb, #2e7d32 15%, transparent); color: var(--text); vertical-align: middle; }
 .function-words td.zh { font-size: 1.2rem; }
 .date-list li { margin-bottom: 0.4rem; }
+.source-ai { background: #efe3fb; color: #3d2463; }
+.assistant-notice p { margin: 0; }
+.ai-step { margin: 0.75rem 0; max-width: var(--measure); }
+.ai-step .btn { display: inline-flex; align-items: center; gap: 0.4rem; }
+.ai-out:empty { display: none; }
+.ai-out { border-left: 4px solid #b892e6; background: var(--surface); border-radius: 4px; padding: 0.5rem 0.8rem; margin-top: 0.5rem; }
+.ai-label { font-size: 0.85rem; color: var(--muted); margin: 0 0 0.4rem; }
+.ai-working { color: var(--muted); font-style: italic; }
+.ai-error { color: var(--error-text); }
+.ai-error:empty { display: none; }
+.ai-punctuated { font-size: 1.3rem; line-height: 2; letter-spacing: 0.04em; }
+.ai-notes, .ai-names { list-style: none; padding: 0; margin: 0; }
+.ai-notes li, .ai-names li { padding: 0.35rem 0; border-bottom: 1px solid var(--rule); }
+.ai-form { font-size: 1.15rem; }
+.ai-note { display: block; }
+.ai-kind { display: inline-block; font-size: 0.8rem; color: var(--muted); margin-left: 0.5rem; }
+.ai-check { color: var(--draft-text); background: var(--draft-bg); border-radius: 999px; padding: 0 0.4rem; }
+.ai-translation { margin: 0.25rem 0 0.5rem; }
+.ai-sub { font-weight: 600; margin: 0.5rem 0 0; font-size: 0.9rem; }
+.own-translation { display: block; width: 100%; max-width: var(--measure); font: inherit; color: var(--text); background: var(--surface);
+  border: 1px solid var(--muted); border-radius: 6px; padding: 0.4rem 0.5rem; }
+.qa-list { padding-left: 1.2rem; max-width: var(--measure); }
+.qa { margin-bottom: 0.75rem; }
+.qa-q { font-weight: 600; margin: 0; }
+.qa-a { margin: 0.2rem 0 0; }
+.ask-form { max-width: var(--measure); }
+.ask-form input { font: inherit; color: var(--text); background: var(--surface); border: 1px solid var(--muted); border-radius: 6px; padding: 0.3rem 0.5rem; flex: 1; min-width: 0; }
+@media (prefers-color-scheme: dark) {
+  .source-ai { background: #3a2a52; color: #e7d8fb; }
+}

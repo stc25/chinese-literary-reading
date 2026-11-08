@@ -5,7 +5,7 @@ when the prompts change.
 """
 from __future__ import annotations
 
-PROMPT_VERSION = "a2-2"
+PROMPT_VERSION = "a3-1"
 
 SYSTEM = """You help English-speaking university students read literary Chinese (文言) of the late Qing \
 and Republican periods (about 1800–1930): official documents, essays, letters, newspapers and scholarship.
@@ -151,4 +151,24 @@ TRANSLATE_SCHEMA = {
     "type": "object",
     "properties": {"translation": {"type": "string"}, "literal": {"type": "string"}},
     "required": ["translation"],
+}
+
+
+# --------------------------------------------------------------------------
+# Follow-up questions
+# --------------------------------------------------------------------------
+
+ASK = """A student is reading the text below and asks a question about it. Answer in English, about this \
+text only, in a few sentences, using the grammatical terms listed in your instructions. Quote the \
+Chinese words you discuss. If the question is not about the text or about reading literary Chinese, \
+say briefly that you can only help with the text. If you are unsure, say so.
+
+{text}
+{history}
+Question: {question}"""
+
+ASK_SCHEMA = {
+    "type": "object",
+    "properties": {"answer": {"type": "string"}},
+    "required": ["answer"],
 }

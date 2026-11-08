@@ -309,3 +309,90 @@ class Api(unittest.TestCase):
         r = self.call("punctuate", {"text": "日本人之稱我中國也"})
         self.assertEqual(r.status_code, 502)
         self.assertFalse(r.get_json()["ok"])
+
+
+# --------------------------------------------------------------------------
+# A3: limits, questions, page
+# --------------------------------------------------------------------------
+
+from datetime import date as _date  # noqa: E402
+
+from app.assistant.limits import Limits  # noqa: E402
+
+
+class LimitsTest(unittest.TestCase):
+    def test_daily_limit_and_reset(self):
+        day = [_date(2027, 1, 1)]
+        lim = Limits(2, 0, today=lambda: day[0])
+        self.assertIsNone(lim.check_and_count("a"))
+        self.assertIsNone(lim.check_and_count("a"))
+        self.assertIn("today's limit", lim.check_and_count("a"))
+        self.assertIsNone(lim.check_and_count("b"))      # per user
+        day[0] = _date(2027, 1, 2)
+        self.assertIsNone(lim.check_and_count("a"))      # a new day
+        self.assertEqual(lim.remaining("a"), 1)
+
+    def test_global_hourly_limit(self):
+        now = [1000.0]
+        lim = Limits(0, 3, clock=lambda: now[0])
+        for u in "abc":
+            self.assertIsNone(lim.check_and_count(u))
+        self.assertIn("hourly limit", lim.check_and_count("d"))
+        now[0] += 3601
+        self.assertIsNone(lim.check_and_count("d"))
+
+
+class AskAndLimits(unittest.TestCase):
+    def setUp(self):
+        self.app = create_app({"TESTING": True, "ASSISTANT_DAILY_LIMIT": 3})
+        self.client = self.app.test_client()
+        html = self.client.get("/assistant/").get_data(as_text=True)
+        self.token = re.search(r'name="csrf" value="([^"]+)"', html).group(1)
+
+    def call(self, step, body):
+        return self.client.post(f"/assistant/api/{step}", json=body, headers={"X-CSRF-Token": self.token})
+
+    def test_ask(self):
+        self.app.extensions["assistant_client"] = stub({"answer": "之 joins 日本人 and 稱."})
+        r = self.call("ask", {"text": "日本人之稱我中國也", "question": "What does 之 do?",
+                              "history": [{"q": "Who speaks?", "a": "The Japanese."}]})
+        d = r.get_json()
+        self.assertTrue(d["ok"])
+        self.assertIn("之", d["data"]["answer"])
+        sent = self.app.extensions["assistant_client"].session.requests[0]["json"]["messages"][1]["content"]
+        self.assertIn("Earlier question: Who speaks?", sent)
+        self.assertIn("Question: What does 之 do?", sent)
+
+    def test_ask_needs_question_and_limits_history(self):
+        self.assertEqual(self.call("ask", {"text": "之", "question": " "}).status_code, 400)
+        history = [{"q": "q", "a": "a"}] * 10
+        self.assertEqual(self.call("ask", {"text": "之", "question": "more?", "history": history}).status_code, 400)
+
+    def test_daily_limit_returns_429(self):
+        self.app.extensions["assistant_client"] = stub(*[{"translation": "x"}] * 5)
+        codes = [self.call("translate", {"text": "日本人之稱我中國也"}).status_code for _ in range(4)]
+        self.assertEqual(codes, [200, 200, 200, 429])
+
+    def test_remaining_reported(self):
+        self.app.extensions["assistant_client"] = stub({"translation": "x"})
+        self.assertEqual(self.call("translate", {"text": "日本人之稱我中國也"}).get_json()["remaining"], 2)
+
+
+class A3Page(unittest.TestCase):
+    def setUp(self):
+        self.client = create_app({"TESTING": True}).test_client()
+
+    def test_help_page(self):
+        r = self.client.get("/assistant/help")
+        self.assertEqual(r.status_code, 200)
+        self.assertIn("How it goes wrong", r.get_data(as_text=True))
+
+    def test_ai_controls_and_notice(self):
+        html = self.client.get("/assistant/").get_data(as_text=True)
+        token = re.search(r'name="csrf" value="([^"]+)"', html).group(1)
+        html = self.client.post("/assistant/", data={"csrf": token, "text": "吾心目中有黿鼉"}).get_data(as_text=True)
+        self.assertIn("external AI service", html)
+        for step in ("punctuate", "words", "grammar", "names", "translate"):
+            self.assertIn(f'data-run="{step}"', html)
+        self.assertIn("assistant.js", html)
+        self.assertIn('data-text="吾心目中有黿鼉"', html)

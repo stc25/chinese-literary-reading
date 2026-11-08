@@ -8,9 +8,12 @@
   <p>Paste a passage of literary Chinese (up to {{ max_chars }} characters). The assistant glosses the words
     that the course has taught, points out function words with links to the grammar pages, and converts
     dates. Every item says where it comes from.</p>
-  <p class="notice">AI suggestions for the remaining words, punctuation, translation and questions are being
-    added. This version uses only the reviewed course material and sends nothing to an AI service. Your text
-    is not stored.</p>
+  <div class="notice assistant-notice">
+    <p><strong>Before you start.</strong> The course steps (glossary, grammar pages, dates) are checked material.
+      The <span class="source-tag source-ai">AI</span> steps send your text to an external AI service and can be wrong:
+      check every AI suggestion. Do not paste personal or confidential material. Nothing you paste is stored by
+      this site. <a href="{{ url_for('assistant.help') }}">Using the assistant critically</a></p>
+  </div>
 </div>
 
 <form method="post" action="{{ url_for('assistant.page') }}" class="assistant-form">
@@ -24,7 +27,8 @@
 </form>
 
 {% if analysis %}{% set p = analysis.prepared %}
-<div class="assistant-result" id="result">
+<div class="assistant-result" id="result" data-text="{{ analysis.prepared.text if analysis.prepared.text and not analysis.prepared.too_long else '' }}"
+     data-api="{{ url_for('assistant.page') }}api/" data-csrf="{{ csrf_token() }}">
   {% if not p.text %}
   <p class="notice">Paste some text first.</p>
   {% elif p.too_long %}
@@ -52,6 +56,18 @@
     </div>
     <p class="coverage">The course glossary covers {{ (analysis.coverage * 100) | round | int }}% of the characters.
       {% if gap_text %}Not covered: <span class="zh" lang="zh-Hant">{{ gap_text | join('、') }}</span>.{% endif %}</p>
+    <div class="ai-step js-only" hidden data-step="words">
+      {% if not p.has_punctuation %}
+      <div class="ai-step" data-step="punctuate">
+        <button type="button" class="btn" data-run="punctuate">Suggest punctuation <span class="source-tag source-ai">AI</span></button>
+        <div class="ai-out" aria-live="polite"></div>
+      </div>
+      {% endif %}
+      {% if gap_text %}
+      <button type="button" class="btn" data-run="words">Gloss the words not covered <span class="source-tag source-ai">AI</span></button>
+      {% endif %}
+      <div class="ai-out" aria-live="polite"></div>
+    </div>
   </section>
 
   <div id="gloss-panel" class="gloss-panel" role="dialog" aria-modal="false" aria-labelledby="gloss-panel-title" tabindex="-1" hidden>
@@ -81,6 +97,10 @@
         </tbody>
       </table>
     </div>
+    <div class="ai-step js-only" hidden data-step="grammar">
+      <button type="button" class="btn" data-run="grammar">Explain them in this text <span class="source-tag source-ai">AI</span></button>
+      <div class="ai-out" aria-live="polite"></div>
+    </div>
     {% else %}<p>No function words from the grammar pages were found.</p>{% endif %}
   </section>
 
@@ -97,8 +117,46 @@
       <a href="{{ url_for('pages.toolkit', tid='t02') }}">Dates and calendars</a>.</p>
     {% else %}<p>No reign, Republican or cyclical years were found.</p>{% endif %}
   </section>
+
+  <section aria-labelledby="as-names-h" class="js-only" hidden>
+    <h2 id="as-names-h">4. Names, titles and allusions</h2>
+    <div class="ai-step" data-step="names">
+      <button type="button" class="btn" data-run="names">Find names, titles and allusions <span class="source-tag source-ai">AI</span></button>
+      <div class="ai-out" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="as-tr-h" class="js-only" hidden>
+    <h2 id="as-tr-h">5. Translation</h2>
+    <p class="hint">Try your own translation first. It stays in this page and is not sent anywhere.</p>
+    <label for="as-own" class="field-label">Your translation</label>
+    <textarea id="as-own" rows="4" class="own-translation"></textarea>
+    <div class="ai-step" data-step="translate">
+      <p><label><input type="checkbox" data-literal> Also give a literal translation</label></p>
+      <button type="button" class="btn" data-run="translate">Show the AI translation <span class="source-tag source-ai">AI</span></button>
+      <div class="ai-out" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="as-q-h" class="js-only" hidden>
+    <h2 id="as-q-h">Questions about this text</h2>
+    <p class="hint">Ask about the grammar, words or meaning of this text, for example "What is the subject of the
+      second sentence?" Up to 10 questions. The answers are AI suggestions.</p>
+    <ol class="qa-list" aria-live="polite"></ol>
+    <form class="ask-form" novalidate>
+      <label for="as-q" class="field-label">Your question</label>
+      <div class="search-row">
+        <input id="as-q" type="text" maxlength="500" autocomplete="off">
+        <button type="submit" class="btn">Ask <span class="source-tag source-ai">AI</span></button>
+      </div>
+      <p class="ai-error" role="alert"></p>
+    </form>
+  </section>
+  <p class="remaining hint js-only" hidden aria-live="polite"></p>
+  <noscript><p class="notice">The AI steps need JavaScript. The course steps above work without it.</p></noscript>
   {% endif %}
 </div>
 {% endif %}
 {% endblock %}
-{% block scripts %}{% if analysis and glosses is defined %}<script src="{{ url_for('static', filename='js/reader.js') }}" defer></script>{% endif %}{% endblock %}
+{% block scripts %}{% if analysis and glosses is defined %}<script src="{{ url_for('static', filename='js/reader.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/assistant.js') }}" defer></script>{% endif %}{% endblock %}

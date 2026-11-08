@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% from "_macros.html" import breadcrumbs with context %}
+{% block title %}Using the assistant critically · {{ course.title }}{% endblock %}
+{% block breadcrumbs %}{{ breadcrumbs([('Course', url_for('pages.course_map')), ('Reading assistant', url_for('assistant.page')), ('Using the assistant critically', None)]) }}{% endblock %}
+{% block content %}
+<h1>Using the assistant critically</h1>
+<div class="prose">
+  <p>The reading assistant helps you read a text that is not in the course. It works through the same steps
+    as the course passages, and it tells you, for every suggestion, where the suggestion comes from. Use it to
+    save time on what you can check easily, and spend your own attention on what it cannot do reliably.</p>
+
+  <h2>The method</h2>
+  <ol>
+    <li><strong>Text.</strong> Read the text through. If it has no punctuation, decide where the clauses end
+      (<a href="{{ url_for('pages.grammar', gid='judou') }}">{{ course.grammar['judou'].title }}</a>). The assistant can suggest
+      punctuation, but the breaks decide the meaning, so check each one.</li>
+    <li><strong>Words.</strong> Look up every word you do not know. Words taught in the course are glossed from
+      the course glossary; the AI glosses the rest.</li>
+    <li><strong>Grammar.</strong> Identify the function words (之, 者, 所, 以, 而, 則 …) and what each does in its
+      clause. The grammar pages explain them.</li>
+    <li><strong>Names, dates and allusions.</strong> Identify people, places, offices, books and dates, and any
+      phrase that refers to an earlier text.</li>
+    <li><strong>Translation.</strong> Write your own translation, then compare it with the AI's.</li>
+  </ol>
+
+  <h2>What the labels mean</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th scope="col">Label</th><th scope="col">Where it comes from</th><th scope="col">How far to trust it</th></tr></thead>
+      <tbody>
+        <tr><td>Course glossary</td><td>The reviewed glossary of the course passages</td><td>Reliable, but the course may use a word in a different sense: check that the sense fits</td></tr>
+        <tr><td><span class="source-tag">Course grammar</span></td><td>The grammar pages, matched by the characters</td><td>The word is right; which grammar point applies depends on the clause</td></tr>
+        <tr><td><span class="source-tag">Date converter</span></td><td>The course's calculation from reign and cyclical years</td><td>Reliable for the year; a cyclical year repeats every sixty years</td></tr>
+        <tr><td><span class="source-tag source-ai">AI</span></td><td>A large language model</td><td>Unchecked: often right, sometimes confidently wrong</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>What the AI does well</h2>
+  <ul>
+    <li>Common words and phrases, and the general sense of a sentence.</li>
+    <li>Suggesting punctuation for straightforward prose.</li>
+    <li>Explaining a construction when you ask a precise question about it.</li>
+  </ul>
+
+  <h2>How it goes wrong</h2>
+  <p>These examples are from tests of the assistant on texts of the period.</p>
+  <ul>
+    <li><strong>It cuts words in the wrong place.</strong> It glossed 希 on its own ("hopeful") in 希望 "hope".
+      Check that each glossed word is really a word in this text.</li>
+    <li><strong>It invents identifications.</strong> Given 吾心目中有一少年中國在, it called 少年中國 "a young
+      China" the title of an essay by Chen Duxiu (1915). The sentence comes from Liang Qichao's 〈少年中國說〉 (1900).
+      Names, titles and allusions are where it is most often wrong.</li>
+    <li><strong>It breaks clauses in the wrong place.</strong> It punctuated 有一少年中國。在欲言國之老少, cutting
+      off 在, which ends the first clause: 吾心目中有一少年中國在。</li>
+    <li><strong>It gets numbers and dates wrong.</strong> Asked about 光緒二十六年, it gave 1899; the year is 1900.
+      This is why dates are converted by the course's date converter, never by the AI.</li>
+    <li><strong>It chooses the wrong grammar point.</strong> In 天演者，物競天擇之謂也 it called 者 a nominaliser,
+      where the course reads 者…也 as a definition. Compare its choice with the grammar page.</li>
+    <li><strong>It uses modern senses.</strong> Words such as 經濟, 社會 or 革命 had other meanings before 1900
+      (<a href="{{ url_for('pages.grammar', gid='neologisms') }}">New terms</a>).</li>
+    <li><strong>It sounds sure when it is guessing.</strong> A fluent answer is not a checked one.</li>
+  </ul>
+
+  <h2>How to check</h2>
+  <ul>
+    <li>Words: the <a href="{{ url_for('pages.glossary') }}">course glossary</a> and the dictionaries in
+      <a href="{{ url_for('pages.toolkit', tid='t01') }}">Script and dictionaries</a>.</li>
+    <li>Grammar: the <a href="{{ url_for('pages.grammar_index') }}">grammar pages</a>.</li>
+    <li>Dates: <a href="{{ url_for('pages.toolkit', tid='t02') }}">Dates and calendars</a>.</li>
+    <li>People and offices: <a href="{{ url_for('pages.toolkit', tid='t03') }}">Names, titles and offices</a> and the
+      biographical databases in <a href="{{ url_for('pages.toolkit', tid='t06') }}">Research resources</a>.</li>
+    <li>Quotations and allusions: search the phrase in the full-text databases in Research resources.</li>
+  </ul>
+
+  <h2>Limits and privacy</h2>
+  <ul>
+    <li>Texts of up to 600 characters; analyse longer texts in parts.</li>
+    <li>Up to {{ daily }} AI suggestions a day (one full analysis uses five, each question one), and 10 questions per
+      text. The course steps have no limit.</li>
+    <li>The AI steps send your text to an external AI service, which does not keep it. This site stores nothing you
+      paste. Do not paste personal or confidential material.</li>
+  </ul>
+  <p><a href="{{ url_for('assistant.page') }}">Back to the reading assistant</a></p>
+</div>
+{% endblock %}

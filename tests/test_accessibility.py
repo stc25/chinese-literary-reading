@@ -83,7 +83,7 @@ class Pages(unittest.TestCase):
         app = create_app({"TESTING": True, "REVIEWERS": ["rv1"], "DEV_USER": "rv1"})
         cls.client = app.test_client()
         c = app.extensions["course_store"].course
-        cls.urls = (["/", "/grammar", "/toolkit", "/glossary?q=qun", "/review", "/signed-out", "/accessibility", "/assistant/",
+        cls.urls = (["/", "/grammar", "/toolkit", "/glossary?q=qun", "/review", "/signed-out", "/accessibility", "/assistant/", "/assistant/help",
                      "/toolkit/t02?mode=reign&reign=光緒&year=24"]
                     + [f"/units/{u}" for u in c.units]
                     + [f"/units/{p.unit_id}/{p.number}" for p in c.passages.values()]
