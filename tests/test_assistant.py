@@ -281,7 +281,7 @@ class Steps(unittest.TestCase):
         self.assertEqual(r.data, {"translation": "This is it.", "literal": "this be it"})
 
 
-class Api(unittest.TestCase):
+class ApiBase(unittest.TestCase):
     def setUp(self):
         self.app = create_app({"TESTING": True})
         self.client = self.app.test_client()
@@ -292,6 +292,8 @@ class Api(unittest.TestCase):
         return self.client.post(f"/assistant/api/{step}", json=body,
                                 headers={"X-CSRF-Token": self.token if token is None else token})
 
+
+class Api(ApiBase):
     def test_translate_endpoint(self):
         self.app.extensions["assistant_client"] = stub({"translation": "When the Japanese speak of our China"})
         r = self.call("translate", {"text": "日本人之稱我中國也"})
@@ -477,3 +479,225 @@ class Chunks(unittest.TestCase):
         r = steps.gloss_gaps(c, a)
         self.assertGreater(len(c.session.requests), 1)
         self.assertEqual([w["word"] for w in r.data["words"]], ["黿鼉"])
+
+
+# --------------------------------------------------------------------------
+# A5: hardening
+# --------------------------------------------------------------------------
+
+import threading as _threading  # noqa: E402
+import time as _time  # noqa: E402
+
+import requests as _requests  # noqa: E402
+
+from app.assistant import client as _client_mod  # noqa: E402
+
+
+class ScriptedSession:
+    """Each item is a status code, an exception to raise, or a reply (dict or str) with status 200."""
+
+    def __init__(self, *script):
+        self.script = list(script)
+        self.timeouts = []
+
+    def post(self, url, json=None, headers=None, timeout=None):
+        self.timeouts.append(timeout)
+        item = self.script.pop(0)
+        if isinstance(item, Exception):
+            raise item
+        if isinstance(item, int):
+            r = FakeResponse("{}", item)
+            r.text = "refused"
+            return r
+        return FakeResponse(item if isinstance(item, str) else globals()["json"].dumps(item))
+
+
+def scripted(*script, timeout=60.0):
+    return OllamaClient("http://model.test", "test-model", session=ScriptedSession(*script), timeout=timeout,
+                        retry_pause=0)
+
+
+class Hardening(unittest.TestCase):
+    def test_setup_errors_are_not_retried(self):
+        for status in (401, 402, 403, 404):
+            c = scripted(status)
+            with self.assertRaises(ModelError) as cm:
+                steps.translate(c, "是也")
+            self.assertIn("not set up correctly", str(cm.exception))
+
+    def test_temporary_failures_retried(self):
+        c = scripted(503, {"translation": "It is."})
+        self.assertEqual(steps.translate(c, "是也").data["translation"], "It is.")
+        c = scripted(_requests.ConnectionError(), {"translation": "It is."})
+        self.assertEqual(steps.translate(c, "是也").data["translation"], "It is.")
+        with self.assertRaises(ModelError) as cm:
+            steps.translate(scripted(500, 502), "是也")
+        self.assertIn("not available", str(cm.exception))
+
+    def test_answer_that_is_not_json(self):
+        class Html(FakeResponse):
+            def json(self):
+                raise ValueError("html")
+        s = ScriptedSession()
+        replies = [Html(""), FakeResponse(globals()["json"].dumps({"translation": "It is."}))]
+        s.post = lambda *a, **k: replies.pop(0)
+        c = OllamaClient("http://model.test", "m", session=s, retry_pause=0)
+        self.assertEqual(steps.translate(c, "是也").data["translation"], "It is.")
+
+    def test_timeout_message(self):
+        with self.assertRaises(ModelError) as cm:
+            steps.translate(scripted(_requests.Timeout()), "是也")
+        self.assertIn("too long", str(cm.exception))
+
+    def test_deadline_shortens_and_stops_calls(self):
+        c = scripted({"translation": "It is."}, timeout=60)
+        with c.deadline(10):
+            steps.translate(c, "是也")
+        self.assertLessEqual(c.session.timeouts[0], 10)
+        c = scripted({"translation": "It is."})
+        with self.assertRaises(ModelError):
+            with c.deadline(0.5):
+                steps.translate(c, "是也")
+        self.assertEqual(c.session.timeouts, [])          # no call started without time left
+
+    def test_deadline_is_per_thread(self):
+        c = scripted({"translation": "It is."})
+        seen = []
+        with c.deadline(0.5):
+            t = _threading.Thread(target=lambda: seen.append(c._time_left()))
+            t.start(); t.join()
+        self.assertEqual(seen, [60.0])
+
+    def test_sessions_are_per_thread(self):
+        c = OllamaClient("http://model.test", "m")
+        other = []
+        t = _threading.Thread(target=lambda: other.append(c.session))
+        t.start(); t.join()
+        self.assertIsNot(c.session, other[0])
+        self.assertIs(c.session, c.session)
+
+    def test_words_keep_parts_that_succeeded(self):
+        text = "甲乙丙丁" * 50
+        analysis = analyse(text, *_course_and_entries(), 600)
+        n = len(steps.chunks(analysis.prepared.text, analysis.gaps))
+        self.assertGreater(n, 1)
+        script = [{"words": [{"word": "甲乙丙丁甲乙", "pinyin": "", "gloss": "a phrase"}]}] + [400] * (n - 1)
+        r = steps.gloss_gaps(scripted(*script), analysis)
+        self.assertTrue(r.data["incomplete"])
+        self.assertEqual(r.data["words"][0]["word"], "甲乙丙丁甲乙")
+        self.assertTrue(r.data["words"][0]["phrase"])
+        with self.assertRaises(ModelError):
+            steps.gloss_gaps(scripted(*([400] * n)), analysis)
+
+    def test_ask_ignores_malformed_history(self):
+        c = stub({"answer": "It is a particle."})
+        r = steps.ask(c, "是也", ["junk", None, {"q": "What?", "a": "This."}], "And 也?")
+        self.assertEqual(r.data["answer"], "It is a particle.")
+
+    def test_refund(self):
+        lim = Limits(2, 10)
+        self.assertIsNone(lim.check_and_count("u"))
+        lim.refund("u")
+        self.assertEqual(lim.remaining("u"), 2)
+        self.assertEqual(len(lim._recent), 0)
+
+
+_CACHE = {}
+
+
+def _course_and_entries():
+    if not _CACHE:
+        course = load(ROOT / "content")
+        _CACHE["v"] = (course, build(course))
+    return _CACHE["v"]
+
+
+class ApiHardening(ApiBase):
+    def test_service_failure_not_counted(self):
+        self.app.extensions["assistant_client"] = scripted(503, 503)
+        r = self.call("translate", {"text": "日本人之稱我中國也"})
+        self.assertEqual(r.status_code, 502)
+        self.assertEqual(r.get_json()["remaining"], self.app.config["ASSISTANT_DAILY_LIMIT"])
+
+    def test_learner_side_failure_counted(self):
+        self.app.extensions["assistant_client"] = stub("bad", "bad")
+        r = self.call("translate", {"text": "日本人之稱我中國也"})
+        self.assertEqual(r.status_code, 502)
+        self.assertEqual(r.get_json()["remaining"], self.app.config["ASSISTANT_DAILY_LIMIT"] - 1)
+
+    def test_busy_when_all_slots_taken(self):
+        self.app.config.update(ASSISTANT_MAX_CONCURRENT=1, ASSISTANT_QUEUE_WAIT=0.1)
+        self.app.extensions.pop("assistant_gate", None)
+        self.app.extensions["assistant_client"] = stub({"translation": "x"})
+        with self.app.app_context():
+            from app.assistant import get_gate
+            gate = get_gate()
+        gate.acquire()
+        try:
+            r = self.call("translate", {"text": "日本人之稱我中國也"})
+        finally:
+            gate.release()
+        self.assertEqual(r.status_code, 503)
+        self.assertIn("busy", r.get_json()["error"])
+        self.assertEqual(self.call("translate", {"text": "日本人之稱我中國也"}).status_code, 200)
+
+    def test_concurrent_requests_respect_the_cap(self):
+        self.app.config.update(ASSISTANT_MAX_CONCURRENT=2, ASSISTANT_QUEUE_WAIT=5, ASSISTANT_DAILY_LIMIT=0,
+                               ASSISTANT_HOURLY_LIMIT=0)
+        self.app.extensions.pop("assistant_gate", None)
+        self.app.extensions.pop("assistant_limits", None)
+        state = {"now": 0, "max": 0}
+        lock = _threading.Lock()
+
+        class Slow:
+            model = "slow"
+
+            def deadline(self, s):
+                return OllamaClient("x", "y").deadline(s)
+
+            def chat_json(self, *a, **k):
+                with lock:
+                    state["now"] += 1
+                    state["max"] = max(state["max"], state["now"])
+                _time.sleep(0.1)
+                with lock:
+                    state["now"] -= 1
+                return _client_mod.Reply({"translation": "x"})
+
+        self.app.extensions["assistant_client"] = Slow()
+        codes = []
+
+        def one():
+            c = self.app.test_client()
+            c.get("/assistant/")
+            with c.session_transaction() as s:
+                s["csrf"] = "t"
+            codes.append(c.post("/assistant/api/translate", json={"text": "是也"},
+                                headers={"X-CSRF-Token": "t"}).status_code)
+
+        threads = [_threading.Thread(target=one) for _ in range(8)]
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+        self.assertEqual(codes, [200] * 8)
+        self.assertLessEqual(state["max"], 2)
+
+    def test_request_size_limited(self):
+        r = self.client.post("/assistant/api/translate", data="x" * 300_000, content_type="application/json",
+                             headers={"X-CSRF-Token": self.token})
+        self.assertEqual(r.status_code, 413)
+
+
+class DeploymentSettings(unittest.TestCase):
+    def test_timeouts_fit_together(self):
+        app = create_app({"TESTING": True})
+        step = app.config["ASSISTANT_STEP_DEADLINE"] + app.config["ASSISTANT_QUEUE_WAIT"]
+        gconf = {}
+        exec((ROOT / "deploy" / "gunicorn.conf.py").read_text(), gconf)
+        self.assertGreater(gconf["timeout"], step)
+        self.assertEqual(gconf["workers"], 1)              # the usage limits are kept in one process
+        self.assertGreaterEqual(gconf["threads"], app.config["ASSISTANT_MAX_CONCURRENT"] + 4)
+        nginx = (ROOT / "deploy" / "nginx.conf.example").read_text()
+        api = re.search(r"location /assistant/api/ \{(.*?)\}", nginx, re.S).group(1)
+        self.assertGreaterEqual(int(re.search(r"proxy_read_timeout (\d+)s", api).group(1)), gconf["timeout"])

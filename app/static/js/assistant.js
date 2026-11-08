@@ -36,14 +36,18 @@
 
   function call(step, body) {
     body.text = TEXT;
+    var ctrl = window.AbortController ? new AbortController() : null;
+    if (ctrl) setTimeout(function () { ctrl.abort(); }, 150000);
     return fetch(API + step, {
       method: "POST",
+      signal: ctrl ? ctrl.signal : undefined,
       credentials: "same-origin",
       headers: { "Content-Type": "application/json", "X-CSRF-Token": CSRF },
       body: JSON.stringify(body)
     }).then(function (r) {
       return r.json().catch(function () { return { ok: false, error: "The server returned an unexpected answer." }; });
-    }, function () {
+    }, function (e) {
+      if (e && e.name === "AbortError") return { ok: false, error: "The AI service took too long to answer. Please try again, or try a shorter text." };
       return { ok: false, error: "The server could not be reached. Check your connection and try again." };
     }).then(function (d) {
       if (d && typeof d.remaining === "number") {
@@ -69,15 +73,19 @@
         var th = el("th", i === 1 ? "pinyin-col" : "", h); th.scope = "col"; head.appendChild(th);
       });
       var thead = el("thead"); thead.appendChild(head); t.appendChild(thead);
-      var tb = el("tbody");
+      var tb = el("tbody"), phrases = false;
       d.words.forEach(function (w) {
         var tr = el("tr");
-        tr.appendChild(zh("td", "zh", w.word));
+        var wd = zh("td", "zh", w.word);
+        if (w.phrase) { wd.appendChild(el("span", "ai-kind ai-check", "phrase")); phrases = true; }
+        tr.appendChild(wd);
         var py = el("td", "pinyin pinyin-col", w.pinyin); py.setAttribute("lang", "zh-Latn-pinyin"); tr.appendChild(py);
         tr.appendChild(el("td", "", w.gloss));
         tb.appendChild(tr);
       });
       t.appendChild(tb); wrap.appendChild(t); out.appendChild(wrap);
+      if (phrases) out.appendChild(el("p", "hint", "Items marked “phrase” are longer than a word: the AI has explained a whole phrase. Work out its words from the course glossary and a dictionary."));
+      if (d.incomplete) out.appendChild(el("p", "ai-error", "Part of the text could not be glossed this time. Try again for the rest."));
     },
     grammar: function (d, out) {
       if (!d.notes.length) { out.appendChild(el("p", "", "The AI gave no notes.")); return; }

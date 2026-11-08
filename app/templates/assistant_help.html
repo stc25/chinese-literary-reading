@@ -15,7 +15,8 @@
       (<a href="{{ url_for('pages.grammar', gid='judou') }}">{{ course.grammar['judou'].title }}</a>). The assistant can suggest
       punctuation, but the breaks decide the meaning, so check each one.</li>
     <li><strong>Words.</strong> Look up every word you do not know. Words taught in the course are glossed from
-      the course glossary; the AI glosses the rest.</li>
+      the course glossary; the AI glosses the rest. Where it explains a whole phrase rather than a word, the
+      item is marked <em>phrase</em>: work out its words yourself.</li>
     <li><strong>Grammar.</strong> Identify the function words (之, 者, 所, 以, 而, 則 …) and what each does in its
       clause. The grammar pages explain them.</li>
     <li><strong>Names, dates and allusions.</strong> Identify people, places, offices, books and dates, and any
@@ -77,7 +78,9 @@
   <ul>
     <li>Texts of up to 600 characters; analyse longer texts in parts.</li>
     <li>Up to {{ daily }} AI suggestions a day (one full analysis uses five, each question one), and 10 questions per
-      text. The course steps have no limit.</li>
+      text. The course steps have no limit. A suggestion that fails because the AI service is unavailable
+      does not count.</li>
+    <li>If many people use the assistant at once, it may ask you to try again in a minute.</li>
     <li>The AI steps send your text to an external AI service, which does not keep it. This site stores nothing you
       paste. Do not paste personal or confidential material.</li>
   </ul>

@@ -7,6 +7,7 @@ Run in development with:
 from __future__ import annotations
 
 import json
+import logging
 import secrets
 import threading
 from datetime import timedelta
@@ -79,6 +80,21 @@ def read_env_file(path: Path) -> dict:
     return out
 
 
+def setup_logging(app: Flask) -> None:
+    """Warnings and errors from the app's modules (model service failures, sign-in problems)
+    go to standard error, which Gunicorn and systemd collect. Learners' texts are never logged."""
+    logger = logging.getLogger("app")
+    if app.testing:
+        logger.setLevel(logging.CRITICAL)
+        return
+    if not logger.handlers:
+        h = logging.StreamHandler()
+        h.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(name)s: %(message)s"))
+        logger.addHandler(h)
+        logger.setLevel(logging.INFO)
+        logger.propagate = False
+
+
 def create_app(config: dict | None = None) -> Flask:
     app = Flask(__name__)
     app.config.update(
@@ -97,11 +113,15 @@ def create_app(config: dict | None = None) -> Flask:
         ASSISTANT_ENABLED=True,
         ASSISTANT_MAX_CHARS=600,
         ASSISTANT_MODEL="qwen3.5:9b",
-        ASSISTANT_TIMEOUT=60,
+        ASSISTANT_TIMEOUT=60,          # seconds for one model call
+        ASSISTANT_STEP_DEADLINE=90,    # seconds for a whole step (the words step may make several calls)
+        ASSISTANT_MAX_CONCURRENT=6,    # model calls at once, for everyone together
+        ASSISTANT_QUEUE_WAIT=20,       # seconds a request waits for a free slot before "busy"
         ASSISTANT_DAILY_LIMIT=40,     # AI calls per user per day (one full analysis is 5, each question 1)
         ASSISTANT_HOURLY_LIMIT=150,   # AI calls per hour for everyone together
         OLLAMA_HOST="http://localhost:11434",   # the cloud service: https://ollama.com
         OLLAMA_API_KEY="",                      # cloud only; kept on the server
+        MAX_CONTENT_LENGTH=256 * 1024,   # request bodies (pasted texts are at most a few KB)
         SESSION_COOKIE_SAMESITE="Lax",
         SESSION_COOKIE_HTTPONLY=True,
         PERMANENT_SESSION_LIFETIME=timedelta(hours=12),
@@ -112,6 +132,7 @@ def create_app(config: dict | None = None) -> Flask:
     app.config.from_prefixed_env("MLC")       # the real environment wins over the file
     if config:
         app.config.update(config)
+    setup_logging(app)
     if app.config["AUTH_MODE"] is None:
         app.config["AUTH_MODE"] = "none" if (app.debug or app.testing) else "oidc"
     if app.config["AUTH_MODE"] == "none" and not app.config.get("SECRET_KEY"):

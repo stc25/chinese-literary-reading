@@ -2,14 +2,18 @@
 
     gunicorn -c deploy/gunicorn.conf.py wsgi:application
 """
-import multiprocessing
 import os
 
 bind = os.environ.get("MLC_BIND", "127.0.0.1:8000")
-# The app is light (content is held in memory, about 30 MB per worker); 2–4 workers suit a small server.
-workers = int(os.environ.get("MLC_WORKERS", min(4, multiprocessing.cpu_count() * 2)))
-threads = 2
-timeout = 30
+# One process with many threads. The assistant's AI calls spend their time waiting for the
+# model service, so threads suit them; and with one process the assistant's usage limits,
+# which are kept in memory, apply exactly. Content is held in memory (about 30 MB).
+# Raising MLC_WORKERS multiplies the usage limits by the number of workers.
+workers = int(os.environ.get("MLC_WORKERS", 1))
+worker_class = "gthread"
+threads = int(os.environ.get("MLC_THREADS", 16))
+# Longer than the assistant's step deadline (ASSISTANT_STEP_DEADLINE, 90 s) plus its queue wait (20 s).
+timeout = 130
 graceful_timeout = 30
 # Load the content once, before the workers fork. If the content has validation errors,
 # Gunicorn stops here with the list of errors instead of starting.

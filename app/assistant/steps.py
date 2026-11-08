@@ -11,11 +11,12 @@ from dataclasses import dataclass, field
 
 from ..content.model import Course
 from . import prompts as P
-from .client import OllamaClient, Usage
+from .client import ModelError, OllamaClient, Usage
 from .lookup import Analysis, is_letter
 
 CLAUSE_BREAK = re.compile(r"[，。、；：？！「」『』《》（）]")
 MAX_GRAMMAR_ITEMS = 30
+MAX_WORD = 4          # longer items are shown as phrase notes (models sometimes gloss a whole clause)
 
 
 @dataclass
@@ -90,6 +91,7 @@ def gloss_gaps(client: OllamaClient, analysis: Analysis) -> StepResult:
 
     usage = Usage()
     words, seen = [], set()
+    done, failed = 0, None
     for a, b in chunks(text, gaps):
         piece_gaps = [(max(x, a), min(y, b)) for x, y in gaps if x < b and a < y]
         marked, pos = "", a
@@ -97,7 +99,12 @@ def gloss_gaps(client: OllamaClient, analysis: Analysis) -> StepResult:
             marked += text[pos:x] + "【" + text[x:y] + "】"
             pos = y
         marked += text[pos:b]
-        reply = client.chat_json(P.SYSTEM, P.WORDS.format(marked=marked), P.WORDS_SCHEMA, check)
+        try:
+            reply = client.chat_json(P.SYSTEM, P.WORDS.format(marked=marked), P.WORDS_SCHEMA, check)
+        except ModelError as e:
+            failed = failed or e           # keep what the other parts gave
+            continue
+        done += 1
         usage.add(reply.usage)
         for w in reply.data["words"]:
             word = "".join(w["word"].split())
@@ -111,10 +118,12 @@ def gloss_gaps(client: OllamaClient, analysis: Analysis) -> StepResult:
                 i = text.find(word, i + 1)
             if spans:                      # keep only words that are really in the uncovered parts
                 seen.add(word)
-                words.append({"word": word, "pinyin": w.get("pinyin", "").strip(), "gloss": w["gloss"].strip(),
-                              "spans": spans})
+                words.append({"word": word, "pinyin": str(w.get("pinyin", "")).strip(), "gloss": w["gloss"].strip(),
+                              "spans": spans, "phrase": len(word) > MAX_WORD})
+    if failed and not done:
+        raise failed
     words.sort(key=lambda w: w["spans"][0][0])
-    return StepResult({"words": words}, usage)
+    return StepResult({"words": words, "incomplete": bool(failed)}, usage)
 
 
 # --------------------------------------------------------------------------
@@ -227,7 +236,7 @@ def ask(client: OllamaClient, text: str, history: list[dict], question: str) -> 
     """Answer a question about the text. The conversation so far is sent by the browser each
     time (nothing is kept on the server), and is cut to the last few exchanges."""
     past = ""
-    for turn in history[-4:]:
+    for turn in [t for t in history if isinstance(t, dict)][-4:]:
         q = str(turn.get("q", ""))[:MAX_QUESTION_CHARS]
         a = str(turn.get("a", ""))[:2000]
         past += f"\nEarlier question: {q}\nYour answer: {a}"

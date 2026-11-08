@@ -110,7 +110,7 @@ supply the examples for the help page.
 | A2 ✓ | Model steps | Ollama client, prompts and schemas for punctuation, words, grammar notes, names and translation; works with the local model |
 | A3 ✓ | Assistant page | the five steps, source labels, follow-up questions, limits, notices; help page; accessibility tests |
 | A4 ✓ | Evaluation | harness and report; choice of prompt; results in [assistant-evaluation.md](assistant-evaluation.md): `gemma4:31b` on the Ollama free plan |
-| A5 | Hardening | timeouts, error messages, limits under load, deployment settings and documentation |
+| A5 ✓ | Hardening | step deadline, retries, clear errors, a concurrency cap, refunds for service failures, partial results, phrase notes, one-process deployment, `assistant check` command; see docs/deployment.md |
 
 ## Budget
 

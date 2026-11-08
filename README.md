@@ -61,6 +61,8 @@ MLC_ASSISTANT_MODEL=gemma4:31b
 | `MLC_OLLAMA_API_KEY` | API key for the Ollama cloud service (kept on the server) |
 | `MLC_ASSISTANT_MODEL` | The model: default `qwen3.5:9b` (local); `gemma4:31b` on the Ollama cloud service |
 | `MLC_ASSISTANT_DAILY_LIMIT`, `MLC_ASSISTANT_HOURLY_LIMIT` | AI calls per user per day (default 40) and for everyone per hour (default 150) |
+| `MLC_ASSISTANT_TIMEOUT`, `MLC_ASSISTANT_STEP_DEADLINE` | Seconds allowed for one model call (default 60) and for a whole step (default 90) |
+| `MLC_ASSISTANT_MAX_CONCURRENT`, `MLC_ASSISTANT_QUEUE_WAIT` | Model calls at once for everyone (default 6), and seconds a request waits for a free slot before the page says the assistant is busy (default 20) |
 
 The sign-in callback URL to register is `https://<host>/auth/callback`. Nothing about users is stored
 on the server: the signed-in user's id and name are kept in the session cookie.

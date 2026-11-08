@@ -8,6 +8,7 @@ learner pastes is stored.
 from __future__ import annotations
 
 import secrets
+import threading
 
 from flask import Blueprint, abort, current_app, g, jsonify, render_template, request, session
 
@@ -103,21 +104,39 @@ def help():
 STEPS = ("punctuate", "words", "grammar", "names", "translate", "ask")
 
 
+_init_lock = threading.Lock()
+
+
+def _shared(name, make):
+    """One object per app, created once even when the first requests arrive together."""
+    obj = current_app.extensions.get(name)
+    if obj is None:
+        with _init_lock:
+            obj = current_app.extensions.get(name)
+            if obj is None:
+                obj = current_app.extensions[name] = make()
+    return obj
+
+
 def get_limits() -> Limits:
-    limits = current_app.extensions.get("assistant_limits")
-    if limits is None:
-        limits = current_app.extensions["assistant_limits"] = Limits(
-            int(current_app.config.get("ASSISTANT_DAILY_LIMIT", 40)),
-            int(current_app.config.get("ASSISTANT_HOURLY_LIMIT", 150)))
-    return limits
+    return _shared("assistant_limits", lambda: Limits(
+        int(current_app.config.get("ASSISTANT_DAILY_LIMIT", 40)),
+        int(current_app.config.get("ASSISTANT_HOURLY_LIMIT", 150))))
+
+
+def get_gate() -> threading.BoundedSemaphore:
+    """At most ASSISTANT_MAX_CONCURRENT model calls at once, so a burst cannot tie up every thread."""
+    return _shared("assistant_gate", lambda: threading.BoundedSemaphore(
+        max(1, int(current_app.config.get("ASSISTANT_MAX_CONCURRENT", 6)))))
+
+
+BUSY = ("The assistant is busy with other requests. Please try again in a minute; the course glossary, "
+        "grammar and date steps still work.")
 
 
 def get_client():
     """The model client; tests replace it through app.extensions["assistant_client"]."""
-    client = current_app.extensions.get("assistant_client")
-    if client is None:
-        client = current_app.extensions["assistant_client"] = client_from_config(current_app.config)
-    return client
+    return _shared("assistant_client", lambda: client_from_config(current_app.config))
 
 
 @bp.route("/api/<step>", methods=["POST"])
@@ -140,32 +159,63 @@ def api(step: str):
     if step == "ask":
         question = str(body.get("question", "")).strip()
         history = body.get("history") if isinstance(body.get("history"), list) else []
+        history = [h for h in history if isinstance(h, dict)]
         if not question:
             return jsonify(ok=False, error="Type a question first."), 400
         if len(history) >= steps.MAX_QUESTIONS:
             return jsonify(ok=False, error=f"You can ask up to {steps.MAX_QUESTIONS} questions about one text. "
                                            "Analyse the text again to start a new conversation."), 400
     user = (current_user() or {}).get("id", "anonymous")
-    refused = get_limits().check_and_count(user)
+    limits = get_limits()
+    refused = limits.check_and_count(user)
     if refused:
         return jsonify(ok=False, error=refused), 429
     client = get_client()
+    gate = get_gate()
+    if not gate.acquire(timeout=float(current_app.config.get("ASSISTANT_QUEUE_WAIT", 20))):
+        limits.refund(user)
+        current_app.logger.warning("assistant: all %s model slots busy", current_app.config.get("ASSISTANT_MAX_CONCURRENT", 6))
+        return jsonify(ok=False, error=BUSY), 503
     try:
-        if step == "punctuate":
-            result = steps.punctuate(client, p.text)
-        elif step == "words":
-            result = steps.gloss_gaps(client, analysis)
-        elif step == "grammar":
-            result = steps.grammar_notes(client, analysis, g.course)
-        elif step == "names":
-            result = steps.names(client, analysis)
-        elif step == "translate":
-            result = steps.translate(client, p.text, literal=bool(body.get("literal")))
-        else:
-            result = steps.ask(client, p.text, history, question)
+        with client.deadline(float(current_app.config.get("ASSISTANT_STEP_DEADLINE", 90))):
+            if step == "punctuate":
+                result = steps.punctuate(client, p.text)
+            elif step == "words":
+                result = steps.gloss_gaps(client, analysis)
+            elif step == "grammar":
+                result = steps.grammar_notes(client, analysis, g.course)
+            elif step == "names":
+                result = steps.names(client, analysis)
+            elif step == "translate":
+                result = steps.translate(client, p.text, literal=bool(body.get("literal")))
+            else:
+                result = steps.ask(client, p.text, history, question)
     except ModelError as e:
-        return jsonify(ok=False, error=str(e)), 502
+        if e.service_fault:
+            limits.refund(user)
+        resp = jsonify(ok=False, error=str(e), remaining=limits.remaining(user))
+        resp.headers["Cache-Control"] = "no-store"
+        return resp, 502
+    finally:
+        gate.release()
     resp = jsonify(ok=True, step=step, source="ai", model=client.model, data=result.data,
-                   remaining=get_limits().remaining(user))
+                   remaining=limits.remaining(user))
     resp.headers["Cache-Control"] = "no-store"
     return resp
+
+
+@bp.cli.command("check")
+def check_command():
+    """Check the model settings with one short request: flask --app app assistant check"""
+    import click
+
+    cfg = current_app.config
+    client = client_from_config(cfg)
+    click.echo(f"Model {client.model} at {client.host}; API key {'set' if client.api_key else 'not set'}.")
+    try:
+        with client.deadline(float(cfg.get("ASSISTANT_STEP_DEADLINE", 90))):
+            r = steps.translate(client, "學而時習之")
+    except ModelError as e:
+        raise click.ClickException(f"{e} (see the log lines above for the service's answer)")
+    click.echo(f"OK: answered in {r.usage.seconds:.1f} s ({r.usage.prompt_tokens + r.usage.output_tokens} tokens): "
+               f"{r.data['translation'][:80]}")
