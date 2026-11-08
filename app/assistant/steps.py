@@ -52,39 +52,69 @@ def _overlaps(a: int, b: int, spans: list[tuple[int, int]]) -> bool:
     return any(a < y and x < b for x, y in spans)
 
 
+CHUNK = 150          # characters per request in the words step
+
+
+def chunks(text: str, gaps: list[tuple[int, int]], size: int = CHUNK) -> list[tuple[int, int]]:
+    """Pieces of the text of about `size` characters, cut after a sentence or clause break,
+    that contain at least one gap. A small model glosses a long text only partly, so the
+    words step sends one piece at a time."""
+    pieces, start = [], 0
+    while start < len(text):
+        end = min(len(text), start + size)
+        if end < len(text):
+            cut = max((m.end() for m in re.finditer(r"[。；！？]", text[start:end])), default=0)
+            if not cut:
+                cut = max((m.end() for m in re.finditer(r"[，、：]", text[start:end])), default=0)
+            if cut:
+                end = start + cut
+        # never cut through a gap
+        for a, b in gaps:
+            if a < end < b:
+                end = b
+        pieces.append((start, end))
+        start = end
+    return [(a, b) for a, b in pieces if _overlaps(a, b, gaps)]
+
+
 def gloss_gaps(client: OllamaClient, analysis: Analysis) -> StepResult:
     """AI glosses for the parts of the text that the course glossary does not cover."""
     text, gaps = analysis.prepared.text, analysis.gaps
     if not gaps:
         return StepResult({"words": []})
-    marked, pos = "", 0
-    for a, b in gaps:
-        marked += text[pos:a] + "【" + text[a:b] + "】"
-        pos = b
-    marked += text[pos:]
 
     def check(d):
         for w in d["words"]:
             if not isinstance(w.get("word"), str) or not isinstance(w.get("gloss"), str):
                 raise ValueError("malformed word")
 
-    reply = client.chat_json(P.SYSTEM, P.WORDS.format(marked=marked), P.WORDS_SCHEMA, check)
+    usage = Usage()
     words, seen = [], set()
-    for w in reply.data["words"]:
-        word = "".join(w["word"].split())
-        if not word or word in seen or not w["gloss"].strip():
-            continue
-        spans = []
-        i = text.find(word)
-        while i != -1:
-            if _overlaps(i, i + len(word), gaps):
-                spans.append((i, i + len(word)))
-            i = text.find(word, i + 1)
-        if spans:                      # keep only words that are really in the uncovered parts
-            seen.add(word)
-            words.append({"word": word, "pinyin": w.get("pinyin", "").strip(), "gloss": w["gloss"].strip(),
-                          "spans": spans})
-    return StepResult({"words": words}, reply.usage)
+    for a, b in chunks(text, gaps):
+        piece_gaps = [(max(x, a), min(y, b)) for x, y in gaps if x < b and a < y]
+        marked, pos = "", a
+        for x, y in piece_gaps:
+            marked += text[pos:x] + "【" + text[x:y] + "】"
+            pos = y
+        marked += text[pos:b]
+        reply = client.chat_json(P.SYSTEM, P.WORDS.format(marked=marked), P.WORDS_SCHEMA, check)
+        usage.add(reply.usage)
+        for w in reply.data["words"]:
+            word = "".join(w["word"].split())
+            if not word or word in seen or not w["gloss"].strip():
+                continue
+            spans = []
+            i = text.find(word)
+            while i != -1:
+                if _overlaps(i, i + len(word), gaps):
+                    spans.append((i, i + len(word)))
+                i = text.find(word, i + 1)
+            if spans:                      # keep only words that are really in the uncovered parts
+                seen.add(word)
+                words.append({"word": word, "pinyin": w.get("pinyin", "").strip(), "gloss": w["gloss"].strip(),
+                              "spans": spans})
+    words.sort(key=lambda w: w["spans"][0][0])
+    return StepResult({"words": words}, usage)
 
 
 # --------------------------------------------------------------------------

@@ -109,7 +109,7 @@ supply the examples for the help page.
 | A1 ✓ | Deterministic layer | glossary lookup, grammar forms and date detection on any pasted text, with tests; a page that shows them without any model |
 | A2 ✓ | Model steps | Ollama client, prompts and schemas for punctuation, words, grammar notes, names and translation; works with the local model |
 | A3 ✓ | Assistant page | the five steps, source labels, follow-up questions, limits, notices; help page; accessibility tests |
-| A4 | Evaluation | harness and report; local model compared with two or three cloud models; choice of model and prompt |
+| A4 ✓ | Evaluation | harness and report; choice of prompt; results in [assistant-evaluation.md](assistant-evaluation.md). The cloud-model comparison waits for the API key |
 | A5 | Hardening | timeouts, error messages, limits under load, deployment settings and documentation |
 
 ## Budget
@@ -124,11 +124,13 @@ about £5 a month**, and keeps model use low:
 - each step is requested separately, so steps the learner does not open cost nothing;
 - per-user and global limits are set from the allowance once it is known, and the page says when the
   limit is reached and that the course glossary and grammar steps still work;
-- the evaluation (A4) records tokens per step, so the cost per analysis can be estimated.
+- the evaluation (A4) records tokens per step: a full analysis uses about 6,500 tokens (about 8,000
+  with names and questions), or about 15 million tokens a year for the pilot (see
+  [assistant-evaluation.md](assistant-evaluation.md#tokens-and-budget)).
 
 If the allowance proves too small, the alternative is to run the local model (`qwen3.5:9b`) on the
-Language Centre server: no usage cost, but slower answers and a server with enough memory (about 8 GB
-free) is needed.
+Language Centre server. That has no usage cost, but it needs a GPU: without one, a full analysis
+took about four minutes in A4.
 
 ## Open points
 

@@ -396,3 +396,76 @@ class A3Page(unittest.TestCase):
             self.assertIn(f'data-run="{step}"', html)
         self.assertIn("assistant.js", html)
         self.assertIn('data-text="吾心目中有黿鼉"', html)
+
+
+# --------------------------------------------------------------------------
+# A4: scoring
+# --------------------------------------------------------------------------
+
+from app.assistant.evaluate import (boundaries, break_positions, content_words, glosses_agree,  # noqa: E402
+                                    score_punctuation, score_sets)
+
+
+class Scoring(unittest.TestCase):
+    def test_break_positions(self):
+        self.assertEqual(break_positions("日本人之稱我中國也，一則曰「老大帝國」。"), {8, 15})
+        self.assertEqual(break_positions("「之」"), set())      # quotation marks are not breaks
+
+    def test_score_punctuation(self):
+        gold = "甲乙，丙丁。戊己。"
+        s = score_punctuation("甲乙。丙丁戊己，", gold)
+        self.assertEqual((s.tp, s.fp, s.fn), (2, 0, 1))     # breaks after 乙 and 己 found, after 丁 missed
+        self.assertAlmostEqual(score_punctuation(gold, gold).f1, 1.0)
+
+    def test_segmentation(self):
+        s = score_sets(boundaries({(0, 2), (2, 3)}), boundaries({(0, 2), (2, 4)}))
+        self.assertEqual((s.tp, s.fp, s.fn), (2, 1, 1))
+
+    def test_gloss_agreement(self):
+        self.assertTrue(glosses_agree("v. to ask, request", "*v.* to request"))
+        self.assertIsNone(glosses_agree("n. the past", "*adv.* formerly"))
+        self.assertEqual(content_words("*n.* the selection of heaven (Yan Fu's term)"), {"selection", "heaven"})
+
+
+class Gaps(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.index = glossary_index(build(load(CONTENT)))
+
+    def test_gap_extends_over_weak_neighbour(self):
+        from app.assistant.lookup import Match
+        text = "如朝陽"
+        # 朝 covered only by a single-character gloss, 陽 not at all
+        matches = [Match(1, 2, []), Match(0, 1, [])]
+        self.assertEqual(uncovered(text, matches), [(1, 3)])
+
+    def test_strong_coverage_is_not_extended(self):
+        from app.assistant.lookup import Match
+        matches = [Match(0, 2, [])]          # a two-character term
+        self.assertEqual(uncovered("中國陽", matches), [(2, 3)])
+
+    def test_major_breaks_forgive_commas(self):
+        from app.assistant.evaluate import score_major_breaks
+        gold = "老年人如夕照，少年人如朝陽；老年人如僧。"
+        pred = "老年人，如夕照；少年人，如朝陽。老年人，如僧。"
+        s = score_major_breaks(pred, gold)
+        self.assertEqual((s.fp, s.fn), (0, 0))
+
+
+class Chunks(unittest.TestCase):
+    def test_chunks_cut_at_breaks_and_keep_gaps_whole(self):
+        from app.assistant.steps import chunks
+        text = "甲乙丙丁。" * 40              # 200 characters
+        gaps = [(2, 4), (148, 152), (190, 192)]
+        pieces = chunks(text, gaps, size=150)
+        self.assertTrue(all(text[b - 1] == "。" or b == len(text) or any(a2 < b <= b2 for a2, b2 in gaps)
+                            for a, b in pieces))
+        for g0, g1 in gaps:                   # every gap lies inside one piece
+            self.assertTrue(any(a <= g0 and g1 <= b for a, b in pieces))
+
+    def test_one_call_per_chunk(self):
+        a = analyse("黿鼉之。" * 60, load(CONTENT), build(load(CONTENT)), max_chars=5000)
+        c = stub(*[{"words": [{"word": "黿鼉", "pinyin": "yuántuó", "gloss": "n. turtles"}]}] * 5)
+        r = steps.gloss_gaps(c, a)
+        self.assertGreater(len(c.session.requests), 1)
+        self.assertEqual([w["word"] for w in r.data["words"]], ["黿鼉"])

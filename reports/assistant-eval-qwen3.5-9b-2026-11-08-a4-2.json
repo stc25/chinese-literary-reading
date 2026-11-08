@@ -1,0 +1,5636 @@
+{
+ "summary": {
+  "model": "qwen3.5:9b",
+  "host": "http://localhost:11434",
+  "judge": "gemma3:12b",
+  "prompts": "a4-2",
+  "date": "2026-11-08",
+  "passages": 15,
+  "punctuation": {
+   "precision": 0.9216417910447762,
+   "recall": 0.9014598540145985,
+   "f1": 0.911439114391144
+  },
+  "major_breaks": {
+   "precision": 0.9649122807017544,
+   "recall": 1.0,
+   "f1": 0.9821428571428572
+  },
+  "segmentation": {
+   "precision": 0.5704081632653061,
+   "recall": 0.695273631840796,
+   "f1": 0.6266816143497758
+  },
+  "glosses": {
+   "segmented differently": 261,
+   "same": 141,
+   "missing": 26,
+   "close": 30
+  },
+  "grammar": {
+   "checked": 52,
+   "correct": 25
+  },
+  "translation": {
+   "minor": 10,
+   "faithful": 5
+  },
+  "failures": {
+   "punctuate": 4
+  },
+  "per_step": {
+   "punctuate": {
+    "calls": 11,
+    "prompt_tokens_avg": 403.54545454545456,
+    "output_tokens_avg": 179.36363636363637,
+    "seconds_avg": 17.628731208239596
+   },
+   "words": {
+    "calls": 15,
+    "prompt_tokens_avg": 992.9333333333333,
+    "output_tokens_avg": 1489.8666666666666,
+    "seconds_avg": 83.96966748338504
+   },
+   "grammar": {
+    "calls": 15,
+    "prompt_tokens_avg": 1283.0666666666666,
+    "output_tokens_avg": 1265.2,
+    "seconds_avg": 78.67166595277376
+   },
+   "translate": {
+    "calls": 15,
+    "prompt_tokens_avg": 413.3333333333333,
+    "output_tokens_avg": 217.26666666666668,
+    "seconds_avg": 18.145960047189146
+   },
+   "judge": {
+    "calls": 54,
+    "prompt_tokens_avg": 631,
+    "output_tokens_avg": 21,
+    "seconds_avg": 14.364379048580304
+   }
+  },
+  "tokens_per_analysis": 6244.575757575757
+ },
+ "records": [
+  {
+   "id": "u01-p01",
+   "title": "The planets",
+   "steps": {
+    "punctuate": {
+     "seconds": 8.269638957921416,
+     "prompt_tokens": 311,
+     "output_tokens": 74,
+     "tp": 9,
+     "fp": 5,
+     "fn": 0,
+     "major_tp": 8,
+     "major_fp": 0,
+     "major_fn": 0,
+     "output": "天空諸曜曰星。水星，即辰星也。金星，即太白星也。夜見西方曰長庚，朝見東方曰啟明。地球亦行星也。火星，即熒惑也。木星，即歲星也。土星，即填星也。",
+     "gold": "天空諸曜曰星。水星即辰星也。金星即太白星也。夜見西方曰長庚，朝見東方曰啟明。地球亦行星也。火星即熒惑也。木星即歲星也。土星即填星也。"
+    },
+    "words": {
+     "seconds": 26.921676832949743,
+     "prompt_tokens": 503,
+     "output_tokens": 688,
+     "seg_tp": 30,
+     "seg_fp": 11,
+     "seg_fn": 4,
+     "glosses": [
+      {
+       "term": "天空",
+       "course": "*n.* the sky",
+       "ai": "天空諸曜: n. the various luminaries in the sky",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "諸",
+       "course": "all the; the various",
+       "ai": "天空諸曜: n. the various luminaries in the sky",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "曜",
+       "course": "*n.* a luminary, a heavenly body",
+       "ai": "天空諸曜: n. the various luminaries in the sky",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "星",
+       "course": "*n.* star; heavenly body",
+       "ai": "n. star (here: celestial body)",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "水星",
+       "course": "Mercury (lit. \"water star\")",
+       "ai": "n. Mercury",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "即",
+       "course": "*v.* to be, to be precisely",
+       "ai": null,
+       "verdict": "missing"
+      },
+      {
+       "term": "辰星",
+       "course": "Chenxing, an older name for Mercury",
+       "ai": "n. Mercury (ancient Chinese name)",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "金星",
+       "course": "Venus (lit. \"metal star\")",
+       "ai": "n. Venus",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "太白星",
+       "course": "Taibai, an older name for Venus",
+       "ai": "n. Venus (ancient Chinese name)",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "西方",
+       "course": "*n.* the west",
+       "ai": "西: adj. western",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "長庚",
+       "course": "Changgeng, the evening star",
+       "ai": "n. Venus (as seen in the west at night)",
+       "verdict": "close"
+      },
+      {
+       "term": "東方",
+       "course": "*n.* the east",
+       "ai": "東: adj. eastern",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "啟明",
+       "course": "Qiming, the morning star",
+       "ai": "n. Venus (as seen in the east before sunrise)",
+       "verdict": "close"
+      },
+      {
+       "term": "火星",
+       "course": "Mars (lit. \"fire star\")",
+       "ai": "n. Mars",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "熒惑",
+       "course": "Yinghuo, an older name for Mars",
+       "ai": "n. Mars (ancient Chinese name)",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "木星",
+       "course": "Jupiter (lit. \"wood star\")",
+       "ai": "n. Jupiter",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "歲星",
+       "course": "Suixing, an older name for Jupiter (lit. \"year star\")",
+       "ai": "n. Jupiter (ancient Chinese name)",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "土星",
+       "course": "Saturn (lit. \"earth star\")",
+       "ai": "n. Saturn",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "填星",
+       "course": "Zhenxing, an older name for Saturn (填 is read zhèn here, = 鎮)",
+       "ai": "n. Saturn (ancient Chinese name)",
+       "verdict": "same (auto)"
+      }
+     ],
+     "ai_words": [
+      {
+       "word": "天空諸曜",
+       "gloss": "n. the various luminaries in the sky"
+      },
+      {
+       "word": "星",
+       "gloss": "n. star (here: celestial body)"
+      },
+      {
+       "word": "水星",
+       "gloss": "n. Mercury"
+      },
+      {
+       "word": "辰星",
+       "gloss": "n. Mercury (ancient Chinese name)"
+      },
+      {
+       "word": "金星",
+       "gloss": "n. Venus"
+      },
+      {
+       "word": "太白星",
+       "gloss": "n. Venus (ancient Chinese name)"
+      },
+      {
+       "word": "西",
+       "gloss": "adj. western"
+      },
+      {
+       "word": "長庚",
+       "gloss": "n. Venus (as seen in the west at night)"
+      },
+      {
+       "word": "東",
+       "gloss": "adj. eastern"
+      },
+      {
+       "word": "啟明",
+       "gloss": "n. Venus (as seen in the east before sunrise)"
+      },
+      {
+       "word": "火星",
+       "gloss": "n. Mars"
+      },
+      {
+       "word": "熒惑",
+       "gloss": "n. Mars (ancient Chinese name)"
+      },
+      {
+       "word": "木星",
+       "gloss": "n. Jupiter"
+      },
+      {
+       "word": "歲星",
+       "gloss": "n. Jupiter (ancient Chinese name)"
+      },
+      {
+       "word": "土星",
+       "gloss": "n. Saturn"
+      },
+      {
+       "word": "填星",
+       "gloss": "n. Saturn (ancient Chinese name)"
+      }
+     ]
+    },
+    "grammar": {
+     "seconds": 39.15365875000134,
+     "prompt_tokens": 882,
+     "output_tokens": 792,
+     "checks": [
+      {
+       "form": "也",
+       "clause": "水星即辰星也",
+       "gold": "ye-final",
+       "ai": "ye-final",
+       "ok": true
+      },
+      {
+       "form": "也",
+       "clause": "金星即太白星也",
+       "gold": "ye-final",
+       "ai": "ye-final",
+       "ok": true
+      },
+      {
+       "form": "也",
+       "clause": "地球亦行星也",
+       "gold": "ye-final",
+       "ai": "ye-final",
+       "ok": true
+      },
+      {
+       "form": "也",
+       "clause": "火星即熒惑也",
+       "gold": "ye-final",
+       "ai": "ye-final",
+       "ok": true
+      },
+      {
+       "form": "也",
+       "clause": "木星即歲星也",
+       "gold": "ye-final",
+       "ai": "ye-final",
+       "ok": true
+      },
+      {
+       "form": "也",
+       "clause": "土星即填星也",
+       "gold": "ye-final",
+       "ai": "ye-final",
+       "ok": true
+      }
+     ]
+    },
+    "translate": {
+     "seconds": 6.7084809159860015,
+     "prompt_tokens": 302,
+     "output_tokens": 110,
+     "output": "The celestial bodies in the sky are called stars. The planet Mercury is known as Chenxing (the Morning Star). The planet Venus is known as Taibai (the Bright Star). When seen in the west at night, it is called Changgeng; when seen in the east at dawn, it is called Qiming. Earth is also a planet. The planet Mars is known as Yinghuo. The planet Jupiter is known as Suixing. The planet Saturn is known as Tianxing.",
+     "gold": "The heavenly bodies of the sky are called 星 \"stars\". Mercury is Chenxing. Venus is Taibai. When it appears in the west at night it is called Changgeng; when it appears in the east in the morning it is called Qiming. The earth, too, is a planet. Mars is Yinghuo. Jupiter is Suixing. Saturn is Zhenxing.",
+     "verdict": "minor",
+     "judge_note": "The translation incorrectly renders 土星 as 填星 instead of 天星."
+    }
+   },
+   "gaps": 11
+  },
+  {
+   "id": "u02-p02",
+   "title": "Heaven, air and stars",
+   "steps": {
+    "punctuate": {
+     "seconds": 7.844598124967888,
+     "prompt_tokens": 295,
+     "output_tokens": 53,
+     "tp": 8,
+     "fp": 0,
+     "fn": 1,
+     "major_tp": 5,
+     "major_fp": 0,
+     "major_fn": 0,
+     "output": "至高無上曰天。天積氣也。靜則曰氣，動則曰風。動者為行星，不動者為恆星。恆星有光，行星無光。",
+     "gold": "至高無上曰天。天，積氣也。靜則曰氣，動則曰風。動者為行星，不動者為恆星。恆星有光，行星無光。"
+    },
+    "words": {
+     "seconds": 11.60401404206641,
+     "prompt_tokens": 476,
+     "output_tokens": 213,
+     "seg_tp": 8,
+     "seg_fp": 5,
+     "seg_fn": 1,
+     "glosses": [
+      {
+       "term": "至高無上",
+       "course": "highest, with nothing above",
+       "ai": "至高: adj. highest",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "天",
+       "course": "*n.* heaven; the sky",
+       "ai": "n. heaven (in the sense of the firmament or atmosphere)",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "積",
+       "course": "*adj.* accumulated, gathered",
+       "ai": "積氣: n. accumulated air",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "氣",
+       "course": "*n.* air; vapour",
+       "ai": "n. air (in the sense of atmospheric substance)",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "風",
+       "course": "*n.* wind",
+       "ai": "n. wind",
+       "verdict": "same (auto)"
+      }
+     ],
+     "ai_words": [
+      {
+       "word": "至高",
+       "gloss": "adj. highest"
+      },
+      {
+       "word": "天",
+       "gloss": "n. heaven (in the sense of the firmament or atmosphere)"
+      },
+      {
+       "word": "積氣",
+       "gloss": "n. accumulated air"
+      },
+      {
+       "word": "氣",
+       "gloss": "n. air (in the sense of atmospheric substance)"
+      },
+      {
+       "word": "風",
+       "gloss": "n. wind"
+      }
+     ]
+    },
+    "grammar": {
+     "seconds": 47.93421066692099,
+     "prompt_tokens": 803,
+     "output_tokens": 929,
+     "checks": [
+      {
+       "form": "也",
+       "clause": "積氣也",
+       "gold": "ye-final",
+       "ai": null,
+       "ok": false
+      },
+      {
+       "form": "者",
+       "clause": "動者為行星",
+       "gold": "zhe-nominaliser",
+       "ai": null,
+       "ok": false
+      },
+      {
+       "form": "為",
+       "clause": "動者為行星",
+       "gold": "wei-copula",
+       "ai": null,
+       "ok": false
+      },
+      {
+       "form": "者",
+       "clause": "不動者為恆星",
+       "gold": "zhe-nominaliser",
+       "ai": null,
+       "ok": false
+      },
+      {
+       "form": "為",
+       "clause": "不動者為恆星",
+       "gold": "wei-copula",
+       "ai": null,
+       "ok": false
+      }
+     ]
+    },
+    "translate": {
+     "seconds": 3.503948957892135,
+     "prompt_tokens": 287,
+     "output_tokens": 66,
+     "output": "The Supreme is Heaven. Heaven is accumulated qi. When it is still, it is called qi; when it moves, it is called wind. That which moves is a planet; that which does not move is a fixed star. Fixed stars have light; planets do not have light.",
+     "gold": "What is highest, with nothing above it, is called 天 \"heaven\". Heaven is accumulated air. When it is still it is called 氣 \"air\"; when it moves it is called 風 \"wind\". Those that move are planets; those that do not move are fixed stars. Fixed stars have light of their own; planets have none.",
+     "verdict": "faithful",
+     "judge_note": "none"
+    }
+   },
+   "gaps": 6
+  },
+  {
+   "id": "u03-p03",
+   "title": "\"Uncle, do not come\"",
+   "steps": {
+    "punctuate": {
+     "seconds": 13.755100084003061,
+     "prompt_tokens": 325,
+     "output_tokens": 93,
+     "tp": 14,
+     "fp": 2,
+     "fn": 0,
+     "major_tp": 10,
+     "major_fp": 0,
+     "major_fn": 0,
+     "output": "南五舅送至長沙，握手曰：「明年送外甥婦來京。」余曰：「京城苦，舅勿來。」舅曰：「然。然，吾終尋汝任所也。」言已泣下。余不能與弟相見，託黃南翁面語一切，冀弟毋動肝氣，至囑、至囑。",
+     "gold": "南五舅送至長沙，握手曰：「明年送外甥婦來京。」余曰：「京城苦，舅勿來。」舅曰：「然。然吾終尋汝任所也。」言已泣下。余不能與弟相見，託黃南翁面語一切，冀弟毋動肝氣。至囑至囑。"
+    },
+    "words": {
+     "seconds": 50.04572541592643,
+     "prompt_tokens": 527,
+     "output_tokens": 1030,
+     "seg_tp": 32,
+     "seg_fp": 10,
+     "seg_fn": 7,
+     "glosses": [
+      {
+       "term": "南五舅",
+       "course": "Fifth Uncle Nan, one of his mother's brothers",
+       "ai": "n. a personal name (referring to 'Uncle Nanwu')",
+       "verdict": "close"
+      },
+      {
+       "term": "送",
+       "course": "*v.* to see (someone) off",
+       "ai": null,
+       "verdict": "missing"
+      },
+      {
+       "term": "至",
+       "course": "*prep.* to, as far as",
+       "ai": null,
+       "verdict": "missing"
+      },
+      {
+       "term": "長沙",
+       "course": "Changsha, the capital of Hunan province",
+       "ai": null,
+       "verdict": "missing"
+      },
+      {
+       "term": "握手",
+       "course": "*v.* to take (someone's) hand",
+       "ai": "v. to hold hands",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "明年",
+       "course": "*n.* next year",
+       "ai": "n. next year",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "送",
+       "course": "*v.* to bring, to escort",
+       "ai": null,
+       "verdict": "missing"
+      },
+      {
+       "term": "外甥婦",
+       "course": "*n.* nephew's wife; here, Zeng's wife",
+       "ai": "n. the wife of one's nephew (or sister-in-law)",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "來",
+       "course": "*v.* to come",
+       "ai": "v. to come",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "京",
+       "course": "*n.* the capital (Beijing)",
+       "ai": null,
+       "verdict": "missing"
+      },
+      {
+       "term": "京城",
+       "course": "*n.* the capital city",
+       "ai": "n. the capital city",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "苦",
+       "course": "*adj.* hard, bitter",
+       "ai": "adj. hard; difficult; suffering",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "舅",
+       "course": "*n.* mother's brother, uncle",
+       "ai": "n. uncle (maternal)",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "終",
+       "course": "*adv.* in the end",
+       "ai": "adv. ultimately; in the end",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "尋",
+       "course": "*v.* to seek out",
+       "ai": null,
+       "verdict": "missing"
+      },
+      {
+       "term": "汝",
+       "course": "*pron.* you",
+       "ai": "pronoun you",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "任所",
+       "course": "*n.* (official) post",
+       "ai": "任: n. post; position (in government or service)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "泣下",
+       "course": "*v.* to shed tears",
+       "ai": "v. tears fell",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "弟",
+       "course": "*n.* younger brother; here \"you\"",
+       "ai": "弟相: n. younger brother (here referring to the speaker's own younger brother)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "相見",
+       "course": "*v.* to see each other",
+       "ai": "弟相: n. younger brother (here referring to the speaker's own younger brother)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "託",
+       "course": "*v.* to ask (someone to do something)",
+       "ai": "v. to entrust",
+       "verdict": "same"
+      },
+      {
+       "term": "黃南翁",
+       "course": "Mr Huang Nan, who carried the message (翁 \"old gentleman\")",
+       "ai": "n. a personal name (referring to 'Elder Huang Nan')",
+       "verdict": "same"
+      },
+      {
+       "term": "面語",
+       "course": "*v.* to tell in person",
+       "ai": "v. to speak face-to-face",
+       "verdict": "same"
+      },
+      {
+       "term": "一切",
+       "course": "*n.* everything",
+       "ai": "n. all matters; everything",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "冀",
+       "course": "*v.* to hope",
+       "ai": "v. to hope",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "毋",
+       "course": "*adv.* do not, may (you) not",
+       "ai": "adv. do not",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "動肝氣",
+       "course": "to lose one's temper (lit. \"stir the liver's qi\")",
+       "ai": "動: v. to move (here: to get agitated or angry)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "至囑",
+       "course": "I urge this most earnestly",
+       "ai": "v. to urge earnestly; to instruct repeatedly",
+       "verdict": "same (auto)"
+      }
+     ],
+     "ai_words": [
+      {
+       "word": "南五舅",
+       "gloss": "n. a personal name (referring to 'Uncle Nanwu')"
+      },
+      {
+       "word": "舅",
+       "gloss": "n. uncle (maternal)"
+      },
+      {
+       "word": "握手",
+       "gloss": "v. to hold hands"
+      },
+      {
+       "word": "明年",
+       "gloss": "n. next year"
+      },
+      {
+       "word": "外甥婦",
+       "gloss": "n. the wife of one's nephew (or sister-in-law)"
+      },
+      {
+       "word": "來",
+       "gloss": "v. to come"
+      },
+      {
+       "word": "京城",
+       "gloss": "n. the capital city"
+      },
+      {
+       "word": "苦",
+       "gloss": "adj. hard; difficult; suffering"
+      },
+      {
+       "word": "終",
+       "gloss": "adv. ultimately; in the end"
+      },
+      {
+       "word": "汝",
+       "gloss": "pronoun you"
+      },
+      {
+       "word": "任",
+       "gloss": "n. post; position (in government or service)"
+      },
+      {
+       "word": "泣下",
+       "gloss": "v. tears fell"
+      },
+      {
+       "word": "弟相",
+       "gloss": "n. younger brother (here referring to the speaker's own younger brother)"
+      },
+      {
+       "word": "託",
+       "gloss": "v. to entrust"
+      },
+      {
+       "word": "黃南翁",
+       "gloss": "n. a personal name (referring to 'Elder Huang Nan')"
+      },
+      {
+       "word": "面語",
+       "gloss": "v. to speak face-to-face"
+      },
+      {
+       "word": "一切",
+       "gloss": "n. all matters; everything"
+      },
+      {
+       "word": "冀",
+       "gloss": "v. to hope"
+      },
+      {
+       "word": "毋",
+       "gloss": "adv. do not"
+      },
+      {
+       "word": "動",
+       "gloss": "v. to move (here: to get agitated or angry)"
+      },
+      {
+       "word": "肝氣",
+       "gloss": "n. liver qi (a traditional concept referring to anger or irritability)"
+      },
+      {
+       "word": "至囑",
+       "gloss": "v. to urge earnestly; to instruct repeatedly"
+      }
+     ]
+    },
+    "grammar": {
+     "seconds": 65.32055125012994,
+     "prompt_tokens": 865,
+     "output_tokens": 1150,
+     "checks": [
+      {
+       "form": "也",
+       "clause": "然吾終尋汝任所也",
+       "gold": "ye-final",
+       "ai": "ye-final",
+       "ok": true
+      }
+     ]
+    },
+    "translate": {
+     "seconds": 8.724000832997262,
+     "prompt_tokens": 324,
+     "output_tokens": 120,
+     "output": "My uncle Nan sent me to Changsha. He took my hand and said, 'Next year I will bring your sister-in-law to the capital.' I replied, 'The capital is hard; please do not come.' My uncle said, 'Yes. But I will still go to find where you are working.' After speaking, he shed tears. I could not meet my brother in person, so I entrusted Mr. Huang Nan to speak with him directly about everything, hoping that my brother would not get angry or upset. I urged and urged him.",
+     "gold": "Fifth Uncle Nan saw me off as far as Changsha. Taking my hand, he said: \"Next year I will bring your wife to the capital.\" I said: \"Life in the capital is hard. Uncle, do not come.\" My uncle said: \"Very well. But in the end I shall seek you out at your post.\" When he had finished speaking, he wept. I cannot see you, so I have asked Mr Huang Nan to tell you everything in person. I hope that you will not lose your temper. I urge this most earnestly, most earnestly.",
+     "verdict": "minor",
+     "judge_note": "The translation uses 'sister-in-law' for 外甥婦, which is more accurately 'niece-in-law' or 'wife of a nephew'; while the sense is close, it's not quite accurate."
+    }
+   },
+   "gaps": 13
+  },
+  {
+   "id": "u05-p01",
+   "title": "The \"old empire\"",
+   "steps": {
+    "punctuate": {
+     "error": "The AI service did not give a usable answer.",
+     "seconds": 15.742963166208938
+    },
+    "words": {
+     "seconds": 20.35484137502499,
+     "prompt_tokens": 498,
+     "output_tokens": 311,
+     "seg_tp": 11,
+     "seg_fp": 3,
+     "seg_fn": 1,
+     "glosses": [
+      {
+       "term": "再則",
+       "course": "in the second place; and again",
+       "ai": "再: adv. again",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "帝國",
+       "course": "empire",
+       "ai": "n. empire",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "盖",
+       "course": "(= 蓋) it seems; presumably",
+       "ai": "conj. probably, perhaps (indicating inference)",
+       "verdict": "close"
+      },
+      {
+       "term": "襲譯",
+       "course": "to take over by translation",
+       "ai": "v. to copy and translate",
+       "verdict": "close"
+      },
+      {
+       "term": "歐西",
+       "course": "Europe; the West",
+       "ai": "n. Europe/West (a place name referring to Western countries)",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "嗚呼",
+       "course": "alas!",
+       "ai": "interj. Alas! Oh!",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "心目中",
+       "course": "in (my) mind's eye",
+       "ai": "n. in one's mind (literally: in the center of the heart and eyes)",
+       "verdict": "same (auto)"
+      }
+     ],
+     "ai_words": [
+      {
+       "word": "帝國",
+       "gloss": "n. empire"
+      },
+      {
+       "word": "再",
+       "gloss": "adv. again"
+      },
+      {
+       "word": "盖",
+       "gloss": "conj. probably, perhaps (indicating inference)"
+      },
+      {
+       "word": "襲譯",
+       "gloss": "v. to copy and translate"
+      },
+      {
+       "word": "歐西",
+       "gloss": "n. Europe/West (a place name referring to Western countries)"
+      },
+      {
+       "word": "嗚呼",
+       "gloss": "interj. Alas! Oh!"
+      },
+      {
+       "word": "心目中",
+       "gloss": "n. in one's mind (literally: in the center of the heart and eyes)"
+      }
+     ]
+    },
+    "grammar": {
+     "seconds": 90.33229933306575,
+     "prompt_tokens": 1126,
+     "output_tokens": 1201,
+     "checks": [
+      {
+       "form": "之",
+       "clause": "日本人之稱我中國也",
+       "gold": "zhi-nominaliser",
+       "ai": "zhi-nominaliser",
+       "ok": true
+      },
+      {
+       "form": "也",
+       "clause": "日本人之稱我中國也",
+       "gold": "ye-topic",
+       "ai": "ye-final",
+       "ok": false
+      },
+      {
+       "form": "是",
+       "clause": "是語也",
+       "gold": "demonstratives",
+       "ai": null,
+       "ok": false
+      },
+      {
+       "form": "也",
+       "clause": "是語也",
+       "gold": "ye-topic",
+       "ai": "ye-final",
+       "ok": false
+      },
+      {
+       "form": "之",
+       "clause": "盖襲譯歐西人之言也",
+       "gold": "zhi-attributive",
+       "ai": "zhi-nominaliser",
+       "ok": false
+      },
+      {
+       "form": "也",
+       "clause": "盖襲譯歐西人之言也",
+       "gold": "ye-final",
+       "ai": "ye-final",
+       "ok": true
+      },
+      {
+       "form": "其",
+       "clause": "我中國其果老大矣乎",
+       "gold": "qi-modal",
+       "ai": "qi-modal",
+       "ok": true
+      },
+      {
+       "form": "是",
+       "clause": "是何言",
+       "gold": "demonstratives",
+       "ai": null,
+       "ok": false
+      },
+      {
+       "form": "何",
+       "clause": "是何言",
+       "gold": "question-words",
+       "ai": null,
+       "ok": false
+      }
+     ]
+    },
+    "translate": {
+     "seconds": 7.783484583022073,
+     "prompt_tokens": 309,
+     "output_tokens": 78,
+     "output": "When Japanese people refer to our China, they call it the 'Old Empire' once, and again the 'Old Empire'. These words are probably borrowed translations from Western speech. Alas! Is our China truly an old empire? Ren Gong said: No! What words! What words! In my mind's eye there exists a Young China!",
+     "gold": "When the Japanese speak of our China, they call it \"the old empire\", and again \"the old empire\". This expression, it seems, is a borrowed translation of what Europeans say. Alas! Has our China really grown old? Rengong says: Nonsense! What talk is this! What talk is this! In my mind's eye there is a young China!",
+     "verdict": "minor",
+     "judge_note": "The translation uses 'once, and again' which is slightly less idiomatic than the reference translation's 'and again, and again'."
+    }
+   },
+   "gaps": 6
+  },
+  {
+   "id": "u06-p02",
+   "title": "Hong Kong",
+   "steps": {
+    "punctuate": {
+     "seconds": 12.0672376670409,
+     "prompt_tokens": 330,
+     "output_tokens": 87,
+     "tp": 6,
+     "fp": 2,
+     "fn": 1,
+     "major_tp": 2,
+     "major_fp": 0,
+     "major_fn": 0,
+     "output": "一因大英商船遠路涉洋，徃徃有損壞須修補者，自應給予沿海一處，以便修船及存守所用物料。今大皇帝准將香港一島給予大英君主暨嗣後世襲主位者，常遠㨿守、主掌、任便立法治理。",
+     "gold": "一、因大英商船遠路涉洋，徃徃有損壞須修補者，自應給予沿海一處，以便修船及存守所用物料。今大皇帝准將香港一島給予大英君主暨嗣後世襲主位者常遠㨿守主掌，任便立法治理。"
+    },
+    "words": {
+     "seconds": 35.864642416127026,
+     "prompt_tokens": 522,
+     "output_tokens": 621,
+     "seg_tp": 24,
+     "seg_fp": 2,
+     "seg_fn": 9,
+     "glosses": [
+      {
+       "term": "商船",
+       "course": "*n.* merchant ship",
+       "ai": "n. merchant ship",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "遠路",
+       "course": "*adv.* over a long distance",
+       "ai": "遠路涉洋: v. to travel a long distance across the sea",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "涉洋",
+       "course": "*v.* to cross the ocean",
+       "ai": "遠路涉洋: v. to travel a long distance across the sea",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "徃徃",
+       "course": "*adv.* often (徃 = 往)",
+       "ai": "adv. often; frequently",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "損壞",
+       "course": "*v.* to be damaged",
+       "ai": "v./n. damage; destruction",
+       "verdict": "close"
+      },
+      {
+       "term": "修補",
+       "course": "*v.* to repair",
+       "ai": "v. to repair",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "給予",
+       "course": "*v.* to give",
+       "ai": "給: v. to grant; to give",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "修船",
+       "course": "*v.* to repair ships",
+       "ai": "修船及存守: n. repairing ships and storing supplies for defense",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "及",
+       "course": "*conj.* and",
+       "ai": "修船及存守: n. repairing ships and storing supplies for defense",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "存守",
+       "course": "*v.* to store and keep",
+       "ai": "修船及存守: n. repairing ships and storing supplies for defense",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "物料",
+       "course": "*n.* materials",
+       "ai": "n. materials; supplies",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "香港",
+       "course": "Hong Kong",
+       "ai": "香港一島給: v. to grant the island of Hong Kong",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "島",
+       "course": "*n.* island",
+       "ai": "香港一島給: v. to grant the island of Hong Kong",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "暨",
+       "course": "*conj.* and",
+       "ai": "conj. and; together with",
+       "verdict": "same"
+      },
+      {
+       "term": "世襲",
+       "course": "*adj.* hereditary",
+       "ai": "世襲主位: n. hereditary sovereign position",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "主位",
+       "course": "*n.* the throne",
+       "ai": "世襲主位: n. hereditary sovereign position",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "常遠",
+       "course": "*adv.* permanently",
+       "ai": "常遠㨿守主掌: v. to hold permanently under permanent control and administration",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "㨿守",
+       "course": "*v.* to hold, to occupy (㨿 = 據)",
+       "ai": "常遠㨿守主掌: v. to hold permanently under permanent control and administration",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "主掌",
+       "course": "*v.* to rule",
+       "ai": "常遠㨿守主掌: v. to hold permanently under permanent control and administration",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "治理",
+       "course": "*v.* to govern",
+       "ai": "v. to govern; to administer",
+       "verdict": "same (auto)"
+      }
+     ],
+     "ai_words": [
+      {
+       "word": "商船",
+       "gloss": "n. merchant ship"
+      },
+      {
+       "word": "遠路涉洋",
+       "gloss": "v. to travel a long distance across the sea"
+      },
+      {
+       "word": "徃徃",
+       "gloss": "adv. often; frequently"
+      },
+      {
+       "word": "損壞",
+       "gloss": "v./n. damage; destruction"
+      },
+      {
+       "word": "修補",
+       "gloss": "v. to repair"
+      },
+      {
+       "word": "給",
+       "gloss": "v. to grant; to give"
+      },
+      {
+       "word": "修船及存守",
+       "gloss": "n. repairing ships and storing supplies for defense"
+      },
+      {
+       "word": "物料",
+       "gloss": "n. materials; supplies"
+      },
+      {
+       "word": "香港一島給",
+       "gloss": "v. to grant the island of Hong Kong"
+      },
+      {
+       "word": "暨",
+       "gloss": "conj. and; together with"
+      },
+      {
+       "word": "世襲主位",
+       "gloss": "n. hereditary sovereign position"
+      },
+      {
+       "word": "常遠㨿守主掌",
+       "gloss": "v. to hold permanently under permanent control and administration"
+      },
+      {
+       "word": "治理",
+       "gloss": "v. to govern; to administer"
+      }
+     ]
+    },
+    "grammar": {
+     "seconds": 44.08022654103115,
+     "prompt_tokens": 823,
+     "output_tokens": 639,
+     "checks": [
+      {
+       "form": "須",
+       "clause": "徃徃有損壞須修補者",
+       "gold": "modal-verbs",
+       "ai": null,
+       "ok": false
+      },
+      {
+       "form": "者",
+       "clause": "徃徃有損壞須修補者",
+       "gold": "zhe-nominaliser",
+       "ai": null,
+       "ok": false
+      },
+      {
+       "form": "者",
+       "clause": "今大皇帝准將香港一島給予大英君主暨嗣後世襲主位者常遠㨿守主掌",
+       "gold": "zhe-nominaliser",
+       "ai": null,
+       "ok": false
+      }
+     ]
+    },
+    "translate": {
+     "seconds": 7.922738166991621,
+     "prompt_tokens": 319,
+     "output_tokens": 92,
+     "output": "I. Because British merchant ships, traveling long distances across the ocean, often suffer damage requiring repair, it is appropriate to grant a location along the coast for ship repairs and storage of necessary materials. Now His Majesty the Great Emperor has approved granting Hong Kong Island to His Britannic Majesty and his successors in perpetuity, to be held and governed at their discretion, with the authority to enact laws as they see fit.",
+     "gold": "Item. Because British merchant ships travel long distances across the ocean, and some are often damaged and need repair, they should naturally be given a place on the coast so that they can repair their ships and store the materials they use. The Great Emperor now agrees to give the island of Hong Kong to the Sovereign of Great Britain and to the heirs and successors to the throne, to be held and ruled permanently, and to make laws and govern it at their discretion.",
+     "verdict": "faithful",
+     "judge_note": "none"
+    }
+   },
+   "gaps": 12
+  },
+  {
+   "id": "u07-p03",
+   "title": "Every day, without a break",
+   "steps": {
+    "punctuate": {
+     "seconds": 15.129101790953428,
+     "prompt_tokens": 352,
+     "output_tokens": 116,
+     "tp": 13,
+     "fp": 0,
+     "fn": 2,
+     "major_tp": 6,
+     "major_fp": 0,
+     "major_fn": 0,
+     "output": "習字臨《千字文》亦可，但須有恆。每日臨帖一百字，萬萬無間斷，則數年必成書家矣。雖極忙，亦須了本日功課：不以昨日耽擱而今日補做，不以明日有事而今日預做。切勿以家中有事而間斷看書之課；又弗以考試將近而間斷看書之課。雖走路之日到店亦可看，考試之日出場亦可看也。",
+     "gold": "習字臨《千字文》亦可，但須有恆。每日臨帖一百字，萬萬無間斷，則數年必成書家矣。雖極忙，亦須了本日功課，不以昨日耽擱而今日補做，不以明日有事而今日預做。切勿以家中有事而間斷看書之課，又弗以考試將近而間斷看書之課。雖走路之日，到店亦可看；考試之日，出場亦可看也。"
+    },
+    "words": {
+     "seconds": 45.74302970897406,
+     "prompt_tokens": 586,
+     "output_tokens": 801,
+     "seg_tp": 25,
+     "seg_fp": 7,
+     "seg_fn": 27,
+     "glosses": [
+      {
+       "term": "習字",
+       "course": "*v.* to practise calligraphy",
+       "ai": "字臨: v. to practice writing characters (a specific calligraphy exercise)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "臨",
+       "course": "*v.* to copy (from a model)",
+       "ai": "字臨: v. to practice writing characters (a specific calligraphy exercise)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "千字文",
+       "course": "the Thousand Character Classic, a primer used for copying",
+       "ai": "n. a famous classical Chinese primer consisting of 1000-character verses",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "每日",
+       "course": "every day",
+       "ai": "日臨帖一百字: v. to practice copying one hundred characters from a model script each day",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "臨帖",
+       "course": "*v.* to copy from a model book",
+       "ai": "日臨帖一百字: v. to practice copying one hundred characters from a model script each day",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "一百",
+       "course": "*num.* one hundred",
+       "ai": "日臨帖一百字: v. to practice copying one hundred characters from a model script each day",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "萬萬",
+       "course": "*adv.* absolutely",
+       "ai": "adv. by all means; absolutely (emphatic)",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "數年",
+       "course": "a few years",
+       "ai": "n. several years",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "成",
+       "course": "*v.* to become",
+       "ai": "成書家: v. to become a master calligrapher",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "書家",
+       "course": "*n.* calligrapher",
+       "ai": "成書家: v. to become a master calligrapher",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "極",
+       "course": "*adv.* extremely",
+       "ai": "極忙: adj. extremely busy",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "忙",
+       "course": "*adj.* busy",
+       "ai": "極忙: adj. extremely busy",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "了",
+       "course": "*v.* to finish (read liǎo)",
+       "ai": "v. to finish; to complete",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "功課",
+       "course": "*n.* lessons, assignments",
+       "ai": "n. lesson; assigned work",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "昨日",
+       "course": "yesterday",
+       "ai": "昨日耽擱: n. yesterday's delay (or procrastination)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "耽擱",
+       "course": "*v.* to be delayed",
+       "ai": "昨日耽擱: n. yesterday's delay (or procrastination)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "補做",
+       "course": "*v.* to make up (work)",
+       "ai": "v. to make up; to do later",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "預做",
+       "course": "*v.* to do in advance",
+       "ai": "v. to do in advance; to prepare beforehand",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "切勿",
+       "course": "on no account",
+       "ai": "切: adv. earnestly; strictly (used here as part of the imperative '切勿')",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "家中",
+       "course": "at home",
+       "ai": "n. home; one's own house",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "看書",
+       "course": "*v.* to read",
+       "ai": "斷看書之課: v. to interrupt the lesson of reading books (note: '斷' is unmarked but part of the phrase; however, since only '斷' is not marked in the prompt's specific list for this group, I will skip this whole phrase as per instruction 'Do not gloss words without a marked character'. Wait, re-reading the text provided in the prompt: The user marked【斷看書】. Let me correct my extraction based on the actual brackets in the input text).",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "課",
+       "course": "*n.* daily task, programme",
+       "ai": "功課: n. lesson; assigned work",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "又",
+       "course": "*adv.* also, again",
+       "ai": null,
+       "verdict": "missing"
+      },
+      {
+       "term": "弗",
+       "course": "*adv.* do not",
+       "ai": null,
+       "verdict": "missing"
+      },
+      {
+       "term": "考試",
+       "course": "*n.* examination",
+       "ai": null,
+       "verdict": "missing"
+      },
+      {
+       "term": "將近",
+       "course": "*v.* to be approaching",
+       "ai": null,
+       "verdict": "missing"
+      },
+      {
+       "term": "走路",
+       "course": "*v.* to travel (by road)",
+       "ai": null,
+       "verdict": "missing"
+      },
+      {
+       "term": "日",
+       "course": "*n.* day",
+       "ai": "日臨帖一百字: v. to practice copying one hundred characters from a model script each day",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "到",
+       "course": "*v.* to reach",
+       "ai": null,
+       "verdict": "missing"
+      },
+      {
+       "term": "店",
+       "course": "*n.* inn",
+       "ai": null,
+       "verdict": "missing"
+      },
+      {
+       "term": "看",
+       "course": "*v.* to read",
+       "ai": "斷看書之課: v. to interrupt the lesson of reading books (note: '斷' is unmarked but part of the phrase; however, since only '斷' is not marked in the prompt's specific list for this group, I will skip this whole phrase as per instruction 'Do not gloss words without a marked character'. Wait, re-reading the text provided in the prompt: The user marked【斷看書】. Let me correct my extraction based on the actual brackets in the input text).",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "出場",
+       "course": "*v.* to come out of the examination hall",
+       "ai": null,
+       "verdict": "missing"
+      }
+     ],
+     "ai_words": [
+      {
+       "word": "字臨",
+       "gloss": "v. to practice writing characters (a specific calligraphy exercise)"
+      },
+      {
+       "word": "千字文",
+       "gloss": "n. a famous classical Chinese primer consisting of 1000-character verses"
+      },
+      {
+       "word": "日臨帖一百字",
+       "gloss": "v. to practice copying one hundred characters from a model script each day"
+      },
+      {
+       "word": "萬萬",
+       "gloss": "adv. by all means; absolutely (emphatic)"
+      },
+      {
+       "word": "數年",
+       "gloss": "n. several years"
+      },
+      {
+       "word": "成書家",
+       "gloss": "v. to become a master calligrapher"
+      },
+      {
+       "word": "極忙",
+       "gloss": "adj. extremely busy"
+      },
+      {
+       "word": "了",
+       "gloss": "v. to finish; to complete"
+      },
+      {
+       "word": "功課",
+       "gloss": "n. lesson; assigned work"
+      },
+      {
+       "word": "昨日耽擱",
+       "gloss": "n. yesterday's delay (or procrastination)"
+      },
+      {
+       "word": "補做",
+       "gloss": "v. to make up; to do later"
+      },
+      {
+       "word": "預做",
+       "gloss": "v. to do in advance; to prepare beforehand"
+      },
+      {
+       "word": "切",
+       "gloss": "adv. earnestly; strictly (used here as part of the imperative '切勿')"
+      },
+      {
+       "word": "家中",
+       "gloss": "n. home; one's own house"
+      },
+      {
+       "word": "斷看書之課",
+       "gloss": "v. to interrupt the lesson of reading books (note: '斷' is unmarked but part of the phrase; however, since only '斷' is not marked in the prompt's specific list for this group, I will skip this whole phrase as per instruction 'Do not gloss words without a marked character'. Wait, re-reading the text provided in the prompt: The user marked【斷看書】. Let me correct my extraction based on the actual brackets in the input text)."
+      }
+     ]
+    },
+    "grammar": {
+     "seconds": 80.39562225015834,
+     "prompt_tokens": 1362,
+     "output_tokens": 1464,
+     "checks": [
+      {
+       "form": "須",
+       "clause": "但須有恆",
+       "gold": "modal-verbs",
+       "ai": "modal-verbs",
+       "ok": true
+      },
+      {
+       "form": "矣",
+       "clause": "則數年必成書家矣",
+       "gold": "yi-final",
+       "ai": "yi-final",
+       "ok": true
+      },
+      {
+       "form": "須",
+       "clause": "亦須了本日功課",
+       "gold": "modal-verbs",
+       "ai": "modal-verbs",
+       "ok": true
+      },
+      {
+       "form": "之",
+       "clause": "切勿以家中有事而間斷看書之課",
+       "gold": "zhi-attributive",
+       "ai": "zhi-attributive",
+       "ok": true
+      },
+      {
+       "form": "之",
+       "clause": "又弗以考試將近而間斷看書之課",
+       "gold": "zhi-attributive",
+       "ai": "zhi-attributive",
+       "ok": true
+      },
+      {
+       "form": "之",
+       "clause": "雖走路之日",
+       "gold": "zhi-attributive",
+       "ai": "zhi-attributive",
+       "ok": true
+      }
+     ]
+    },
+    "translate": {
+     "seconds": 10.45240645809099,
+     "prompt_tokens": 351,
+     "output_tokens": 150,
+     "output": "Practicing calligraphy by copying the 'Thousand Character Classic' is also acceptable, but one must possess perseverance. If one copies one hundred characters from a model each day without ever missing a session, then within a few years one will certainly become a master of calligraphy. Even when extremely busy, one must complete today's lesson; do not make up for yesterday's delay today, nor do work ahead for tomorrow's affairs today. Do not interrupt the study of books because of matters at home, and do not interrupt it because an examination is approaching. Even on days spent walking, one may read in the shop; even on the day of the examination, one may read while outside the venue.",
+     "gold": "For practising calligraphy, copying the Thousand Character Classic is fine too, but you must persevere. Copy a hundred characters from the model every day, absolutely without a break, and in a few years you will certainly have become a calligrapher. Even when you are extremely busy, you must still finish each day's lessons on that day. Do not, because of a delay yesterday, make the work up today; and do not, because you will be busy tomorrow, do the work today in advance. On no account interrupt your daily reading because there is business at home, nor interrupt it because the examinations are approaching. Even on a travelling day you can read once you reach the inn; on an examination day you can read once you come out of the hall.",
+     "verdict": "minor",
+     "judge_note": "The translation renders 弗以 as 'do not', which is a reasonable interpretation of the particle, but it loses some of the emphatic, almost rhetorical, force of the original."
+    }
+   },
+   "gaps": 27
+  },
+  {
+   "id": "u09-p01",
+   "title": "Why laws must change",
+   "steps": {
+    "punctuate": {
+     "error": "The AI service did not give a usable answer.",
+     "seconds": 13.443007375113666
+    },
+    "words": {
+     "seconds": 19.43427566695027,
+     "prompt_tokens": 485,
+     "output_tokens": 273,
+     "seg_tp": 8,
+     "seg_fp": 4,
+     "seg_fn": 6,
+     "glosses": [
+      {
+       "term": "在",
+       "course": "*v.* to be in",
+       "ai": "在天: adj. existing in heaven",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "天地",
+       "course": "*n.* heaven and earth",
+       "ai": "在天: adj. existing in heaven",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "晝夜",
+       "course": "*n.* day and night",
+       "ai": "n. day and night",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "寒暑",
+       "course": "*n.* cold and heat: winter and summer",
+       "ai": "寒暑變: n. change of cold and heat (seasons)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "藉曰",
+       "course": "supposing (that)",
+       "ai": "藉: v. to suppose / to assume",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "人類",
+       "course": "*n.* humankind",
+       "ai": "人類并: n. humans and all things (literally: humanity together)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "并時",
+       "course": "*adv.* at the same time, all at once",
+       "ai": "人類并: n. humans and all things (literally: humanity together)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "公理",
+       "course": "*n.* universal principle",
+       "ai": "n. universal principle",
+       "verdict": "same (auto)"
+      }
+     ],
+     "ai_words": [
+      {
+       "word": "在天",
+       "gloss": "adj. existing in heaven"
+      },
+      {
+       "word": "晝夜",
+       "gloss": "n. day and night"
+      },
+      {
+       "word": "寒暑變",
+       "gloss": "n. change of cold and heat (seasons)"
+      },
+      {
+       "word": "藉",
+       "gloss": "v. to suppose / to assume"
+      },
+      {
+       "word": "人類并",
+       "gloss": "n. humans and all things (literally: humanity together)"
+      },
+      {
+       "word": "公理",
+       "gloss": "n. universal principle"
+      }
+     ]
+    },
+    "grammar": {
+     "seconds": 66.76790724997409,
+     "prompt_tokens": 1045,
+     "output_tokens": 1157,
+     "checks": [
+      {
+       "form": "之",
+       "clause": "凡在天地之間者莫不變",
+       "gold": "zhi-attributive",
+       "ai": "zhi-nominaliser",
+       "ok": false
+      },
+      {
+       "form": "者",
+       "clause": "凡在天地之間者莫不變",
+       "gold": "zhe-nominaliser",
+       "ai": "zhe-nominaliser",
+       "ok": true
+      },
+      {
+       "form": "矣",
+       "clause": "則天地人類并時而息矣",
+       "gold": "yi-final",
+       "ai": "yi-final",
+       "ok": true
+      },
+      {
+       "form": "夫",
+       "clause": "故夫變者",
+       "gold": "boundary-particles",
+       "ai": "boundary-particles",
+       "ok": true
+      },
+      {
+       "form": "者",
+       "clause": "故夫變者",
+       "gold": "zhe-ye-definition",
+       "ai": "zhe-nominaliser",
+       "ok": false
+      },
+      {
+       "form": "之",
+       "clause": "古今之公理也",
+       "gold": "zhi-attributive",
+       "ai": "zhi-nominaliser",
+       "ok": false
+      },
+      {
+       "form": "也",
+       "clause": "古今之公理也",
+       "gold": "zhe-ye-definition",
+       "ai": "ye-final",
+       "ok": false
+      }
+     ]
+    },
+    "translate": {
+     "seconds": 4.619625583058223,
+     "prompt_tokens": 296,
+     "output_tokens": 75,
+     "output": "Why must the Way change? Everything between heaven and earth changes: day and night change to form a day; cold and heat change to form a year; ... If one were to say it does not change, then heaven, earth, and humanity would all cease simultaneously. Therefore, change is the universal principle of past and present.",
+     "gold": "Why must laws change? Everything between heaven and earth changes: day and night change and so make a day; cold and heat change and so make a year; … Supposing they did not change, heaven, earth and humankind would all cease at once. Therefore change is the universal principle of past and present.",
+     "verdict": "minor",
+     "judge_note": "The translation substitutes 'Way' (道) for 'laws' (法), which alters the specific topic from legal codes to a more philosophical concept of the natural order, though the overall sense remains broadly consistent."
+    }
+   },
+   "gaps": 6
+  },
+  {
+   "id": "u10-p02",
+   "title": "Freedom of the group, freedom of the individual",
+   "steps": {
+    "punctuate": {
+     "seconds": 13.810014583868906,
+     "prompt_tokens": 353,
+     "output_tokens": 122,
+     "tp": 17,
+     "fp": 2,
+     "fn": 0,
+     "major_tp": 8,
+     "major_fp": 1,
+     "major_fn": 0,
+     "output": "然則自由之義，竟不可行以個人乎？曰：惡！是何言。團體自由者，個人自由之積也。人不能離團體而自生存；團體不保其自由，則將有他團焉，自外而侵之、壓之、奪之，則個人之自由更何有也？淺學如余，而欲以區區片言單語發明之，烏知其可？世有愛自由者乎？其慎勿毒自由以毒天下也。",
+     "gold": "然則自由之義，竟不可行以個人乎？曰：惡是何言？團體自由者，個人自由之積也。人不能離團體而自生存，團體不保其自由，則將有他團焉自外而侵之，壓之，奪之，則個人之自由更何有也？淺學如余，而欲以區區片言單語發明之，烏知其可？……世有愛自由者乎？其慎勿毒自由以毒天下也。"
+    },
+    "words": {
+     "seconds": 42.354122459189966,
+     "prompt_tokens": 568,
+     "output_tokens": 672,
+     "seg_tp": 27,
+     "seg_fp": 13,
+     "seg_fn": 6,
+     "glosses": [
+      {
+       "term": "行",
+       "course": "*v.* to be applied, to be practised",
+       "ai": "v. to carry out; to implement",
+       "verdict": "close"
+      },
+      {
+       "term": "個人",
+       "course": "*n.* the individual (a new term)",
+       "ai": "n. an individual person",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "團體",
+       "course": "*n.* group, collective (a new term)",
+       "ai": "n. a group; a collective body",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "人",
+       "course": "*n.* people, human beings",
+       "ai": "個人: n. an individual person",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "離",
+       "course": "*v.* to be apart from",
+       "ai": "v. to separate from; to detach oneself from",
+       "verdict": "close"
+      },
+      {
+       "term": "自生存",
+       "course": "to survive on one's own",
+       "ai": "生存: v. to survive; to exist",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "保",
+       "course": "*v.* to protect",
+       "ai": "v. to protect; to safeguard",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "他團",
+       "course": "*n.* other groups",
+       "ai": "團: n. a group (here referring to another collective body)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "自外",
+       "course": "from outside",
+       "ai": "外: prep. from outside",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "壓",
+       "course": "*v.* to oppress",
+       "ai": "v. to oppress; to suppress",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "奪",
+       "course": "*v.* to seize, to plunder",
+       "ai": "v. to seize; to take away by force",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "淺學",
+       "course": "(one of) shallow learning",
+       "ai": "n. shallow learning (a humble self-reference meaning 'my limited knowledge')",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "區區",
+       "course": "*adj.* paltry, trifling",
+       "ai": "區區片言單語: n. a few trivial words (a humble phrase meaning 'my meager remarks')",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "片言單語",
+       "course": "*n.* a few words",
+       "ai": "區區片言單語: n. a few trivial words (a humble phrase meaning 'my meager remarks')",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "烏",
+       "course": "how…?",
+       "ai": "烏知: adv. how can one know? (rhetorical expression meaning 'who would know' or 'how could I possibly know')",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "知",
+       "course": "*v.* to know",
+       "ai": "烏知: adv. how can one know? (rhetorical expression meaning 'who would know' or 'how could I possibly know')",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "愛",
+       "course": "*v.* to love",
+       "ai": "v. to love; to cherish",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "慎",
+       "course": "*v.* to take care",
+       "ai": "adv. be careful; do cautiously",
+       "verdict": "close"
+      }
+     ],
+     "ai_words": [
+      {
+       "word": "行",
+       "gloss": "v. to carry out; to implement"
+      },
+      {
+       "word": "個人",
+       "gloss": "n. an individual person"
+      },
+      {
+       "word": "團體",
+       "gloss": "n. a group; a collective body"
+      },
+      {
+       "word": "團",
+       "gloss": "n. a group (here referring to another collective body)"
+      },
+      {
+       "word": "離",
+       "gloss": "v. to separate from; to detach oneself from"
+      },
+      {
+       "word": "生存",
+       "gloss": "v. to survive; to exist"
+      },
+      {
+       "word": "保",
+       "gloss": "v. to protect; to safeguard"
+      },
+      {
+       "word": "外",
+       "gloss": "prep. from outside"
+      },
+      {
+       "word": "壓",
+       "gloss": "v. to oppress; to suppress"
+      },
+      {
+       "word": "奪",
+       "gloss": "v. to seize; to take away by force"
+      },
+      {
+       "word": "淺學",
+       "gloss": "n. shallow learning (a humble self-reference meaning 'my limited knowledge')"
+      },
+      {
+       "word": "區區片言單語",
+       "gloss": "n. a few trivial words (a humble phrase meaning 'my meager remarks')"
+      },
+      {
+       "word": "烏知",
+       "gloss": "adv. how can one know? (rhetorical expression meaning 'who would know' or 'how could I possibly know')"
+      },
+      {
+       "word": "愛",
+       "gloss": "v. to love; to cherish"
+      },
+      {
+       "word": "慎",
+       "gloss": "adv. be careful; do cautiously"
+      }
+     ]
+    },
+    "grammar": {
+     "seconds": 106.30631537502632,
+     "prompt_tokens": 1440,
+     "output_tokens": 1763,
+     "checks": [
+      {
+       "form": "之",
+       "clause": "然則自由之義",
+       "gold": "zhi-attributive",
+       "ai": null,
+       "ok": false
+      },
+      {
+       "form": "是",
+       "clause": "惡是何言",
+       "gold": "demonstratives",
+       "ai": null,
+       "ok": false
+      },
+      {
+       "form": "何",
+       "clause": "惡是何言",
+       "gold": "question-words",
+       "ai": null,
+       "ok": false
+      },
+      {
+       "form": "者",
+       "clause": "團體自由者",
+       "gold": "zhe-ye-definition",
+       "ai": null,
+       "ok": false
+      },
+      {
+       "form": "之",
+       "clause": "個人自由之積也",
+       "gold": "zhi-attributive",
+       "ai": null,
+       "ok": false
+      },
+      {
+       "form": "也",
+       "clause": "個人自由之積也",
+       "gold": "zhe-ye-definition",
+       "ai": null,
+       "ok": false
+      },
+      {
+       "form": "其",
+       "clause": "團體不保其自由",
+       "gold": "qi-pronoun",
+       "ai": null,
+       "ok": false
+      }
+     ]
+    },
+    "translate": {
+     "seconds": 13.718673459021375,
+     "prompt_tokens": 354,
+     "output_tokens": 134,
+     "output": "Then does the meaning of freedom, in fact, not apply to individuals? I say: What absurd words! The freedom of a group is the accumulation of individual freedoms. Humans cannot survive apart from groups; if a group fails to protect its own freedom, another group will invade it from outside, suppress it, and seize it—then what individual freedom remains? A scholar like me, with limited learning, dares to attempt to expound this in mere brief words; how could I possibly know whether it is correct?... Are there those who love freedom? Then beware: do not poison freedom so as to poison the world.",
+     "gold": "In that case, can freedom after all not be applied to the individual? I answer: nonsense, what talk is this? Collective freedom is the sum of individual freedoms. People cannot survive on their own apart from the group. If the group does not protect its freedom, then other groups will come from outside to invade it, oppress it and plunder it, and then what will be left of the individual's freedom? For one of shallow learning like me to try to explain it in a few paltry words: how can I know that it will do? … Are there people in the world who love freedom? Let them take care not to poison freedom, and thereby poison the world.",
+     "verdict": "faithful",
+     "judge_note": "none"
+    }
+   },
+   "gaps": 18
+  },
+  {
+   "id": "u11-p03",
+   "title": "A constitution in columns",
+   "steps": {
+    "punctuate": {
+     "seconds": 14.167145707877353,
+     "prompt_tokens": 335,
+     "output_tokens": 101,
+     "tp": 16,
+     "fp": 1,
+     "fn": 1,
+     "major_tp": 9,
+     "major_fp": 1,
+     "major_fn": 0,
+     "output": "玆准參議院咨送議决臨時約法前來，合行公布。孫文中華民國元年三月十一日。第一條：中華民國由中華人民組織之。第二條：中華民國之主權屬於國民全體。第三條：中華民國領土爲二十二行省、內外蒙古、西藏、靑海。第四條：中華民國以參議院、臨時大總統、國務院、法院行使其統治權。",
+     "gold": "玆准參議院咨送議决臨時約法前來，合行公布。孫文中華民國元年三月十一日第一條：中華民國由中華人民組織之。第二條：中華民國之主權屬於國民全體。第三條：中華民國領土，爲二十二行省、內外蒙古、西藏、靑海。第四條：中華民國以參議院、臨時大總統、國務院、法院行使其統治權。"
+    },
+    "words": {
+     "seconds": 39.99028366594575,
+     "prompt_tokens": 545,
+     "output_tokens": 739,
+     "seg_tp": 22,
+     "seg_fp": 10,
+     "seg_fn": 9,
+     "glosses": [
+      {
+       "term": "玆",
+       "course": "*adv.* now (opening a document)",
+       "ai": "玆准: v. hereby approved",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "准",
+       "course": "*v.* to receive (a communication); here \"having received\"",
+       "ai": "玆准: v. hereby approved",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "孫文",
+       "course": "Sun Wen (Sun Yat-sen 孫中山), Provisional President",
+       "ai": "a personal name (Sun Yat-sen)",
+       "verdict": "same"
+      },
+      {
+       "term": "三月十一日",
+       "course": "11 March (Western calendar, adopted by the Republic)",
+       "ai": "月十一: n. the eleventh day of the month",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "中華人民",
+       "course": "the Chinese people",
+       "ai": "中華: adj. Chinese (as in 'Middle Kingdom')",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "組織",
+       "course": "*v.* to form, to constitute",
+       "ai": "v. to organize",
+       "verdict": "close"
+      },
+      {
+       "term": "主權",
+       "course": "*n.* sovereignty",
+       "ai": "主權屬: v. sovereignty belongs to",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "屬於",
+       "course": "*v.* to belong to",
+       "ai": "主權屬: v. sovereignty belongs to",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "國民全體",
+       "course": "the whole body of citizens",
+       "ai": "全體: n. the whole body/all members",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "領土",
+       "course": "*n.* territory",
+       "ai": "n. territory",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "二十二行省",
+       "course": "the twenty-two provinces",
+       "ai": "行省: n. province (administrative division)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "內外蒙古",
+       "course": "Inner and Outer Mongolia",
+       "ai": "n. Inner and Outer Mongolia",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "西藏",
+       "course": "Tibet",
+       "ai": "n. Tibet",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "靑海",
+       "course": "Qinghai (靑 = 青)",
+       "ai": "n. Qinghai (province)",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "國務院",
+       "course": "*n.* the cabinet",
+       "ai": "n. Council of State (executive body)",
+       "verdict": "close"
+      },
+      {
+       "term": "法院",
+       "course": "*n.* the courts",
+       "ai": "法院行: v. courts exercise",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "行使",
+       "course": "*v.* to exercise",
+       "ai": "法院行: v. courts exercise",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "統治權",
+       "course": "*n.* governing power",
+       "ai": "統治: n./v. rule/governance",
+       "verdict": "segmented differently"
+      }
+     ],
+     "ai_words": [
+      {
+       "word": "玆准",
+       "gloss": "v. hereby approved"
+      },
+      {
+       "word": "孫文",
+       "gloss": "a personal name (Sun Yat-sen)"
+      },
+      {
+       "word": "月十一",
+       "gloss": "n. the eleventh day of the month"
+      },
+      {
+       "word": "中華",
+       "gloss": "adj. Chinese (as in 'Middle Kingdom')"
+      },
+      {
+       "word": "組織",
+       "gloss": "v. to organize"
+      },
+      {
+       "word": "主權屬",
+       "gloss": "v. sovereignty belongs to"
+      },
+      {
+       "word": "全體",
+       "gloss": "n. the whole body/all members"
+      },
+      {
+       "word": "領土",
+       "gloss": "n. territory"
+      },
+      {
+       "word": "行省",
+       "gloss": "n. province (administrative division)"
+      },
+      {
+       "word": "內外蒙古",
+       "gloss": "n. Inner and Outer Mongolia"
+      },
+      {
+       "word": "西藏",
+       "gloss": "n. Tibet"
+      },
+      {
+       "word": "靑海",
+       "gloss": "n. Qinghai (province)"
+      },
+      {
+       "word": "第四條",
+       "gloss": "n. Article Four"
+      },
+      {
+       "word": "國務院",
+       "gloss": "n. Council of State (executive body)"
+      },
+      {
+       "word": "法院行",
+       "gloss": "v. courts exercise"
+      },
+      {
+       "word": "統治",
+       "gloss": "n./v. rule/governance"
+      }
+     ]
+    },
+    "grammar": {
+     "seconds": 26.649093042127788,
+     "prompt_tokens": 714,
+     "output_tokens": 485,
+     "checks": [
+      {
+       "form": "之",
+       "clause": "中華民國由中華人民組織之",
+       "gold": "zhi-object",
+       "ai": "zhi-nominaliser",
+       "ok": false
+      },
+      {
+       "form": "之",
+       "clause": "中華民國之主權屬於國民全體",
+       "gold": "zhi-attributive",
+       "ai": "zhi-attributive",
+       "ok": true
+      },
+      {
+       "form": "爲",
+       "clause": "爲二十二行省",
+       "gold": "wei-copula",
+       "ai": "wei-copula",
+       "ok": true
+      },
+      {
+       "form": "其",
+       "clause": "法院行使其統治權",
+       "gold": "qi-pronoun",
+       "ai": "qi-pronoun",
+       "ok": true
+      }
+     ]
+    },
+    "translate": {
+     "seconds": 8.136497833998874,
+     "prompt_tokens": 334,
+     "output_tokens": 146,
+     "output": "Here is the provisional constitution, submitted by the Senate for deliberation and decision; it is hereby promulgated. Sun Wen, March 11, Year 1 of the Republic of China.\n\nArticle 1: The Republic of China is constituted by the Chinese people.\nArticle 2: Sovereignty of the Republic of China belongs to the entire body of citizens.\nArticle 3: The territory of the Republic of China comprises twenty-two provinces, Inner and Outer Mongolia, Tibet, and Qinghai.\nArticle 4: The ruling power of the Republic of China is exercised by the Senate, the Provisional President, the State Council, and the Courts.",
+     "gold": "Having received the Provisional Constitution passed by the Senate and sent to me, I hereby promulgate it. Sun Wen 11 March, first year of the Republic of China Article 1: The Republic of China is constituted by the Chinese people. Article 2: The sovereignty of the Republic of China belongs to the whole body of citizens. Article 3: The territory of the Republic of China consists of the twenty-two provinces, Inner and Outer Mongolia, Tibet and Qinghai. Article 4: The Republic of China exercises its governing power through the Senate, the Provisional President, the cabinet and the courts.",
+     "verdict": "minor",
+     "judge_note": "The translation uses 'State Council' instead of 'cabinet' for 國務院, which is a minor difference in terminology but could be misleading to a modern reader unfamiliar with the historical context."
+    }
+   },
+   "gaps": 16
+  },
+  {
+   "id": "u13-p01",
+   "title": "Settling the course of the state",
+   "steps": {
+    "punctuate": {
+     "error": "The AI service did not give a usable answer.",
+     "seconds": 25.279389375122264
+    },
+    "words": {
+     "seconds": 105.43395116669126,
+     "prompt_tokens": 1168,
+     "output_tokens": 2115,
+     "seg_tp": 62,
+     "seg_fp": 22,
+     "seg_fn": 20,
+     "glosses": [
+      {
+       "term": "光緖二十四年",
+       "course": "the 24th year of Guangxu (1898) (緖 = 緒)",
+       "ai": "光緖: n. the reign title of Emperor Guangxu (1875–1908)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "四月二十三日",
+       "course": "the 23rd day of the 4th month (11 June 1898)",
+       "ai": "四月: n. the fourth lunar month",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "中外",
+       "course": "at court and in the provinces",
+       "ai": "中外臣工: n. officials from both China and foreign countries",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "臣工",
+       "course": "*n.* officials",
+       "ai": "中外臣工: n. officials from both China and foreign countries",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "講求",
+       "course": "*v.* to study, to seek",
+       "ai": "講求時務: v. to study current affairs attentively",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "時務",
+       "course": "*n.* current affairs",
+       "ai": "講求時務: v. to study current affairs attentively",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "主",
+       "course": "*v.* to advocate",
+       "ai": "多主變法自强: v. mostly advocated reforming laws and strengthening the state",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "變法自强",
+       "course": "reform and self-strengthening (强 = 強)",
+       "ai": "多主變法自强: v. mostly advocated reforming laws and strengthening the state",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "詔書",
+       "course": "*n.* edicts",
+       "ai": "詔書數下: n. imperial edicts issued several times",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "數下",
+       "course": "to be issued repeatedly",
+       "ai": "詔書數下: n. imperial edicts issued several times",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "開特科",
+       "course": "to set up a special examination",
+       "ai": "v. to open a special examination (for new-style officials)",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "裁冘兵",
+       "course": "to cut surplus troops (冘 = 冗)",
+       "ai": "v. to cut down the number of redundant troops",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "改武科制度",
+       "course": "to reform the military examinations",
+       "ai": "改武科: v. to reform the military examination system",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "大小學堂",
+       "course": "schools of all levels",
+       "ai": "n. schools of various sizes (new-style educational institutions)",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "經",
+       "course": "*v.* to go through",
+       "ai": "經再三審定: v. after being carefully reviewed and approved repeatedly",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "再三審定",
+       "course": "to examine again and again",
+       "ai": "經再三審定: v. after being carefully reviewed and approved repeatedly",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "籌之至熟",
+       "course": "to plan them most thoroughly",
+       "ai": "籌: v. to plan or arrange (here: planned)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "甫",
+       "course": "*adv.* only just",
+       "ai": "甫議: adv. just beginning to discuss (甫 = just; 議 = discuss)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "議",
+       "course": "*v.* to discuss, to propose",
+       "ai": "甫議: adv. just beginning to discuss (甫 = just; 議 = discuss)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "論説",
+       "course": "*n.* opinions (説 = 說)",
+       "ai": "論説莫衷一是: idm. opinions are divided and no consensus can be reached",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "莫衷一是",
+       "course": "to fail to agree",
+       "ai": "論説莫衷一是: idm. opinions are divided and no consensus can be reached",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "老成憂國",
+       "course": "experienced age and concern for the country",
+       "ai": "n. experienced officials concerned about the nation (used here as a pretext)",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "舊章",
+       "course": "*n.* the old institutions",
+       "ai": "n. old regulations or established rules",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "墨守",
+       "course": "*v.* to hold fast to (as 墨子 defended a city)",
+       "ai": "v. to rigidly adhere (literally: guard with ink brush)",
+       "verdict": "close"
+      },
+      {
+       "term": "擯除",
+       "course": "*v.* to reject",
+       "ai": "v. to banish or exclude",
+       "verdict": "close"
+      },
+      {
+       "term": "衆喙嘵嘵",
+       "course": "many mouths clamour (衆 = 眾)",
+       "ai": "n. noisy clamor of many people (喙 = beak; 嘵嘵 = loud noise)",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "空言無補",
+       "course": "empty words are of no help",
+       "ai": "空言: n. empty words or talk without substance",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "試問",
+       "course": "let me ask",
+       "ai": "v. to ask (in order to test or challenge)",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "時局",
+       "course": "*n.* the political situation",
+       "ai": "n. the current situation (of the nation or world)",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "不練之兵",
+       "course": "untrained troops",
+       "ai": "練: adj. disciplined (referring to troops)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "有限之餉",
+       "course": "limited funds",
+       "ai": "餉: n. military pay or stipend",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "實學",
+       "course": "*n.* practical learning",
+       "ai": "n. practical learning or useful knowledge",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "良師",
+       "course": "*n.* good teachers",
+       "ai": "n. good teachers",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "强弱相形",
+       "course": "the strong and the weak set side by side",
+       "ai": "idiom. strengths and weaknesses become apparent when compared",
+       "verdict": "close"
+      },
+      {
+       "term": "貧富懸絶",
+       "course": "the rich and the poor far apart (絶 = 絕)",
+       "ai": "idiom. rich and poor are vastly different",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "制梃以撻堅甲利兵",
+       "course": "to make clubs to beat strong armour and sharp weapons (孟子)",
+       "ai": "制梃: v. to wield a stick (as a weapon)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "京師大學堂",
+       "course": "the Imperial University of Peking",
+       "ai": "京師大: n. Beijing Imperial (referring to the capital's institutions)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "各行省",
+       "course": "the provinces",
+       "ai": "行省: n. provincial administration",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "倡",
+       "course": "*n.* leader, example",
+       "ai": "v. to lead or pioneer (an action)",
+       "verdict": "close"
+      },
+      {
+       "term": "尤應",
+       "course": "above all should",
+       "ai": "尤: adv. especially",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "首先",
+       "course": "*adv.* first",
+       "ai": "首先舉辦: v. to organize first",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "舉辦",
+       "course": "*v.* to set up",
+       "ai": "首先舉辦: v. to organize first",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "軍機大臣",
+       "course": "*n.* the Grand Councillors",
+       "ai": "n. Grand Councilors (high-ranking officials)",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "總理各國事務王大臣",
+       "course": "the princes and ministers of the Zongli Yamen (foreign office)",
+       "ai": "n. Grand Councilor in charge of foreign affairs",
+       "verdict": "close"
+      },
+      {
+       "term": "妥速",
+       "course": "*adv.* properly and quickly",
+       "ai": "妥速議奏: v. to discuss and report promptly and properly",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "議奏",
+       "course": "*v.* to deliberate and report by memorial",
+       "ai": "妥速議奏: v. to discuss and report promptly and properly",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "將此通諭知之",
+       "course": "let this be proclaimed to all",
+       "ai": "通: adj. general (as in a general edict)",
+       "verdict": "segmented differently"
+      }
+     ],
+     "ai_words": [
+      {
+       "word": "光緖",
+       "gloss": "n. the reign title of Emperor Guangxu (1875–1908)"
+      },
+      {
+       "word": "四月",
+       "gloss": "n. the fourth lunar month"
+      },
+      {
+       "word": "中外臣工",
+       "gloss": "n. officials from both China and foreign countries"
+      },
+      {
+       "word": "講求時務",
+       "gloss": "v. to study current affairs attentively"
+      },
+      {
+       "word": "多主變法自强",
+       "gloss": "v. mostly advocated reforming laws and strengthening the state"
+      },
+      {
+       "word": "詔書數下",
+       "gloss": "n. imperial edicts issued several times"
+      },
+      {
+       "word": "開特科",
+       "gloss": "v. to open a special examination (for new-style officials)"
+      },
+      {
+       "word": "裁冘兵",
+       "gloss": "v. to cut down the number of redundant troops"
+      },
+      {
+       "word": "改武科",
+       "gloss": "v. to reform the military examination system"
+      },
+      {
+       "word": "大小學堂",
+       "gloss": "n. schools of various sizes (new-style educational institutions)"
+      },
+      {
+       "word": "經再三審定",
+       "gloss": "v. after being carefully reviewed and approved repeatedly"
+      },
+      {
+       "word": "籌",
+       "gloss": "v. to plan or arrange (here: planned)"
+      },
+      {
+       "word": "熟",
+       "gloss": "adj. thoroughly matured or well-considered"
+      },
+      {
+       "word": "甫議",
+       "gloss": "adv. just beginning to discuss (甫 = just; 議 = discuss)"
+      },
+      {
+       "word": "大開",
+       "gloss": "adv. greatly opened (here: widely spread)"
+      },
+      {
+       "word": "論説莫衷一是",
+       "gloss": "idm. opinions are divided and no consensus can be reached"
+      },
+      {
+       "word": "老成憂國",
+       "gloss": "n. experienced officials concerned about the nation (used here as a pretext)"
+      },
+      {
+       "word": "舊章",
+       "gloss": "n. old regulations or established rules"
+      },
+      {
+       "word": "墨守",
+       "gloss": "v. to rigidly adhere (literally: guard with ink brush)"
+      },
+      {
+       "word": "擯除",
+       "gloss": "v. to banish or exclude"
+      },
+      {
+       "word": "衆喙嘵嘵",
+       "gloss": "n. noisy clamor of many people (喙 = beak; 嘵嘵 = loud noise)"
+      },
+      {
+       "word": "空言",
+       "gloss": "n. empty words or talk without substance"
+      },
+      {
+       "word": "無補",
+       "gloss": "adj. of no benefit or use"
+      },
+      {
+       "word": "試問",
+       "gloss": "v. to ask (in order to test or challenge)"
+      },
+      {
+       "word": "時局",
+       "gloss": "n. the current situation (of the nation or world)"
+      },
+      {
+       "word": "練",
+       "gloss": "adj. disciplined (referring to troops)"
+      },
+      {
+       "word": "餉",
+       "gloss": "n. military pay or stipend"
+      },
+      {
+       "word": "士",
+       "gloss": "n. scholar-officials or educated men"
+      },
+      {
+       "word": "實學",
+       "gloss": "n. practical learning or useful knowledge"
+      },
+      {
+       "word": "良師",
+       "gloss": "n. good teachers"
+      },
+      {
+       "word": "强弱相形",
+       "gloss": "idiom. strengths and weaknesses become apparent when compared"
+      },
+      {
+       "word": "貧富懸絶",
+       "gloss": "idiom. rich and poor are vastly different"
+      },
+      {
+       "word": "制梃",
+       "gloss": "v. to wield a stick (as a weapon)"
+      },
+      {
+       "word": "撻",
+       "gloss": "v. to beat or strike"
+      },
+      {
+       "word": "京師大",
+       "gloss": "n. Beijing Imperial (referring to the capital's institutions)"
+      },
+      {
+       "word": "行省",
+       "gloss": "n. provincial administration"
+      },
+      {
+       "word": "倡",
+       "gloss": "v. to lead or pioneer (an action)"
+      },
+      {
+       "word": "尤",
+       "gloss": "adv. especially"
+      },
+      {
+       "word": "首先舉辦",
+       "gloss": "v. to organize first"
+      },
+      {
+       "word": "軍機大臣",
+       "gloss": "n. Grand Councilors (high-ranking officials)"
+      },
+      {
+       "word": "總理各國事務王大臣",
+       "gloss": "n. Grand Councilor in charge of foreign affairs"
+      },
+      {
+       "word": "妥速議奏",
+       "gloss": "v. to discuss and report promptly and properly"
+      },
+      {
+       "word": "通",
+       "gloss": "adj. general (as in a general edict)"
+      }
+     ]
+    },
+    "grammar": {
+     "seconds": 91.96977008320391,
+     "prompt_tokens": 1569,
+     "output_tokens": 1575,
+     "checks": []
+    },
+    "translate": {
+     "seconds": 23.617997624911368,
+     "prompt_tokens": 476,
+     "output_tokens": 302,
+     "output": "On the twenty-third day of the fourth month in the twenty-fourth year of Guangxu, the Inner Cabinet received an imperial edict: For several years, officials both within and without China have focused on current affairs, mostly advocating reform for self-strengthening. Recently, several imperial decrees have been issued—for example, establishing a special examination, reducing redundant troops, reforming the military examination system, and founding primary and secondary schools—all of which have been carefully deliberated multiple times, thoroughly planned, and are now just beginning to be implemented. However, public opinion has not yet fully opened; opinions remain divided. Some, claiming to act out of concern for the nation's welfare by citing their experience, insist that old regulations must be strictly followed and new methods must be completely rejected. Many voices clamor with empty words that offer no real benefit. Consider today's situation: if we continue with untrained troops, limited funds, scholars without practical knowledge, and artisans without competent teachers, while strength and weakness contrast sharply and poverty and wealth remain vastly unequal, how can we truly wield a simple stick to strike armored soldiers wielding sharp weapons? ... The Imperial University in the capital serves as a model for all provinces; it should be established first. It is ordered that the Grand Councilors and the Ministers in charge of affairs with foreign countries jointly deliberate promptly and submit a proper report. ... This edict is hereby promulgated to all. So be it.",
+     "gold": "On the 23rd day of the 4th month of the 24th year of Guangxu, the Grand Secretariat received the following edict: For several years now, officials at court and in the provinces have studied current affairs, and most have advocated reform and self-strengthening. Recently edicts have been issued one after another: setting up a special examination, cutting surplus troops, reforming the military examinations, establishing schools of all levels. All were examined again and again and planned most thoroughly, and it has only just been proposed to put them into effect. But attitudes are not yet open, and opinions cannot agree. Some take cover behind experience and concern for the country, holding that the old institutions must be held fast and the new methods rejected. Many mouths clamour, but empty words are of no help. Let us ask: with the situation as it is today, and the state's strength as it is, if we still rely on untrained troops and limited funds, with scholars lacking practical learning and artisans lacking good teachers, the strong and the weak set side by side, the rich and the poor so far apart, can we really make clubs to beat strong armour and sharp weapons? … The Imperial University in the capital is to be an example to the provinces and above all should be set up first. Let the Grand Councillors and the princes and ministers of the Zongli Yamen deliberate on it jointly and report properly and quickly by memorial. … Let this be proclaimed to all. Respect this.",
+     "verdict": "faithful",
+     "judge_note": "none"
+    }
+   },
+   "gaps": 44
+  },
+  {
+   "id": "u14-p02",
+   "title": "A petition and a ruling",
+   "steps": {
+    "punctuate": {
+     "seconds": 24.27324341586791,
+     "prompt_tokens": 530,
+     "output_tokens": 319,
+     "tp": 35,
+     "fp": 3,
+     "fn": 5,
+     "major_tp": 12,
+     "major_fp": 2,
+     "major_fn": 0,
+     "output": "內務總長程德全為呈報事，竊維：保民衛國，警務實為行政之樞機；選賢任能，學校尤為儲才之淵藪。查南京現為首善之區，一應警察事宜，必先切實改良，方足為各省所表率。惟本部成立伊始，經費困難，凡屬布施，似宜力求撙節。爰將原有之江南高等巡警學堂改為內務部警務學校，先招敎練所學警二百四十人，分科敎授，為急則治標之計；至正班學生，一俟籌有的欵，再行招考敎養，以副大總統謀進人民幸福之本意。並卽委任本部警務局長孫潤宇兼任警務學校校長，以期迅速舉辦，庶於公私兩有裨益。所有開辦警務學校緣由，理應具文呈請鑒核施行，須至呈者。\n\n據稟：邵伯湖西岸地土久荒，該代表等不忍棄利於地，籌辦墾殖誠不可緩。惟該岸共有地積若干？應計畆繪圖先行呈部，以便飭交揚州民政長確查。仰該代表等迅卽遵照，並妥立招股章程辦法一同呈部。此批。",
+     "gold": "內務總長程德全為呈報事。竊維保民衛國，警務實為行政之樞機；選賢任能，學校尤為儲才之淵藪。查南京現為首善之區，一應警察事宜必先切實改良，方足為各省所表率。惟本部成立伊始，經費困難，凡屬布施，似宜力求撙節，爰將原有之江南高等巡警學堂改為內務部警務學校，先招敎練所學警二百四十人，分科敎授，為急則治標之計，至正班學生，一俟籌有的欵，再行招考敎養，以副大總統謀進人民幸福之本意。並卽委任本部警務局長孫潤宇兼任警務學校校長，以期迅速舉辦，庶於公私兩有裨益。所有開辦警務學校緣由，理應具文，呈請鑒核施行。須至呈者。據稟邵伯湖西岸地土久荒，該代表等不忍棄利於地，籌辦墾殖，誠不可緩。惟該岸共有地積若干，應計畆、繪圖，先行呈部，以便飭交揚州民政長確查。仰該代表等迅卽遵照，並妥立招股章程辦法，一同呈部。此批。"
+    },
+    "words": {
+     "seconds": 156.90764025133103,
+     "prompt_tokens": 1705,
+     "output_tokens": 2798,
+     "seg_tp": 69,
+     "seg_fp": 48,
+     "seg_fn": 39,
+     "glosses": [
+      {
+       "term": "內務總長",
+       "course": "the Minister of the Interior",
+       "ai": "內務總長程德全: n. Interior Minister Cheng Dequan (a personal name)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "程德全",
+       "course": "Cheng Dequan",
+       "ai": "內務總長程德全: n. Interior Minister Cheng Dequan (a personal name)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "呈報",
+       "course": "*v.* to report (to a superior)",
+       "ai": "呈報事: v. to submit a report on matters",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "保民衛國",
+       "course": "protecting the people and defending the state",
+       "ai": "v. to protect the people and defend the country",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "警務",
+       "course": "*n.* police affairs",
+       "ai": "n. police affairs / police work",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "樞機",
+       "course": "*n.* pivot, key",
+       "ai": "n. pivot; crucial point",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "選賢任能",
+       "course": "choosing the worthy and employing the able",
+       "ai": "v. to select the worthy and appoint the capable",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "儲才",
+       "course": "to store up talent",
+       "ai": "v. to store talent; to cultivate ability",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "淵藪",
+       "course": "*n.* gathering place (\"pool and thicket\")",
+       "ai": "n. source; reservoir (metaphor for a place where talents gather)",
+       "verdict": "close"
+      },
+      {
+       "term": "查",
+       "course": "*v.* to note, to find (on investigation)",
+       "ai": "查南京: v. [checking that] Nanjing is",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "首善之區",
+       "course": "the capital (\"the first district of goodness\")",
+       "ai": "n. the foremost region of good governance (a place name)",
+       "verdict": "close"
+      },
+      {
+       "term": "切實",
+       "course": "*adv.* thoroughly",
+       "ai": "先切實改良: adv. must first be earnestly improved",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "改良",
+       "course": "*v.* to reform",
+       "ai": "先切實改良: adv. must first be earnestly improved",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "表率",
+       "course": "*n.* model",
+       "ai": "v. to set an example for",
+       "verdict": "close"
+      },
+      {
+       "term": "經費",
+       "course": "*n.* funds",
+       "ai": "經費困難: adj. financial difficulties",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "凡屬布施",
+       "course": "all measures",
+       "ai": "屬布施: v. belonging to donations (or 'that are donated')",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "力求撙節",
+       "course": "to economise as far as possible",
+       "ai": "求撙節: v. to seek economy or frugality",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "爰",
+       "course": "*conj.* therefore",
+       "ai": "conj. therefore / accordingly (a formal particle indicating a consequence or transition)",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "原有之",
+       "course": "existing",
+       "ai": "原: adj. original",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "江南高等巡警學堂",
+       "course": "the Jiangnan Higher Police School",
+       "ai": "n. a proper name: Jiangnan Higher Police Academy",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "招",
+       "course": "*v.* to recruit",
+       "ai": "先招敎練所學警二百四十人: v. first recruit 240 police trainees from the Training Institute",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "敎練所",
+       "course": "*n.* training institute (敎 = 教)",
+       "ai": "先招敎練所學警二百四十人: v. first recruit 240 police trainees from the Training Institute",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "學警",
+       "course": "*n.* police cadets",
+       "ai": "先招敎練所學警二百四十人: v. first recruit 240 police trainees from the Training Institute",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "分科敎授",
+       "course": "to teach by subject",
+       "ai": "v. to teach by subject (or 'to instruct in separate departments')",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "急則治標之計",
+       "course": "an emergency measure (\"when urgent, treat the symptoms\")",
+       "ai": "急: adj. urgent",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "至",
+       "course": "*prep.* as for",
+       "ai": "至正班學生: n. a proper name: students of the Zhengban (Regular Class)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "正班",
+       "course": "*n.* the regular course",
+       "ai": "至正班學生: n. a proper name: students of the Zhengban (Regular Class)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "一俟",
+       "course": "as soon as",
+       "ai": "俟籌有的欵: v. to wait until funds are raised",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "籌有的欵",
+       "course": "to have raised definite funds (欵 = 款)",
+       "ai": "俟籌有的欵: v. to wait until funds are raised",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "招考",
+       "course": "*v.* to admit by examination",
+       "ai": "招考敎養: v. to recruit and train (via examination)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "敎養",
+       "course": "*v.* to educate",
+       "ai": "招考敎養: v. to recruit and train (via examination)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "以副",
+       "course": "so as to fulfil",
+       "ai": "副: v. to fulfill / to match up to",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "謀進",
+       "course": "to work to advance",
+       "ai": "謀進人民幸福之本意: n. the original intention of planning for the people's happiness",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "本意",
+       "course": "*n.* intention",
+       "ai": "謀進人民幸福之本意: n. the original intention of planning for the people's happiness",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "警務局長",
+       "course": "head of the police bureau",
+       "ai": "警務: n. police affairs / police work",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "孫潤宇",
+       "course": "Sun Runyu",
+       "ai": "部警務局長孫潤宇兼任警務學校校長: n. a proper name: Sun Runyu, Director of the Ministry's Police Bureau, concurrently serving as Principal of the Police School",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "兼任",
+       "course": "*v.* to hold concurrently",
+       "ai": "部警務局長孫潤宇兼任警務學校校長: n. a proper name: Sun Runyu, Director of the Ministry's Police Bureau, concurrently serving as Principal of the Police School",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "校長",
+       "course": "*n.* principal",
+       "ai": "部警務局長孫潤宇兼任警務學校校長: n. a proper name: Sun Runyu, Director of the Ministry's Police Bureau, concurrently serving as Principal of the Police School",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "迅速舉辦",
+       "course": "to set up quickly",
+       "ai": "迅速: adv. quickly / rapidly",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "庶",
+       "course": "so that, it is hoped",
+       "ai": "conj. hopefully / so that (indicating a desired outcome)",
+       "verdict": "same"
+      },
+      {
+       "term": "公私兩有裨益",
+       "course": "to benefit both public and private interests",
+       "ai": "v. to benefit both public and private interests",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "理應具文",
+       "course": "it is proper to prepare a document",
+       "ai": "理: adv. logically / by right",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "呈請鑒核施行",
+       "course": "to request (you) to examine and put into effect",
+       "ai": "鑒核: v. to examine and verify",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "據稟",
+       "course": "according to your petition",
+       "ai": null,
+       "verdict": "missing"
+      },
+      {
+       "term": "邵伯湖",
+       "course": "Lake Shaobo (north of Yangzhou)",
+       "ai": "n. Shao Bo Lake (a place name)",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "地土久荒",
+       "course": "the land has long lain waste",
+       "ai": null,
+       "verdict": "missing"
+      },
+      {
+       "term": "不忍",
+       "course": "cannot bear to",
+       "ai": "忍棄: v. to bear to abandon",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "棄利於地",
+       "course": "to leave profit in the ground",
+       "ai": "忍棄: v. to bear to abandon",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "籌辦墾殖",
+       "course": "to plan reclamation and cultivation",
+       "ai": "v. to organize and carry out reclamation (of land)",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "誠不可緩",
+       "course": "truly cannot be delayed",
+       "ai": "誠: adv. truly / indeed",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "計畆",
+       "course": "to measure in mu (畆 = 畝)",
+       "ai": "v. to calculate by mu (a unit of area)",
+       "verdict": "same"
+      },
+      {
+       "term": "繪圖",
+       "course": "to draw a map",
+       "ai": "v. to draw a map",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "飭交",
+       "course": "to pass on with an order to",
+       "ai": null,
+       "verdict": "missing"
+      },
+      {
+       "term": "民政長",
+       "course": "*n.* civil governor",
+       "ai": "n. Director of Civil Administration",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "確查",
+       "course": "to verify",
+       "ai": null,
+       "verdict": "missing"
+      },
+      {
+       "term": "仰",
+       "course": "*v.* (to a subordinate) \"you are directed to\"",
+       "ai": "仰該: v. + pron. order the said (one(s))",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "迅卽遵照",
+       "course": "to comply at once",
+       "ai": "adv. + v. promptly comply with",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "妥立",
+       "course": "to draw up properly",
+       "ai": null,
+       "verdict": "missing"
+      },
+      {
+       "term": "招股章程辦法",
+       "course": "regulations and procedures for raising capital",
+       "ai": "n. regulations and methods for raising shares (capital)",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "一同",
+       "course": "together",
+       "ai": "一同呈: adv. + v. submit together",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "此批",
+       "course": "\"this is the ruling\" (closing a ruling)",
+       "ai": "批: n. an official reply or directive (here: this instruction)",
+       "verdict": "segmented differently"
+      }
+     ],
+     "ai_words": [
+      {
+       "word": "內務總長程德全",
+       "gloss": "n. Interior Minister Cheng Dequan (a personal name)"
+      },
+      {
+       "word": "呈報事",
+       "gloss": "v. to submit a report on matters"
+      },
+      {
+       "word": "保民衛國",
+       "gloss": "v. to protect the people and defend the country"
+      },
+      {
+       "word": "警務實",
+       "gloss": "adj. police affairs are indeed (emphatic)"
+      },
+      {
+       "word": "警務",
+       "gloss": "n. police affairs / police work"
+      },
+      {
+       "word": "行政",
+       "gloss": "n. administration"
+      },
+      {
+       "word": "樞機",
+       "gloss": "n. pivot; crucial point"
+      },
+      {
+       "word": "選賢任能",
+       "gloss": "v. to select the worthy and appoint the capable"
+      },
+      {
+       "word": "尤",
+       "gloss": "adv. especially"
+      },
+      {
+       "word": "儲才",
+       "gloss": "v. to store talent; to cultivate ability"
+      },
+      {
+       "word": "淵藪",
+       "gloss": "n. source; reservoir (metaphor for a place where talents gather)"
+      },
+      {
+       "word": "查南京",
+       "gloss": "v. [checking that] Nanjing is"
+      },
+      {
+       "word": "首善之區",
+       "gloss": "n. the foremost region of good governance (a place name)"
+      },
+      {
+       "word": "警察",
+       "gloss": "n. police affairs"
+      },
+      {
+       "word": "先切實改良",
+       "gloss": "adv. must first be earnestly improved"
+      },
+      {
+       "word": "足",
+       "gloss": "adj. sufficient; adequate"
+      },
+      {
+       "word": "各省",
+       "gloss": "n. all the provinces"
+      },
+      {
+       "word": "表率",
+       "gloss": "v. to set an example for"
+      },
+      {
+       "word": "經費困難",
+       "gloss": "adj. financial difficulties"
+      },
+      {
+       "word": "屬布施",
+       "gloss": "v. belonging to donations (or 'that are donated')"
+      },
+      {
+       "word": "求撙節",
+       "gloss": "v. to seek economy or frugality"
+      },
+      {
+       "word": "爰",
+       "gloss": "conj. therefore / accordingly (a formal particle indicating a consequence or transition)"
+      },
+      {
+       "word": "原",
+       "gloss": "adj. original"
+      },
+      {
+       "word": "江南高等巡警學堂",
+       "gloss": "n. a proper name: Jiangnan Higher Police Academy"
+      },
+      {
+       "word": "先招敎練所學警二百四十人",
+       "gloss": "v. first recruit 240 police trainees from the Training Institute"
+      },
+      {
+       "word": "分科敎授",
+       "gloss": "v. to teach by subject (or 'to instruct in separate departments')"
+      },
+      {
+       "word": "急",
+       "gloss": "adj. urgent"
+      },
+      {
+       "word": "治標",
+       "gloss": "v. to treat the symptoms (as opposed to '治本', treating the root cause)"
+      },
+      {
+       "word": "至正班學生",
+       "gloss": "n. a proper name: students of the Zhengban (Regular Class)"
+      },
+      {
+       "word": "俟籌有的欵",
+       "gloss": "v. to wait until funds are raised"
+      },
+      {
+       "word": "招考敎養",
+       "gloss": "v. to recruit and train (via examination)"
+      },
+      {
+       "word": "副",
+       "gloss": "v. to fulfill / to match up to"
+      },
+      {
+       "word": "謀進人民幸福之本意",
+       "gloss": "n. the original intention of planning for the people's happiness"
+      },
+      {
+       "word": "部警務局長孫潤宇兼任警務學校校長",
+       "gloss": "n. a proper name: Sun Runyu, Director of the Ministry's Police Bureau, concurrently serving as Principal of the Police School"
+      },
+      {
+       "word": "迅速",
+       "gloss": "adv. quickly / rapidly"
+      },
+      {
+       "word": "庶",
+       "gloss": "conj. hopefully / so that (indicating a desired outcome)"
+      },
+      {
+       "word": "公私兩有裨益",
+       "gloss": "v. to benefit both public and private interests"
+      },
+      {
+       "word": "開辦警務",
+       "gloss": "v. to establish a police school"
+      },
+      {
+       "word": "理",
+       "gloss": "adv. logically / by right"
+      },
+      {
+       "word": "具文",
+       "gloss": "n. a formal document (here: to submit a written report)"
+      },
+      {
+       "word": "鑒核",
+       "gloss": "v. to examine and verify"
+      },
+      {
+       "word": "邵伯湖",
+       "gloss": "n. Shao Bo Lake (a place name)"
+      },
+      {
+       "word": "忍棄",
+       "gloss": "v. to bear to abandon"
+      },
+      {
+       "word": "籌辦墾殖",
+       "gloss": "v. to organize and carry out reclamation (of land)"
+      },
+      {
+       "word": "誠",
+       "gloss": "adv. truly / indeed"
+      },
+      {
+       "word": "緩",
+       "gloss": "adj. slow / delayed (here: to be postponed)"
+      },
+      {
+       "word": "該岸共",
+       "gloss": "pronoun + conj. the said shore altogether"
+      },
+      {
+       "word": "計畆",
+       "gloss": "v. to calculate by mu (a unit of area)"
+      },
+      {
+       "word": "繪圖",
+       "gloss": "v. to draw a map"
+      },
+      {
+       "word": "揚州",
+       "gloss": "n. Yangzhou (a place name)"
+      },
+      {
+       "word": "民政長",
+       "gloss": "n. Director of Civil Administration"
+      },
+      {
+       "word": "仰該",
+       "gloss": "v. + pron. order the said (one(s))"
+      },
+      {
+       "word": "迅卽遵照",
+       "gloss": "adv. + v. promptly comply with"
+      },
+      {
+       "word": "招股章程辦法",
+       "gloss": "n. regulations and methods for raising shares (capital)"
+      },
+      {
+       "word": "一同呈",
+       "gloss": "adv. + v. submit together"
+      },
+      {
+       "word": "批",
+       "gloss": "n. an official reply or directive (here: this instruction)"
+      }
+     ]
+    },
+    "grammar": {
+     "seconds": 102.26292162504978,
+     "prompt_tokens": 1863,
+     "output_tokens": 1588,
+     "checks": [
+      {
+       "form": "為",
+       "clause": "警務實為行政之樞機",
+       "gold": "wei-copula",
+       "ai": "wei-copula",
+       "ok": true
+      },
+      {
+       "form": "為",
+       "clause": "學校尤為儲才之淵藪",
+       "gold": "wei-copula",
+       "ai": "wei-copula",
+       "ok": true
+      },
+      {
+       "form": "為",
+       "clause": "查南京現為首善之區",
+       "gold": "wei-copula",
+       "ai": "wei-copula",
+       "ok": true
+      },
+      {
+       "form": "為",
+       "clause": "方足為各省所表率",
+       "gold": "passives",
+       "ai": "wei-copula",
+       "ok": false
+      }
+     ]
+    },
+    "translate": {
+     "seconds": 25.46601974987425,
+     "prompt_tokens": 552,
+     "output_tokens": 276,
+     "output": "The Minister of the Interior, Cheng Dequan, submits this report. It is understood that protecting the people and safeguarding the nation makes police administration a pivotal mechanism; selecting worthy individuals and appointing capable persons makes schools a reservoir for cultivating talent. Upon examination, Nanjing now serves as the foremost exemplary region; all police matters must be earnestly improved first, so that it may set an example for other provinces. However, since our department was recently established, funding is difficult; therefore, regarding donations, we should strive to exercise strict economy. Accordingly, the former Jiangnan Higher Police Academy has been converted into the Ministry of the Interior's Police School. We have initially recruited 240 police trainees from the training institute, organized them into specialized departments for instruction, as a temporary measure to address urgent needs. As for regular class students, once funds are secured, we will conduct recruitment and provide proper education, thereby fulfilling the Great President's intention of promoting public happiness. We have immediately appointed Sun Runyu, Director of Police Affairs in our department, to concurrently serve as Principal of the Police School, with the aim of expediting its establishment, so that both public and private interests may benefit. Regarding the reasons for opening the Police School, it is appropriate to submit this document for review and implementation. Thus ends the memorial.",
+     "gold": "Cheng Dequan, Minister of the Interior, reports as follows. I humbly consider that for protecting the people and defending the state, police affairs are the key to administration; and for choosing the worthy and employing the able, schools are the place where talent is gathered. I note that Nanjing is now the capital, and all police matters must first be thoroughly reformed before it can serve as a model for the provinces. But this ministry has only just been founded and funds are difficult, so all measures should, it seems, be as economical as possible. I have therefore converted the existing Jiangnan Higher Police School into the Ministry of the Interior Police School. It will first recruit 240 police cadets for the training institute and teach them by subject, as an emergency measure. As for students of the regular course, as soon as definite funds have been raised, they will be admitted by examination and educated, so as to fulfil the President's intention of working to advance the people's happiness. I have also at once appointed Sun Runyu, head of this ministry's police bureau, as principal of the police school concurrently, in the hope of setting it up quickly, so that both public and private interests may benefit. As to the opening of the police school, it is proper to prepare this document and request you to examine it and put it into effect. This petition is necessary. According to your petition, the land on the west shore of Lake Shaobo has long lain waste, and you representatives cannot bear to leave its profit in the ground and plan to reclaim and cultivate it. This truly cannot be delayed. But you should measure in mu how much land there is on that shore, draw a map and first submit them to the ministry, so that we can pass them on with an order to the civil governor of Yangzhou to verify. You representatives are directed to comply at once, and also to draw up proper regulations and procedures for raising capital, and submit them to the ministry together. This is the ruling.",
+     "verdict": "faithful",
+     "judge_note": "none"
+    }
+   },
+   "gaps": 62
+  },
+  {
+   "id": "u15-p03",
+   "title": "The English text prevails",
+   "steps": {
+    "punctuate": {
+     "seconds": 17.97405520803295,
+     "prompt_tokens": 395,
+     "output_tokens": 164,
+     "tp": 19,
+     "fp": 1,
+     "fn": 4,
+     "major_tp": 9,
+     "major_fp": 0,
+     "major_fn": 0,
+     "output": "第一款，前壬寅年七月二十四日江寧所定和約仍留照行；廣東所定善後舊約並通商章程，現在更章既經併入新約，所有舊約作為廢紙。第五十款，嗣後英國文書俱用英字書寫，暫時仍以漢文配送；俟中國選派學生學習英文，英語熟習即不用配送漢文。自今以後，遇有文詞辯論之處，總以英文作為正義。此次定約，漢英文書詳細較對無訛，亦照此例。第五十一款，嗣後各式公文，無論京外內敘大英國官民，自不得提書夷字。",
+     "gold": "第一款：前壬寅年七月二十四日江寧所定和約仍留照行。廣東所定善後舊約並通商章程現在更章，既經併入新約，所有舊約作為廢紙。第五十款：嗣後英國文書俱用英字書寫，暫時仍以漢文配送，俟中國選派學生學習英文、英語熟習，即不用配送漢文。自今以後，遇有文詞辯論之處，總以英文作為正義。此次定約，漢、英文書詳細較對無訛，亦照此例。第五十一款：嗣後各式公文，無論京外，內敘大英國官民，自不得提書夷字。"
+    },
+    "words": {
+     "seconds": 72.92807879112661,
+     "prompt_tokens": 1059,
+     "output_tokens": 1267,
+     "seg_tp": 38,
+     "seg_fp": 19,
+     "seg_fn": 16,
+     "glosses": [
+      {
+       "term": "所定和約",
+       "course": "the peace treaty concluded (the Treaty of Nanjing)",
+       "ai": "定: v. to settle or conclude (a treaty)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "仍留照行",
+       "course": "to remain in force",
+       "ai": "adv. phrase: continue to keep in force as before",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "廣東",
+       "course": "Guangdong (Canton)",
+       "ai": "n. Guangdong (a place name)",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "善後舊約",
+       "course": "the earlier supplementary treaty (of 1843)",
+       "ai": "舊約: n. the old treaty (a noun phrase)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "並",
+       "course": "*conj.* and",
+       "ai": null,
+       "verdict": "missing"
+      },
+      {
+       "term": "通商章程",
+       "course": "trade regulations",
+       "ai": null,
+       "verdict": "missing"
+      },
+      {
+       "term": "更章",
+       "course": "to revise the regulations",
+       "ai": "n. revised articles or clauses",
+       "verdict": "close"
+      },
+      {
+       "term": "既經",
+       "course": "since (they) have been",
+       "ai": "經: adv. having already (used here as part of 已經, meaning 'already')",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "併入",
+       "course": "*v.* to incorporate into",
+       "ai": "v. to merge into or incorporate into",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "新約",
+       "course": "*n.* the new treaty",
+       "ai": null,
+       "verdict": "missing"
+      },
+      {
+       "term": "作為廢紙",
+       "course": "to be treated as waste paper, null and void",
+       "ai": "廢紙: n. scrap paper (meaning void or null and void)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "文書",
+       "course": "*n.* official communications",
+       "ai": "文書俱用: adv. phrase: all official documents must use",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "俱",
+       "course": "*adv.* all",
+       "ai": "文書俱用: adv. phrase: all official documents must use",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "英字",
+       "course": "English (writing)",
+       "ai": "字書寫: v. to write in characters (referring to English letters/words)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "書寫",
+       "course": "*v.* to write",
+       "ai": "字書寫: v. to write in characters (referring to English letters/words)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "仍",
+       "course": "*adv.* still",
+       "ai": "仍留照行: adv. phrase: continue to keep in force as before",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "配送",
+       "course": "*v.* to send with, to accompany",
+       "ai": "v. to supply or attach as an appendix",
+       "verdict": "close"
+      },
+      {
+       "term": "俟",
+       "course": "*conj.* when, as soon as",
+       "ai": "conj./prep. until or when",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "選派",
+       "course": "*v.* to select and send",
+       "ai": "v. to select and send (students)",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "學習",
+       "course": "*v.* to study",
+       "ai": null,
+       "verdict": "missing"
+      },
+      {
+       "term": "熟習",
+       "course": "*adj.* proficient",
+       "ai": "v. to be thoroughly familiar with or proficient in",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "遇有",
+       "course": "whenever there is",
+       "ai": "遇: conj./prep. when or upon encountering",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "作為正義",
+       "course": "to be taken as the correct meaning",
+       "ai": "正義: n. the authoritative interpretation or final ruling",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "此次定約",
+       "course": "this treaty now concluded",
+       "ai": "n. this treaty",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "詳細較對無訛",
+       "course": "carefully checked and found without error",
+       "ai": null,
+       "verdict": "missing"
+      },
+      {
+       "term": "亦照此例",
+       "course": "is also subject to this rule",
+       "ai": "亦照: adv. also follow",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "各式公文",
+       "course": "official documents of all kinds",
+       "ai": "各式: adj. various kinds/types of",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "無論京外",
+       "course": "whether in the capital or the provinces",
+       "ai": "conj. whether in or outside the capital",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "內敘",
+       "course": "in referring to (within the document)",
+       "ai": "v. (in the text) mention/include",
+       "verdict": "close"
+      },
+      {
+       "term": "大英國官民",
+       "course": "British officials and subjects",
+       "ai": "n. British officials and commoners",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "提書",
+       "course": "to write",
+       "ai": "提書夷字: v. to write in barbarian characters (referring to non-Chinese scripts)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "夷字",
+       "course": "the character 夷 \"barbarian\"",
+       "ai": "提書夷字: v. to write in barbarian characters (referring to non-Chinese scripts)",
+       "verdict": "segmented differently"
+      }
+     ],
+     "ai_words": [
+      {
+       "word": "定",
+       "gloss": "v. to settle or conclude (a treaty)"
+      },
+      {
+       "word": "仍留照行",
+       "gloss": "adv. phrase: continue to keep in force as before"
+      },
+      {
+       "word": "廣東",
+       "gloss": "n. Guangdong (a place name)"
+      },
+      {
+       "word": "舊約",
+       "gloss": "n. the old treaty (a noun phrase)"
+      },
+      {
+       "word": "更章",
+       "gloss": "n. revised articles or clauses"
+      },
+      {
+       "word": "經",
+       "gloss": "adv. having already (used here as part of 已經, meaning 'already')"
+      },
+      {
+       "word": "併入",
+       "gloss": "v. to merge into or incorporate into"
+      },
+      {
+       "word": "廢紙",
+       "gloss": "n. scrap paper (meaning void or null and void)"
+      },
+      {
+       "word": "五十款",
+       "gloss": "n. Article 50 (a noun phrase referring to a specific clause number)"
+      },
+      {
+       "word": "文書俱用",
+       "gloss": "adv. phrase: all official documents must use"
+      },
+      {
+       "word": "用",
+       "gloss": "v. to use (here meaning 'to employ')"
+      },
+      {
+       "word": "字書寫",
+       "gloss": "v. to write in characters (referring to English letters/words)"
+      },
+      {
+       "word": "配送",
+       "gloss": "v. to supply or attach as an appendix"
+      },
+      {
+       "word": "俟",
+       "gloss": "conj./prep. until or when"
+      },
+      {
+       "word": "選派",
+       "gloss": "v. to select and send (students)"
+      },
+      {
+       "word": "熟習",
+       "gloss": "v. to be thoroughly familiar with or proficient in"
+      },
+      {
+       "word": "遇",
+       "gloss": "conj./prep. when or upon encountering"
+      },
+      {
+       "word": "正義",
+       "gloss": "n. the authoritative interpretation or final ruling"
+      },
+      {
+       "word": "此次定約",
+       "gloss": "n. this treaty"
+      },
+      {
+       "word": "亦照",
+       "gloss": "adv. also follow"
+      },
+      {
+       "word": "此例",
+       "gloss": "n. this precedent/example"
+      },
+      {
+       "word": "各式",
+       "gloss": "adj. various kinds/types of"
+      },
+      {
+       "word": "無論京外",
+       "gloss": "conj. whether in or outside the capital"
+      },
+      {
+       "word": "內敘",
+       "gloss": "v. (in the text) mention/include"
+      },
+      {
+       "word": "大英國官民",
+       "gloss": "n. British officials and commoners"
+      },
+      {
+       "word": "提書夷字",
+       "gloss": "v. to write in barbarian characters (referring to non-Chinese scripts)"
+      }
+     ]
+    },
+    "grammar": {
+     "seconds": 79.63069979194552,
+     "prompt_tokens": 1112,
+     "output_tokens": 1246,
+     "checks": []
+    },
+    "translate": {
+     "seconds": 20.627291250042617,
+     "prompt_tokens": 400,
+     "output_tokens": 230,
+     "output": "Article 1: The Treaty of Nanking, concluded on the twenty-fourth day of the seventh month in the previous Renyin year (1842), shall continue to be observed. The old supplementary treaty and commercial regulations agreed upon by Guangdong have now been incorporated into the new treaty; therefore, all such prior agreements are hereby declared void.\n\nArticle 50: Hereafter, all British official documents shall be written in English characters only. For the time being, Chinese translations may still be attached as supplements. However, once China has dispatched students to study English and they have become proficient, the attachment of Chinese translations shall cease. From now on, in any matter involving verbal or textual dispute, English shall serve as the authoritative standard. The current treaty was carefully compared in both Chinese and English versions without error, and this rule applies accordingly.\n\nArticle 51: Hereafter, in all official documents, whether issued from the capital or elsewhere, references to officials and people of Great Britain must not be written using derogatory terms such as 'barbarians' (夷).",
+     "gold": "Article 1: The peace treaty concluded earlier at Jiangning on the 24th day of the 7th month of the renyin year remains in force. The supplementary treaty concluded in Guangdong and the trade regulations are now revised; since they have been incorporated into the new treaty, all the old treaties are null and void. Article 50: From now on, British communications shall all be written in English. For the time being they will still be accompanied by Chinese; as soon as China has selected and sent students to learn English and they are proficient in the language, Chinese will no longer be sent with them. From now on, whenever there is a dispute about wording, the English shall in all cases be taken as the correct meaning. The treaty now concluded, of which the Chinese and English texts have been carefully checked and found without error, is also subject to this rule. Article 51: From now on, in official documents of all kinds, whether in the capital or the provinces, the character 夷 may not, of course, be written in referring to British officials and subjects.",
+     "verdict": "minor",
+     "judge_note": "The translation's use of 'barbarians' (夷) to describe the meaning of the character is an over-interpretation; it's a general term for foreigners, not necessarily derogatory."
+    }
+   },
+   "gaps": 27
+  },
+  {
+   "id": "u17-p01",
+   "title": "Struggle and selection",
+   "steps": {
+    "punctuate": {
+     "seconds": 31.818073624977842,
+     "prompt_tokens": 589,
+     "output_tokens": 399,
+     "tp": 55,
+     "fp": 3,
+     "fn": 5,
+     "major_tp": 22,
+     "major_fp": 0,
+     "major_fn": 0,
+     "output": "赫胥黎獨處一室之中，在英倫之南，背山而面野。檻外諸境，歷歷如在几下。乃懸想二千年前，當羅馬大將愷徹未到時，此間有何景物？故知不變一言決非天運，而悠久成物之理，轉在變動不居之中。是當前之所見，經廿年、卅年而革焉可也；更二萬年、三萬年而革亦可也。特據前事推將來，為變方長，未知所極而已。雖然，天運變矣，而有不變者行乎其中。不變惟何？是名天演。以天演為體，而其用有二：曰物競，曰天擇。此萬物莫不然而於有生之類為尤著。物競者，物爭自存也。以一物以與物，物爭或存或亡，而其效則歸於天擇。天擇者，物爭焉而獨存，則其存也必有其所以存；必其所得於天之分、自致一己之能，與其所遭值之時與地，及凡周身以外之物力，有其相謀相劑者焉。夫而後獨免於亡，而足以自立也。而自其效觀之，若是物特為天之所厚而擇焉以存也者，夫是之謂天擇。天擇者，擇於自然；雖擇而莫之擇，猶物競之無所爭而實天下之至爭也。斯賓塞爾曰：「天擇者，存其最宜者也。」夫物既爭存矣，而天又從其爭之後而擇之。一爭一擇，而變化之事出矣。",
+     "gold": "赫胥黎獨處一室之中，在英倫之南，背山而面野，檻外諸境，歷歷如在几下。乃懸想二千年前，當羅馬大將愷徹未到時，此間有何景物。……故知不變一言，決非天運。而悠久成物之理，轉在變動不居之中。是當前之所見，經廿年卅年而革焉可也，更二萬年三萬年而革亦可也。特據前事推將來，為變方長，未知所極而已。雖然，天運變矣，而有不變者行乎其中。不變惟何？是名天演。以天演為體，而其用有二：曰物競，曰天擇。此萬物莫不然，而於有生之類為尤著。物競者，物爭自存也。以一物以與物物爭，或存或亡，而其效則歸於天擇。天擇者，物爭焉而獨存。則其存也，必有其所以存，必其所得於天之分，自致一己之能，與其所遭值之時與地，及凡周身以外之物力，有其相謀相劑者焉。夫而後獨免於亡，而足以自立也。而自其效觀之，若是物特為天之所厚而擇焉以存也者，夫是之謂天擇。天擇者，擇於自然，雖擇而莫之擇，猶物競之無所爭，而實天下之至爭也。斯賓塞爾曰：「天擇者，存其最宜者也。」夫物既爭存矣，而天又從其爭之後而擇之，一爭一擇，而變化之事出矣。"
+    },
+    "words": {
+     "seconds": 185.79585174913518,
+     "prompt_tokens": 2202,
+     "output_tokens": 3257,
+     "seg_tp": 52,
+     "seg_fp": 90,
+     "seg_fn": 18,
+     "glosses": [
+      {
+       "term": "赫胥黎",
+       "course": "Huxley (Thomas Henry Huxley, 1825–1895)",
+       "ai": "n. Thomas Henry Huxley, a British biologist and philosopher",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "獨處",
+       "course": "to be alone",
+       "ai": "獨: adv. alone",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "英倫",
+       "course": "England",
+       "ai": "n. Great Britain (or the British Isles)",
+       "verdict": "close"
+      },
+      {
+       "term": "背山而面野",
+       "course": "with hills behind and fields in front",
+       "ai": "面: v. to face",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "檻外諸境",
+       "course": "the scenes beyond the railing",
+       "ai": "n. the various scenes outside the railing",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "歷歷",
+       "course": "*adv.* distinctly, clearly",
+       "ai": "adv. clearly / distinctly",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "几下",
+       "course": "below the desk",
+       "ai": "下: n. below",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "乃",
+       "course": "*adv.* then",
+       "ai": "conj. then / thus",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "懸想",
+       "course": "*v.* to imagine",
+       "ai": "v. to imagine (at a distance)",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "羅馬大將愷徹",
+       "course": "the Roman general Caesar",
+       "ai": "羅馬大: adj. great Roman (modifying the following name)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "景物",
+       "course": "*n.* scenery",
+       "ai": "n. scenery / sights",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "決非",
+       "course": "is by no means",
+       "ai": "決: adv. certainly / by no means (here: 'certainly not')",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "悠久成物之理",
+       "course": "the principle by which things endure and take shape",
+       "ai": "悠久成: adv. over a long time (modifying '物')",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "轉",
+       "course": "*adv.* on the contrary",
+       "ai": "轉在: v. lies in / resides in",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "更",
+       "course": "*v.* to pass through (a period)",
+       "ai": "adv. even / further",
+       "verdict": "close"
+      },
+      {
+       "term": "據前事推將來",
+       "course": "to infer the future from past events",
+       "ai": "前事: n. past events",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "行乎其中",
+       "course": "to operate within it",
+       "ai": "中: prep. in / inside",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "體",
+       "course": "*n.* substance, the thing itself",
+       "ai": "n. substance (or essence)",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "物競",
+       "course": "*n.* the struggle of things, struggle for existence",
+       "ai": "n. competition among things",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "天擇",
+       "course": "*n.* the selection of heaven, natural selection",
+       "ai": "n. selection by nature",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "有生之類",
+       "course": "living things",
+       "ai": "生: adj. living",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "尤著",
+       "course": "especially evident",
+       "ai": "尤: adv. especially",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "物競者，物爭自存也",
+       "course": "the struggle of things is things striving to preserve themselves",
+       "ai": "物: n. things / phenomena",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "歸於",
+       "course": "to come down to",
+       "ai": "歸: v. return (or result)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "一己",
+       "course": "oneself",
+       "ai": "adj. one's own (self)",
+       "verdict": "close"
+      },
+      {
+       "term": "所遭值",
+       "course": "what it meets with",
+       "ai": "遭值: v. to encounter or come across",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "周身以外之物力",
+       "course": "the forces of things outside its body",
+       "ai": "外: prep. outside",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "相謀相劑",
+       "course": "to work together and complement each other",
+       "ai": "v. to plan together and balance each other (mutually consult and offset)",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "獨免於亡",
+       "course": "alone to escape perishing",
+       "ai": "獨: adv. alone",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "自其效觀之",
+       "course": "looking at it from the result",
+       "ai": "效觀: v. to view from the standpoint of effect (to judge by results)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "特為天之所厚",
+       "course": "specially favoured by heaven",
+       "ai": "厚: adj. thick, abundant, or favored",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "夫是之謂",
+       "course": "this is what is called",
+       "ai": null,
+       "verdict": "missing"
+      },
+      {
+       "term": "擇於自然",
+       "course": "to select according to nature",
+       "ai": "擇: v. to choose or select",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "雖擇而莫之擇",
+       "course": "it selects, yet no one selects",
+       "ai": "擇: v. to choose or select",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "從其爭之後",
+       "course": "after their struggle",
+       "ai": "後: adv. after",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "一爭一擇",
+       "course": "with each struggle and each selection",
+       "ai": "n. (phrase) one struggle, one selection",
+       "verdict": "same (auto)"
+      }
+     ],
+     "ai_words": [
+      {
+       "word": "赫胥黎",
+       "gloss": "n. Thomas Henry Huxley, a British biologist and philosopher"
+      },
+      {
+       "word": "獨",
+       "gloss": "adv. alone"
+      },
+      {
+       "word": "一室",
+       "gloss": "n. a single room"
+      },
+      {
+       "word": "中",
+       "gloss": "prep. in / inside"
+      },
+      {
+       "word": "英倫",
+       "gloss": "n. Great Britain (or the British Isles)"
+      },
+      {
+       "word": "南",
+       "gloss": "n. south"
+      },
+      {
+       "word": "面",
+       "gloss": "v. to face"
+      },
+      {
+       "word": "檻外諸境",
+       "gloss": "n. the various scenes outside the railing"
+      },
+      {
+       "word": "外",
+       "gloss": "prep. outside"
+      },
+      {
+       "word": "歷歷",
+       "gloss": "adv. clearly / distinctly"
+      },
+      {
+       "word": "在",
+       "gloss": "prep. at / in"
+      },
+      {
+       "word": "下",
+       "gloss": "n. below"
+      },
+      {
+       "word": "乃",
+       "gloss": "conj. then / thus"
+      },
+      {
+       "word": "懸想",
+       "gloss": "v. to imagine (at a distance)"
+      },
+      {
+       "word": "二千年前",
+       "gloss": "n. two thousand years ago"
+      },
+      {
+       "word": "羅馬大",
+       "gloss": "adj. great Roman (modifying the following name)"
+      },
+      {
+       "word": "愷徹",
+       "gloss": "n. Caius Caesar, a Roman general"
+      },
+      {
+       "word": "景物",
+       "gloss": "n. scenery / sights"
+      },
+      {
+       "word": "物",
+       "gloss": "n. things / phenomena"
+      },
+      {
+       "word": "決",
+       "gloss": "adv. certainly / by no means (here: 'certainly not')"
+      },
+      {
+       "word": "悠久成",
+       "gloss": "adv. over a long time (modifying '物')"
+      },
+      {
+       "word": "理",
+       "gloss": "n. principle / law"
+      },
+      {
+       "word": "轉在",
+       "gloss": "v. lies in / resides in"
+      },
+      {
+       "word": "經",
+       "gloss": "prep. after / through"
+      },
+      {
+       "word": "廿年卅年",
+       "gloss": "n. twenty or thirty years"
+      },
+      {
+       "word": "更",
+       "gloss": "adv. even / further"
+      },
+      {
+       "word": "二萬年三萬年",
+       "gloss": "n. twenty thousand or thirty thousand years"
+      },
+      {
+       "word": "前事",
+       "gloss": "n. past events"
+      },
+      {
+       "word": "推",
+       "gloss": "v. to infer / deduce"
+      },
+      {
+       "word": "體",
+       "gloss": "n. substance (or essence)"
+      },
+      {
+       "word": "物競",
+       "gloss": "n. competition among things"
+      },
+      {
+       "word": "天擇",
+       "gloss": "n. selection by nature"
+      },
+      {
+       "word": "擇",
+       "gloss": "v. to choose or select"
+      },
+      {
+       "word": "萬物",
+       "gloss": "n. all things"
+      },
+      {
+       "word": "生",
+       "gloss": "adj. living"
+      },
+      {
+       "word": "類",
+       "gloss": "n. kind (or category)"
+      },
+      {
+       "word": "尤",
+       "gloss": "adv. especially"
+      },
+      {
+       "word": "或亡",
+       "gloss": "conj./v. or perish"
+      },
+      {
+       "word": "亡",
+       "gloss": "v. to perish or die out"
+      },
+      {
+       "word": "歸",
+       "gloss": "v. return (or result)"
+      },
+      {
+       "word": "一己",
+       "gloss": "adj. one's own (self)"
+      },
+      {
+       "word": "遭值",
+       "gloss": "v. to encounter or come across"
+      },
+      {
+       "word": "周身",
+       "gloss": "adj. surrounding the whole body (all-around)"
+      },
+      {
+       "word": "相謀相劑",
+       "gloss": "v. to plan together and balance each other (mutually consult and offset)"
+      },
+      {
+       "word": "獨免",
+       "gloss": "v. alone to be exempted"
+      },
+      {
+       "word": "足",
+       "gloss": "adj. sufficient"
+      },
+      {
+       "word": "效觀",
+       "gloss": "v. to view from the standpoint of effect (to judge by results)"
+      },
+      {
+       "word": "厚",
+       "gloss": "adj. thick, abundant, or favored"
+      },
+      {
+       "word": "莫",
+       "gloss": "adv. no one (used in negative constructions)"
+      },
+      {
+       "word": "猶物競",
+       "gloss": "conj. still, as if things compete"
+      },
+      {
+       "word": "後",
+       "gloss": "adv. after"
+      },
+      {
+       "word": "一爭一擇",
+       "gloss": "n. (phrase) one struggle, one selection"
+      },
+      {
+       "word": "變化",
+       "gloss": "n. change"
+      },
+      {
+       "word": "事出",
+       "gloss": "v. (phrase) the matter arises / comes into being"
+      }
+     ]
+    },
+    "grammar": {
+     "seconds": 112.29348033294082,
+     "prompt_tokens": 1828,
+     "output_tokens": 1678,
+     "checks": []
+    },
+    "translate": {
+     "seconds": 37.62915395805612,
+     "prompt_tokens": 635,
+     "output_tokens": 414,
+     "output": "Huxley, alone in a room in southern England, with his back to the mountains and facing the wilds, could see clearly through the lattice outside as if they were right beneath him. He then imagined what scenery existed here two thousand years ago, before the Roman general Cato arrived... Thus we know that the statement 'nothing changes' is certainly not true of natural processes. Rather, the principle by which things endure over long periods lies precisely in constant change. What we see now may transform after twenty or thirty years; it may also transform after two or three ten thousand years. We can infer from past events that change will continue indefinitely, though we do not know its ultimate limit. Nevertheless, although natural processes change, there are unchanging principles operating within them. What remains unchanged? This is called 'natural evolution.' Taking natural evolution as the substance, it has two functions: competition among things and selection by nature. All living things follow this, especially those with life. Competition means things strive to preserve themselves. When one thing competes with others, some survive while others perish, and the outcome returns to selection by nature. Selection by nature means that among competing things, only some survive. For such survival, there must be a reason: it is what nature has allotted, combined with its own capabilities, the time and place it encounters, and all external forces around it, which together conspire and balance each other. Only then can it avoid extinction and stand on its own. From the effect observed, such a thing appears specially favored by nature for selection and survival—this is what we call 'selection by nature.' Selection by nature chooses according to natural laws; though it chooses, nothing seems to be chosen, just as competition appears aimless yet is in fact the utmost struggle. Spencer said: 'Selection by nature preserves that which is most suitable.' Since things already compete for survival, and nature follows this competition to select among them, one act of competition followed by one act of selection brings about change.",
+     "gold": "Huxley is sitting alone in a room in the south of England, with hills behind and fields in front; the scenes beyond the railing are as clear as if they lay below his desk. He then imagines what this place looked like two thousand years ago, before the Roman general Caesar came. …… Hence we know that \"unchanging\" is by no means the way of heaven's course, and that the principle by which things endure and take shape lies, on the contrary, in ceaseless change. What we see before us may well be transformed in twenty or thirty years, or again in twenty or thirty thousand. It is only that, inferring the future from past events, change has far still to run, and we do not know where it will end. And yet, though heaven's course changes, something unchanging operates within it. What is this unchanging thing? It is called evolution (天演). Evolution is the substance, and it has two functions: the struggle of things (物競) and the selection of heaven (天擇). This is so of all things, and most evident among living things. The struggle of things is things striving to preserve themselves. When one thing contends with thing after thing, it either survives or perishes, and the result comes down to the selection of heaven. The selection of heaven is when things contend and one alone survives. Then there must be a reason for its survival: its endowment from heaven, the abilities it attains by itself, the time and place it meets with, and all the forces of things outside its body must have worked together and complemented one another. Only then does it alone escape perishing and become able to stand on its own. And looking at it from the result, it is as if this thing had been specially favoured by heaven and selected to survive: this is what is called the selection of heaven. The selection of heaven is selection by nature: it selects, yet no one selects; just as the struggle of things seems to be no struggle, and is in truth the fiercest struggle in the world. Spencer said: \"The selection of heaven is the preservation of the fittest.\" Since things struggle to survive, and heaven then selects among them after their struggle, with each struggle and each selection, change comes about.",
+     "verdict": "minor",
+     "judge_note": "The translation renders '愷徹' as Cato, when the original text refers to the Roman general Caesar (愷撒)."
+    }
+   },
+   "gaps": 58
+  },
+  {
+   "id": "u18-p02",
+   "title": "Shang and Zhou institutions",
+   "steps": {
+    "punctuate": {
+     "seconds": 34.80783412512392,
+     "prompt_tokens": 624,
+     "output_tokens": 445,
+     "tp": 55,
+     "fp": 2,
+     "fn": 8,
+     "major_tp": 19,
+     "major_fp": 0,
+     "major_fn": 0,
+     "output": "中國政治與文化之變革，莫劇於殷周之際。殷周間之大變革，自其表言之，不過一姓一家之興亡與都邑之移轉；自其裏言之，則舊制度廢而新制度興，舊文化廢而新文化興。又自其表言之，則古聖人之所以取天下及所以守之者，若無以異於後世之帝王；而自其裏言之，則其制度文物與其立制之本意，乃出於萬世治安之大計，其心術與規摹，迥非後世帝王所能夢見也。欲觀周之所以定天下，必自其制度始矣。\n\n周人制度之大異於商者：一曰「立子立嫡之制」，由是而生宗法及喪服之制，並由是而有封建子弟之制、君天子臣諸侯之制；二曰「廟數之制」；三曰「同姓不婚之制」。此數者皆周之所以綱紀天下，其旨則在納上下於道德，而合天子、諸侯、卿大夫、士、庶民以成一道德之團體。周公制作之本意實在於此。此非穿鑿附會之言也。\n\n茲篇所論皆有事實爲之根據，試略述之。其條例則《春秋左氏傳》之說曰：「太子死，有母弟則立之；無則立長。年鈞擇賢，義鈞則卜。」公羊家之說曰：「禮嫡夫人無子，立右媵；右媵無子，立左媵。」此二說中，後說尤爲詳密。顧皆後儒充類之說，當立法之初，未必窮其變至此。然所謂「立子以貴不以長，立適以長不以賢」者，乃傳子法之精髓；當時雖未必有此語，固已用此意矣。",
+     "gold": "中國政治與文化之變革，莫劇於殷、周之際。……殷、周間之大變革，自其表言之，不過一姓一家之興亡與都邑之移轉；自其裏言之，則舊制度廢而新制度興，舊文化廢而新文化興。又自其表言之，則古聖人之所以取天下及所以守之者，若無以異於後世之帝王；而自其裏言之，則其制度、文物與其立制之本意，乃出於萬世治安之大計，其心術與規摹，迥非後世帝王所能夢見也。欲觀周之所以定天下，必自其制度始矣。周人制度之大異於商者，一曰立子立嫡之制，由是而生宗法及喪服之制，並由是而有封建子弟之制、君天子臣諸侯之制；二曰廟數之制；三曰同姓不婚之制。此數者，皆周之所以綱紀天下。其旨則在納上下於道德，而合天子、諸侯、卿、大夫、士、庶民以成一道德之團體。周公制作之本意，實在於此。此非穿鑿附會之言也，茲篇所論，皆有事實爲之根據，試略述之。……其條例則《春秋左氏傳》之說曰：「太子死，有母弟則立之，無則立長。年鈞擇賢，義鈞則卜。」公羊家之說曰：「禮，嫡夫人無子立右媵，右媵無子立左媵，……」此二說中，後說尤爲詳密，顧皆後儒充類之說，當立法之初，未必窮其變至此。然所謂「立子以貴不以長，立適以長不以賢」者，乃傳子法之精髓，當時雖未必有此語，固已用此意矣。"
+    },
+    "words": {
+     "seconds": 218.80173370917328,
+     "prompt_tokens": 2292,
+     "output_tokens": 3774,
+     "seg_tp": 72,
+     "seg_fp": 108,
+     "seg_fn": 36,
+     "glosses": [
+      {
+       "term": "莫劇於",
+       "course": "none is more drastic than",
+       "ai": "莫劇: adv. not more intense than; nothing is more severe than",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "殷",
+       "course": "the Shang dynasty (c. 1600–1046 BCE)",
+       "ai": "n. the Yin dynasty (a personal name or dynastic name)",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "自其表言之",
+       "course": "seen from the surface",
+       "ai": "表言: v. to speak of from the outside; superficially",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "自其裏言之",
+       "course": "seen from within",
+       "ai": "裏言: v. to speak of from the inside; essentially",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "一姓一家之興亡",
+       "course": "the rise and fall of one family",
+       "ai": "一姓: n. a single surname (referring to a ruling family)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "都邑之移轉",
+       "course": "the moving of the capital",
+       "ai": "都邑: n. capital city; seat of government",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "制度",
+       "course": "*n.* institutions",
+       "ai": "n. system of institutions",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "廢",
+       "course": "*v.* to fall into disuse",
+       "ai": "舊制度廢: v. old systems abolished",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "興",
+       "course": "*v.* to arise",
+       "ai": "興亡: v./n. rise and fall",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "古聖人",
+       "course": "the ancient sages",
+       "ai": "n. ancient sages (a personal name or collective title)",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "所以取天下及所以守之者",
+       "course": "the ways they won the empire and kept it",
+       "ai": "取: v. to acquire; to gain",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "若無以異於",
+       "course": "seem no different from",
+       "ai": "異: adj. different; distinct",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "乃",
+       "course": "*adv.* in fact",
+       "ai": "乃出: v. (copula + verb) is derived from / originates in",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "萬世治安之大計",
+       "course": "a grand plan for order and peace for ten thousand generations",
+       "ai": "萬世: n. ten thousand generations (meaning 'forever' or 'throughout history')",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "心術",
+       "course": "*n.* intentions, way of thinking",
+       "ai": "n. moral intention / guiding principle",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "規摹",
+       "course": "*n.* scale, design (= 規模)",
+       "ai": "n. model / pattern (note: 摹 here is used as 模)",
+       "verdict": "close"
+      },
+      {
+       "term": "迥非",
+       "course": "far beyond",
+       "ai": "迥: adv. very / quite",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "所能夢見",
+       "course": "what they could dream of",
+       "ai": "夢: v. to dream of (meaning 'to imagine' or 'to conceive')",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "欲觀",
+       "course": "if one wishes to see",
+       "ai": "欲觀周: v. to wish to observe the Zhou",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "所以定天下",
+       "course": "how (the Zhou) settled the empire",
+       "ai": "定: v. to stabilize / to establish",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "必自其制度始",
+       "course": "one must begin from its institutions",
+       "ai": "制度: n. system of institutions",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "大異於",
+       "course": "to differ greatly from",
+       "ai": "異: adj. different; distinct",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "立子立嫡之制",
+       "course": "the institution of succession by the son, and by the son of the principal wife",
+       "ai": "立子立嫡: n. the system of establishing sons and legitimate heirs",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "宗法",
+       "course": "*n.* the lineage system",
+       "ai": "生宗法及喪服: v. to give rise to clan law and mourning attire regulations",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "喪服",
+       "course": "*n.* mourning dress (graded by kinship)",
+       "ai": "生宗法及喪服: v. to give rise to clan law and mourning attire regulations",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "封建子弟",
+       "course": "enfeoffing sons and younger brothers",
+       "ai": "n. the system of enfeoffing sons and younger brothers",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "君天子臣諸侯",
+       "course": "treating the Son of Heaven as lord and the feudal lords as subjects",
+       "ai": "n. the system where the Son of Heaven is lord and feudal lords are subjects",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "廟數",
+       "course": "the number of ancestral temples",
+       "ai": "n. number of ancestral temples (or generations honored in them)",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "同姓不婚",
+       "course": "no marriage between those of the same surname",
+       "ai": "同姓: n. same surname",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "綱紀",
+       "course": "*v.* to give order to",
+       "ai": "v. to regulate and maintain order",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "旨",
+       "course": "*n.* purpose",
+       "ai": "n. the main purpose or intent",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "納上下於道德",
+       "course": "to bring high and low within morality",
+       "ai": "在納上下: v. to bring the upper and lower classes into alignment",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "庶民",
+       "course": "*n.* the common people",
+       "ai": "n. common people",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "穿鑿附會",
+       "course": "far-fetched and forced",
+       "ai": "v. to force a meaning where none exists; to make forced connections",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "茲篇所論",
+       "course": "what this essay argues",
+       "ai": "茲篇: pron. this essay or chapter",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "根據",
+       "course": "*n.* basis, evidence",
+       "ai": "n. basis or foundation",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "試略述之",
+       "course": "let me set it out briefly",
+       "ai": "試略述: v. to briefly outline (literally: try to briefly narrate)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "條例",
+       "course": "*n.* rules",
+       "ai": "n. rules or regulations",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "春秋左氏傳",
+       "course": "the *Zuo Commentary* to the *Spring and Autumn*",
+       "ai": "左氏傳: n. Zuo's Commentary (a historical text)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "長",
+       "course": "*n.* the eldest",
+       "ai": "n. the elder (in terms of birth order)",
+       "verdict": "close"
+      },
+      {
+       "term": "鈞",
+       "course": "*adj.* equal (鈞 = 均)",
+       "ai": "年鈞擇賢: v. if ages are equal, choose the more virtuous",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "擇賢",
+       "course": "to choose the worthiest",
+       "ai": "年鈞擇賢: v. if ages are equal, choose the more virtuous",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "義",
+       "course": "*n.* merit, standing",
+       "ai": "義鈞: conj. if virtues are equal",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "卜",
+       "course": "*v.* to divine",
+       "ai": "v. to consult by divination",
+       "verdict": "same"
+      },
+      {
+       "term": "公羊家",
+       "course": "the Gongyang school",
+       "ai": "n. a school of Confucian scholars specializing in the Gongyang Commentary on the Spring and Autumn Annals",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "嫡夫人",
+       "course": "the principal wife",
+       "ai": "嫡: adj. legitimate (of a wife or child born to the principal wife)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "媵",
+       "course": "*n.* secondary wife (who came with the bride)",
+       "ai": "子立右媵: v. if the legitimate wife has no son, then establish a right concubine (as successor)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "此二說",
+       "course": "these two accounts",
+       "ai": "說中: n. among these two theories",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "尤爲詳密",
+       "course": "is especially detailed",
+       "ai": "後說尤: adv. the later theory is especially",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "後儒充類之說",
+       "course": "the extrapolations of later Confucians",
+       "ai": "皆後儒充類: v. are all later scholars' extrapolations (by analogy)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "窮其變",
+       "course": "to work out every case",
+       "ai": "窮: v. exhaustively explore or consider",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "以貴不以長",
+       "course": "by rank, not by age",
+       "ai": "長: n. the elder (in terms of birth order)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "以長不以賢",
+       "course": "by age, not by worth",
+       "ai": "長: n. the elder (in terms of birth order)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "適",
+       "course": "*n.* the son of the principal wife (適 = 嫡)",
+       "ai": "立適: v. to establish a legitimate heir",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "傳子法",
+       "course": "the rule of succession by sons",
+       "ai": "乃傳子法: n. the principle of hereditary succession",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "精髓",
+       "course": "*n.* essence",
+       "ai": "n. essence or core principle",
+       "verdict": "same (auto)"
+      }
+     ],
+     "ai_words": [
+      {
+       "word": "政治",
+       "gloss": "n. politics"
+      },
+      {
+       "word": "文化",
+       "gloss": "n. culture"
+      },
+      {
+       "word": "莫劇",
+       "gloss": "adv. not more intense than; nothing is more severe than"
+      },
+      {
+       "word": "殷",
+       "gloss": "n. the Yin dynasty (a personal name or dynastic name)"
+      },
+      {
+       "word": "表言",
+       "gloss": "v. to speak of from the outside; superficially"
+      },
+      {
+       "word": "一姓",
+       "gloss": "n. a single surname (referring to a ruling family)"
+      },
+      {
+       "word": "興亡",
+       "gloss": "v./n. rise and fall"
+      },
+      {
+       "word": "都邑",
+       "gloss": "n. capital city; seat of government"
+      },
+      {
+       "word": "移轉",
+       "gloss": "v. to move and transfer; relocation"
+      },
+      {
+       "word": "裏言",
+       "gloss": "v. to speak of from the inside; essentially"
+      },
+      {
+       "word": "舊制度廢",
+       "gloss": "v. old systems abolished"
+      },
+      {
+       "word": "制度",
+       "gloss": "n. system of institutions"
+      },
+      {
+       "word": "制度興",
+       "gloss": "v. new systems established"
+      },
+      {
+       "word": "舊文化廢",
+       "gloss": "v. old culture abolished"
+      },
+      {
+       "word": "文化興",
+       "gloss": "v. new culture established"
+      },
+      {
+       "word": "古聖人",
+       "gloss": "n. ancient sages (a personal name or collective title)"
+      },
+      {
+       "word": "取",
+       "gloss": "v. to acquire; to gain"
+      },
+      {
+       "word": "守",
+       "gloss": "v. to guard; to maintain"
+      },
+      {
+       "word": "異",
+       "gloss": "adj. different; distinct"
+      },
+      {
+       "word": "後世",
+       "gloss": "n. later generations; subsequent ages"
+      },
+      {
+       "word": "帝王",
+       "gloss": "n. emperor and king (a personal name or title)"
+      },
+      {
+       "word": "乃出",
+       "gloss": "v. (copula + verb) is derived from / originates in"
+      },
+      {
+       "word": "萬世",
+       "gloss": "n. ten thousand generations (meaning 'forever' or 'throughout history')"
+      },
+      {
+       "word": "心術",
+       "gloss": "n. moral intention / guiding principle"
+      },
+      {
+       "word": "規摹",
+       "gloss": "n. model / pattern (note: 摹 here is used as 模)"
+      },
+      {
+       "word": "迥",
+       "gloss": "adv. very / quite"
+      },
+      {
+       "word": "後世帝王",
+       "gloss": "n. later dynasty emperors"
+      },
+      {
+       "word": "夢",
+       "gloss": "v. to dream of (meaning 'to imagine' or 'to conceive')"
+      },
+      {
+       "word": "欲觀周",
+       "gloss": "v. to wish to observe the Zhou"
+      },
+      {
+       "word": "周",
+       "gloss": "n. the Zhou dynasty (a personal name or dynastic name)"
+      },
+      {
+       "word": "定",
+       "gloss": "v. to stabilize / to establish"
+      },
+      {
+       "word": "制度始",
+       "gloss": "n. beginning with the system of institutions"
+      },
+      {
+       "word": "大異",
+       "gloss": "adj. greatly different"
+      },
+      {
+       "word": "立子立嫡",
+       "gloss": "n. the system of establishing sons and legitimate heirs"
+      },
+      {
+       "word": "立子",
+       "gloss": "v. to establish a son (as heir)"
+      },
+      {
+       "word": "嫡",
+       "gloss": "adj. legitimate (of a wife or child born to the principal wife)"
+      },
+      {
+       "word": "生宗法及喪服",
+       "gloss": "v. to give rise to clan law and mourning attire regulations"
+      },
+      {
+       "word": "封建子弟",
+       "gloss": "n. the system of enfeoffing sons and younger brothers"
+      },
+      {
+       "word": "君天子臣諸侯",
+       "gloss": "n. the system where the Son of Heaven is lord and feudal lords are subjects"
+      },
+      {
+       "word": "天子",
+       "gloss": "n. the Son of Heaven (the emperor)"
+      },
+      {
+       "word": "諸侯",
+       "gloss": "n. feudal lords"
+      },
+      {
+       "word": "廟數",
+       "gloss": "n. number of ancestral temples (or generations honored in them)"
+      },
+      {
+       "word": "同姓",
+       "gloss": "n. same surname"
+      },
+      {
+       "word": "婚",
+       "gloss": "v. to marry"
+      },
+      {
+       "word": "綱紀",
+       "gloss": "v. to regulate and maintain order"
+      },
+      {
+       "word": "旨",
+       "gloss": "n. the main purpose or intent"
+      },
+      {
+       "word": "在納上下",
+       "gloss": "v. to bring the upper and lower classes into alignment"
+      },
+      {
+       "word": "卿",
+       "gloss": "n. a high-ranking official (minister)"
+      },
+      {
+       "word": "士",
+       "gloss": "n. the scholar-official class"
+      },
+      {
+       "word": "庶民",
+       "gloss": "n. common people"
+      },
+      {
+       "word": "穿鑿附會",
+       "gloss": "v. to force a meaning where none exists; to make forced connections"
+      },
+      {
+       "word": "茲篇",
+       "gloss": "pron. this essay or chapter"
+      },
+      {
+       "word": "論",
+       "gloss": "v. to discuss or argue"
+      },
+      {
+       "word": "根據",
+       "gloss": "n. basis or foundation"
+      },
+      {
+       "word": "試略述",
+       "gloss": "v. to briefly outline (literally: try to briefly narrate)"
+      },
+      {
+       "word": "條例",
+       "gloss": "n. rules or regulations"
+      },
+      {
+       "word": "左氏傳",
+       "gloss": "n. Zuo's Commentary (a historical text)"
+      },
+      {
+       "word": "太子死",
+       "gloss": "n. the death of the crown prince"
+      },
+      {
+       "word": "立長",
+       "gloss": "v. to establish the eldest (as successor)"
+      },
+      {
+       "word": "長",
+       "gloss": "n. the elder (in terms of birth order)"
+      },
+      {
+       "word": "年鈞擇賢",
+       "gloss": "v. if ages are equal, choose the more virtuous"
+      },
+      {
+       "word": "賢",
+       "gloss": "n. virtue or merit (as a criterion for selection)"
+      },
+      {
+       "word": "義鈞",
+       "gloss": "conj. if virtues are equal"
+      },
+      {
+       "word": "卜",
+       "gloss": "v. to consult by divination"
+      },
+      {
+       "word": "公羊家",
+       "gloss": "n. a school of Confucian scholars specializing in the Gongyang Commentary on the Spring and Autumn Annals"
+      },
+      {
+       "word": "禮",
+       "gloss": "n. ritual; specifically, the rules governing royal marriages and succession"
+      },
+      {
+       "word": "子立右媵",
+       "gloss": "v. if the legitimate wife has no son, then establish a right concubine (as successor)"
+      },
+      {
+       "word": "右媵",
+       "gloss": "n. the right concubine (a secondary wife in royal marriage arrangements)"
+      },
+      {
+       "word": "子立左媵",
+       "gloss": "v. if the right concubine has no son, then establish a left concubine (as successor)"
+      },
+      {
+       "word": "說中",
+       "gloss": "n. among these two theories"
+      },
+      {
+       "word": "後說尤",
+       "gloss": "adv. the later theory is especially"
+      },
+      {
+       "word": "詳密",
+       "gloss": "adj. detailed and precise"
+      },
+      {
+       "word": "皆後儒充類",
+       "gloss": "v. are all later scholars' extrapolations (by analogy)"
+      },
+      {
+       "word": "窮",
+       "gloss": "v. exhaustively explore or consider"
+      },
+      {
+       "word": "立適",
+       "gloss": "v. to establish a legitimate heir"
+      },
+      {
+       "word": "乃傳子法",
+       "gloss": "n. the principle of hereditary succession"
+      },
+      {
+       "word": "精髓",
+       "gloss": "n. essence or core principle"
+      }
+     ]
+    },
+    "grammar": {
+     "seconds": 116.58751970808953,
+     "prompt_tokens": 1998,
+     "output_tokens": 1743,
+     "checks": []
+    },
+    "translate": {
+     "seconds": 46.82126999995671,
+     "prompt_tokens": 679,
+     "output_tokens": 538,
+     "output": "The transformation of Chinese politics and culture was no more profound than at the transition between Yin and Zhou. From an external perspective, the great change between Yin and Zhou involved merely the rise and fall of one family and the relocation of the capital; from an internal perspective, old institutions were abolished and new ones established, old culture discarded and new culture adopted. Externally, the ancient sages' methods for acquiring and maintaining rule appear no different from those of later emperors; internally, however, their institutions, cultural artifacts, and the original intent behind establishing them were designed for universal stability across generations, with moral principles and planning far beyond what later emperors could even conceive. To understand how Zhou stabilized the world, one must begin with its institutions. The major differences between Zhou and Shang systems are: first, the system of appointing sons as heirs based on legitimacy (嫡), which generated the clan system (宗法) and mourning attire regulations (喪服), and from this also arose the feudal system for descendants and the structure of emperor ruling over lords; second, the system of ancestral temple counts; third, the prohibition of marriage within the same surname. These three principles formed the framework by which Zhou governed the world. Their purpose was to integrate all levels of society into moral order, uniting the emperor, lords, ministers, nobles, and commoners into a single moral community. The original intent behind Duke of Zhou's institutional creations lies precisely here. This is not forced or fanciful interpretation; the arguments in this essay are grounded in historical facts, which I will briefly outline. Regarding the rules, the *Zuo Zhuan* (Commentary of Zuo on the Spring and Autumn Annals) states: 'If the crown prince dies, appoint his younger full brother if available; if not, appoint the eldest son. If ages are equal, choose the more capable one; if moral standing is equal, resort to divination.' The *Gongyang* school argues: 'According to ritual, if the principal wife bears no sons, establish the right concubine (right attendant); if she also bears no sons, establish the left concubine...' Between these two interpretations, the latter is more detailed, yet both are later scholars' extrapolations; at the time of initial legislation, such comprehensive variations were likely not fully developed. Nevertheless, the core principle 'appoint a son based on status rather than age, and an heir based on seniority rather than virtue' represents the essence of hereditary succession law. Although this exact phrasing may not have existed then, the underlying intent was already in practice.",
+     "gold": "Of all the changes in China's government and culture, none is more drastic than that at the transition from Shang to Zhou. …… The great change between Shang and Zhou, seen from the surface, was no more than the rise and fall of one family and the moving of the capital; seen from within, old institutions fell and new institutions arose, old culture fell and new culture arose. Again, seen from the surface, the ways in which the ancient sages won the empire and kept it seem no different from those of later emperors; but seen from within, their institutions, their culture and their original intention in founding the institutions came in fact from a grand plan for order and peace for ten thousand generations, and their thinking and design were far beyond anything later emperors could dream of. If one wishes to see how the Zhou settled the empire, one must begin from its institutions. The Zhou institutions that differ greatly from the Shang are, first, the institution of succession by the son and by the son of the principal wife, from which arose the lineage system and the mourning system, and from which came the enfeoffment of sons and younger brothers and the system in which the Son of Heaven is lord and the feudal lords are subjects; second, the number of ancestral temples; third, the rule that those of the same surname do not marry. These are all the means by which the Zhou gave order to the empire. Their purpose was to bring high and low within morality, and to unite the Son of Heaven, the feudal lords, ministers, great officers, gentlemen and the common people into one moral community. The Duke of Zhou's original intention in making institutions truly lay here. These are not far-fetched or forced words: everything this essay argues has facts as its evidence. Let me set it out briefly. …… The rules are given in the account of the *Zuo Commentary*: \"When the heir dies, if there is a younger brother by the same mother, he is made heir; if not, the eldest is made heir. If they are equal in age, the worthiest is chosen; if equal in merit, the matter is divined.\" The Gongyang school's account says: \"By the rites, if the principal wife has no son, the son of the right secondary wife is made heir; if the right secondary wife has no son, the son of the left secondary wife is made heir; ……\" Of these two accounts, the latter is especially detailed, but both are the extrapolations of later Confucians; when the rule was first laid down, its makers did not necessarily work out every case in this way. Yet what is called \"a son is made heir by rank, not by age; the son of the principal wife is made heir by age, not by worth\" is the essence of the rule of succession by sons; though these words may not have been said at the time, the idea was certainly already in use.",
+     "verdict": "minor",
+     "judge_note": "The translation's rendering of '萬世治安之大計' as 'universal stability across generations' slightly diminishes the scope of the original, which implies a grand design for the long-term peace and prosperity of the entire world, not just a single generation."
+    }
+   },
+   "gaps": 81
+  },
+  {
+   "id": "u19-p03",
+   "title": "Letters from the Autumn Water Studio",
+   "steps": {
+    "punctuate": {
+     "error": "The AI service did not give a usable answer.",
+     "seconds": 46.136787874856964
+    },
+    "words": {
+     "seconds": 227.36514500016347,
+     "prompt_tokens": 1758,
+     "output_tokens": 3789,
+     "seg_tp": 79,
+     "seg_fp": 69,
+     "seg_fn": 46,
+     "glosses": [
+      {
+       "term": "向",
+       "course": "*adv.* formerly",
+       "ai": "向獲締交: v. had previously established a friendship",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "締交",
+       "course": "*v.* to form a friendship",
+       "ai": "向獲締交: v. had previously established a friendship",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "季方",
+       "course": "(your) younger brother (alluding to Chen Chen 陳諶, the younger son of Chen Shi)",
+       "ai": "n. a personal name (the younger brother of Yuanfang)",
+       "verdict": "close"
+      },
+      {
+       "term": "元方",
+       "course": "you, the elder brother (alluding to Chen Ji 陳紀, the elder son)",
+       "ai": "聞元: v. to hear about Yuan",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "思一見爲快",
+       "course": "to long for the pleasure of meeting you",
+       "ai": "思一: v. to wish once (to meet)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "會城",
+       "course": "*n.* the provincial capital",
+       "ai": "會城邂逅遇: v. met by chance in the provincial capital",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "邂逅",
+       "course": "*v.* to meet by chance",
+       "ai": "會城邂逅遇: v. met by chance in the provincial capital",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "大兄",
+       "course": "*n.* you, elder brother (polite, between friends)",
+       "ai": "n. an older brother (a term of respect for a senior friend)",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "器宇",
+       "course": "*n.* bearing, presence",
+       "ai": "才華器宇: n. talent and bearing",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "有勝於所聞者",
+       "course": "to surpass what I had heard",
+       "ai": "聞: v. heard (about)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "恨",
+       "course": "*v.* to regret",
+       "ai": "正恨: v. regretting that",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "不期",
+       "course": "unexpectedly",
+       "ai": "期越宿分襟: v. expected to part after one night (i.e., stay only overnight)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "越宿",
+       "course": "after one night",
+       "ai": "期越宿分襟: v. expected to part after one night (i.e., stay only overnight)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "分襟",
+       "course": "to part",
+       "ai": "期越宿分襟: v. expected to part after one night (i.e., stay only overnight)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "相違",
+       "course": "to be separated",
+       "ai": "又恨相違之速: v. regretting that the separation was so swift",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "津門",
+       "course": "Tianjin",
+       "ai": "別後初四日抵津門: v. arrived in Tianjin on the fourth day after parting",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "詣",
+       "course": "*v.* to go to",
+       "ai": "初十日詣平舒: v. visited Pingshu on the tenth day",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "平舒",
+       "course": "Pingshu (Daicheng, Zhili)",
+       "ai": "n. a place name (Ping Shu)",
+       "verdict": "close"
+      },
+      {
+       "term": "地經兩易",
+       "course": "I have changed place twice",
+       "ai": "n. the place had changed twice (moved two locations)",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "風塵僕僕",
+       "course": "travel-worn",
+       "ai": "adj. dusty and weary from travel",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "芸人之田",
+       "course": "to weed other people's fields (working for others; from Mencius)",
+       "ai": "芸人: n. a scholar (literally: one who cultivates the garden of books)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "堪",
+       "course": "*v.* can, is fit to",
+       "ai": "自憐亦堪自笑: v. pitying oneself and finding it worthy of self-mockery",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "比值",
+       "course": "just when",
+       "ai": "比值同人歸里: v. coinciding with the return of my fellow scholars to their hometowns",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "同人",
+       "course": "*n.* colleagues",
+       "ai": "比值同人歸里: v. coinciding with the return of my fellow scholars to their hometowns",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "歸里",
+       "course": "to go home",
+       "ai": "比值同人歸里: v. coinciding with the return of my fellow scholars to their hometowns",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "館",
+       "course": "*n.* my lodging (the office where he works)",
+       "ai": "館中惟我獨居: v. in the residence, only I lived alone",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "清磬紅魚",
+       "course": "the clear chime and red wooden fish (of a monastery)",
+       "ai": "n. clear bell and red fish (symbols of Buddhist practice)",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "直是",
+       "course": "is just like",
+       "ai": "直: adv. indeed; truly",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "修行古剎",
+       "course": "an old temple for religious practice",
+       "ai": "v. practicing in an ancient temple",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "洄溯",
+       "course": "longing for a friend (from the *Book of Songs*, 溯洄從之)",
+       "ai": "洄溯時: adv. at the time of returning upstream",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "時殷",
+       "course": "often and deeply",
+       "ai": "洄溯時: adv. at the time of returning upstream",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "雙鯉之頒",
+       "course": "the gift of a pair of carp (a letter)",
+       "ai": "雙鯉: n. a pair of carp (symbolizing conjugal harmony)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "定不我棄",
+       "course": "you will surely not abandon me",
+       "ai": "定: adv. certainly",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "尊體",
+       "course": "*n.* your health",
+       "ai": "n. your body (honorific for the recipient's health)",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "復元",
+       "course": "*v.* to recover",
+       "ai": "復元否: v. have you recovered your health?",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "嫁務",
+       "course": "wedding arrangements (or = 家務, household affairs)",
+       "ai": "嫁務紛勞: n. the busy and laborious tasks of marriage arrangements",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "紛勞",
+       "course": "to be many and tiring",
+       "ai": "嫁務紛勞: n. the busy and laborious tasks of marriage arrangements",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "諸宜珍攝",
+       "course": "please take good care of yourself",
+       "ai": "珍攝: v. to cherish and take care of (one's health)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "因風寄意",
+       "course": "I send my thoughts by the wind",
+       "ai": "寄意: v. to express one's feelings",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "不盡所懷",
+       "course": "I cannot express all I feel",
+       "ai": "懷: n. what is in one's mind (feelings or thoughts)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "碧梧翠竹之姿",
+       "course": "your bearing like green parasol trees and jade bamboo",
+       "ai": "碧梧翠竹: n. green paulownia and emerald bamboo (symbolizing noble character or an ideal environment)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "月白風清",
+       "course": "when the moon is bright and the wind clear",
+       "ai": "n. moonlight white and wind clear (a serene night scene)",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "神往",
+       "course": "*v.* to long for in spirit",
+       "ai": "輒深神往: v. then deeply long for",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "入直",
+       "course": "to be on duty (in an office)",
+       "ai": "v. to enter the office (to serve on duty in the government)",
+       "verdict": "same"
+      },
+      {
+       "term": "爲疑",
+       "course": "to wonder at",
+       "ai": "疑: n. doubt",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "阮昔侯",
+       "course": "Ruan Xihou (a friend)",
+       "ai": "阮昔侯札: n. a letter from Ruan Xihou (a personal name)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "札",
+       "course": "*n.* letter",
+       "ai": "阮昔侯札: n. a letter from Ruan Xihou (a personal name)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "駕",
+       "course": "*n.* your carriage, you (honorific)",
+       "ai": "駕遊山左: v. your carriage travels to the left of the mountains (honorific for traveling to Shandong province)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "山左",
+       "course": "Shandong",
+       "ai": "駕遊山左: v. your carriage travels to the left of the mountains (honorific for traveling to Shandong province)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "種蓮",
+       "course": "to serve in an official's secretariat (蓮幕)",
+       "ai": "種蓮楚邱: v. planting lotus in Chuqiu (a place name)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "楚邱",
+       "course": "Chuqiu (in Shandong)",
+       "ai": "種蓮楚邱: v. planting lotus in Chuqiu (a place name)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "青萍結綠",
+       "course": "the sword Qingping and the jade Jielü (fine talents)",
+       "ai": "n. green duckweed and jade-green gems (metaphor for rare treasures or talented people)",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "到處爭售",
+       "course": "sought after everywhere",
+       "ai": "爭售: v. to be sold competitively",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "令弟",
+       "course": "*n.* your younger brother",
+       "ai": "弟才華: n. your younger brother's talent and literary skill",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "滿謂",
+       "course": "to be sure that",
+       "ai": "滿謂嵆山獨鶴: v. fully believing that the solitary crane of Jishan (a metaphor for a unique talent)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "嵆山獨鶴",
+       "course": "a lone crane like Ji Shao (嵆 = 嵇), standing out",
+       "ai": "滿謂嵆山獨鶴: v. fully believing that the solitary crane of Jishan (a metaphor for a unique talent)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "振采雞羣",
+       "course": "to shine among the flock of chickens",
+       "ai": "v. to make the rooster of the flock display its feathers (to outshine others or lead the group)",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "何期",
+       "course": "who could have expected",
+       "ai": "期牙琴一摧: v. to expect the one-stringed instrument of Ya (a metaphor for a talented person or a specific event) to be destroyed; literally 'to anticipate that Ya's zither is broken in one go'",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "牙琴一摧",
+       "course": "Boya's zither broken (a friend or kinsman dies)",
+       "ai": "期牙琴一摧: v. to expect the one-stringed instrument of Ya (a metaphor for a talented person or a specific event) to be destroyed; literally 'to anticipate that Ya's zither is broken in one go'",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "墓草已宿",
+       "course": "the grass on the grave is a year old",
+       "ai": "宿: adj. long-established; settled; having been there for a long time (here implying the grass has already grown and settled on the grave)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "感慨係之",
+       "course": "to be moved to sorrow",
+       "ai": "感慨係: v. to feel deeply moved or sorrowful; 'xì' here functions as a nominaliser or intensifier, making the phrase mean 'to be filled with deep emotion'",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "客",
+       "course": "*v.* to live as a guest, to sojourn",
+       "ai": "初客遼西: v. to first reside as a guest in Liao West (a region); 'chū' means 'initially', 'kè' is 'guest/resident'",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "遼西",
+       "course": "Liaoxi (western Liaoning)",
+       "ai": "初客遼西: v. to first reside as a guest in Liao West (a region); 'chū' means 'initially', 'kè' is 'guest/resident'",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "旋",
+       "course": "*adv.* soon after",
+       "ai": "旋遊津淀: v. to soon travel to Jin Dian (a place name); 'xuán' means 'soon thereafter', 'yóu' is 'to travel'",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "津淀",
+       "course": "Tianjin and the lakes (淀) around it",
+       "ai": "旋遊津淀: v. to soon travel to Jin Dian (a place name); 'xuán' means 'soon thereafter', 'yóu' is 'to travel'",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "役",
+       "course": "*n.* assignment, post",
+       "ai": "n. military service or campaign; here referring to a specific military operation or duty",
+       "verdict": "close"
+      },
+      {
+       "term": "年年壓線",
+       "course": "year after year sewing (for others)",
+       "ai": "v. to be pressed against the line year after year; metaphorically meaning to be constantly under pressure or constraint",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "依舊幫傭",
+       "course": "still working as a hired hand",
+       "ai": "v. to continue helping as a hired hand; 'bāng' is 'to help', 'yōng' is 'hired servant'",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "良由",
+       "course": "truly because",
+       "ai": "良: adv. truly; indeed; certainly (here emphasizing the reason)",
+       "verdict": "segmented differently"
+      },
+      {
+       "term": "村女蛾眉",
+       "course": "a village girl's fine eyebrows (talent that no one notices)",
+       "ai": "n. a village girl with beautiful eyebrows; 'é méi' is a classical term for beautiful eyebrows, often used to describe an attractive woman",
+       "verdict": "same (auto)"
+      },
+      {
+       "term": "難爲時賞",
+       "course": "hard to be admired by the age",
+       "ai": "時賞耳: v. only to be appreciated at the right time; 'ěr' is a particle indicating limitation or finality, meaning 'that's all'",
+       "verdict": "segmented differently"
+      }
+     ],
+     "ai_words": [
+      {
+       "word": "向獲締交",
+       "gloss": "v. had previously established a friendship"
+      },
+      {
+       "word": "季方",
+       "gloss": "n. a personal name (the younger brother of Yuanfang)"
+      },
+      {
+       "word": "聞元",
+       "gloss": "v. to hear about Yuan"
+      },
+      {
+       "word": "聞",
+       "gloss": "v. heard (about)"
+      },
+      {
+       "word": "賢",
+       "gloss": "adj. virtuous; talented"
+      },
+      {
+       "word": "思一",
+       "gloss": "v. to wish once (to meet)"
+      },
+      {
+       "word": "快",
+       "gloss": "adj. delightful; satisfying"
+      },
+      {
+       "word": "昨",
+       "gloss": "n. yesterday"
+      },
+      {
+       "word": "會城邂逅遇",
+       "gloss": "v. met by chance in the provincial capital"
+      },
+      {
+       "word": "大兄",
+       "gloss": "n. an older brother (a term of respect for a senior friend)"
+      },
+      {
+       "word": "才華器宇",
+       "gloss": "n. talent and bearing"
+      },
+      {
+       "word": "勝",
+       "gloss": "v. to surpass; better than"
+      },
+      {
+       "word": "正恨",
+       "gloss": "v. regretting that"
+      },
+      {
+       "word": "晚",
+       "gloss": "adj. late"
+      },
+      {
+       "word": "期越宿分襟",
+       "gloss": "v. expected to part after one night (i.e., stay only overnight)"
+      },
+      {
+       "word": "宿",
+       "gloss": "adj. long-established; settled; having been there for a long time (here implying the grass has already grown and settled on the grave)"
+      },
+      {
+       "word": "又恨相違之速",
+       "gloss": "v. regretting that the separation was so swift"
+      },
+      {
+       "word": "別後初四日抵津門",
+       "gloss": "v. arrived in Tianjin on the fourth day after parting"
+      },
+      {
+       "word": "初十日詣平舒",
+       "gloss": "v. visited Pingshu on the tenth day"
+      },
+      {
+       "word": "平舒",
+       "gloss": "n. a place name (Ping Shu)"
+      },
+      {
+       "word": "地經兩易",
+       "gloss": "n. the place had changed twice (moved two locations)"
+      },
+      {
+       "word": "風塵僕僕",
+       "gloss": "adj. dusty and weary from travel"
+      },
+      {
+       "word": "芸人",
+       "gloss": "n. a scholar (literally: one who cultivates the garden of books)"
+      },
+      {
+       "word": "田",
+       "gloss": "n. field (metaphor for the cultivation of learning or official career)"
+      },
+      {
+       "word": "自憐亦堪自笑",
+       "gloss": "v. pitying oneself and finding it worthy of self-mockery"
+      },
+      {
+       "word": "比值同人歸里",
+       "gloss": "v. coinciding with the return of my fellow scholars to their hometowns"
+      },
+      {
+       "word": "館中惟我獨居",
+       "gloss": "v. in the residence, only I lived alone"
+      },
+      {
+       "word": "加",
+       "gloss": "conj. moreover; furthermore"
+      },
+      {
+       "word": "清磬紅魚",
+       "gloss": "n. clear bell and red fish (symbols of Buddhist practice)"
+      },
+      {
+       "word": "直",
+       "gloss": "adv. indeed; truly"
+      },
+      {
+       "word": "修行古剎",
+       "gloss": "v. practicing in an ancient temple"
+      },
+      {
+       "word": "西風黃葉",
+       "gloss": "n. the autumn wind and yellow leaves"
+      },
+      {
+       "word": "洄溯時",
+       "gloss": "adv. at the time of returning upstream"
+      },
+      {
+       "word": "雙鯉",
+       "gloss": "n. a pair of carp (symbolizing conjugal harmony)"
+      },
+      {
+       "word": "頒",
+       "gloss": "v. to show white whiskers (indicating old age)"
+      },
+      {
+       "word": "定",
+       "gloss": "adv. certainly"
+      },
+      {
+       "word": "尊體",
+       "gloss": "n. your body (honorific for the recipient's health)"
+      },
+      {
+       "word": "復元否",
+       "gloss": "v. have you recovered your health?"
+      },
+      {
+       "word": "嫁務紛勞",
+       "gloss": "n. the busy and laborious tasks of marriage arrangements"
+      },
+      {
+       "word": "珍攝",
+       "gloss": "v. to cherish and take care of (one's health)"
+      },
+      {
+       "word": "寄意",
+       "gloss": "v. to express one's feelings"
+      },
+      {
+       "word": "懷",
+       "gloss": "n. what is in one's mind (feelings or thoughts)"
+      },
+      {
+       "word": "久",
+       "gloss": "adv. for a long time"
+      },
+      {
+       "word": "碧梧翠竹",
+       "gloss": "n. green paulownia and emerald bamboo (symbolizing noble character or an ideal environment)"
+      },
+      {
+       "word": "姿",
+       "gloss": "n. appearance or demeanor"
+      },
+      {
+       "word": "月白風清",
+       "gloss": "n. moonlight white and wind clear (a serene night scene)"
+      },
+      {
+       "word": "輒深神往",
+       "gloss": "v. then deeply long for"
+      },
+      {
+       "word": "入直",
+       "gloss": "v. to enter the office (to serve on duty in the government)"
+      },
+      {
+       "word": "疑",
+       "gloss": "n. doubt"
+      },
+      {
+       "word": "近",
+       "gloss": "adv. recently"
+      },
+      {
+       "word": "阮昔侯札",
+       "gloss": "n. a letter from Ruan Xihou (a personal name)"
+      },
+      {
+       "word": "駕遊山左",
+       "gloss": "v. your carriage travels to the left of the mountains (honorific for traveling to Shandong province)"
+      },
+      {
+       "word": "種蓮楚邱",
+       "gloss": "v. planting lotus in Chuqiu (a place name)"
+      },
+      {
+       "word": "青萍結綠",
+       "gloss": "n. green duckweed and jade-green gems (metaphor for rare treasures or talented people)"
+      },
+      {
+       "word": "爭售",
+       "gloss": "v. to be sold competitively"
+      },
+      {
+       "word": "弟才華",
+       "gloss": "n. your younger brother's talent and literary skill"
+      },
+      {
+       "word": "滿謂嵆山獨鶴",
+       "gloss": "v. fully believing that the solitary crane of Jishan (a metaphor for a unique talent)"
+      },
+      {
+       "word": "足",
+       "gloss": "adv. sufficient / enough"
+      },
+      {
+       "word": "振采雞羣",
+       "gloss": "v. to make the rooster of the flock display its feathers (to outshine others or lead the group)"
+      },
+      {
+       "word": "期牙琴一摧",
+       "gloss": "v. to expect the one-stringed instrument of Ya (a metaphor for a talented person or a specific event) to be destroyed; literally 'to anticipate that Ya's zither is broken in one go'"
+      },
+      {
+       "word": "墓草",
+       "gloss": "n. grass growing on a grave; used here to signify the passage of time since death or burial"
+      },
+      {
+       "word": "感慨係",
+       "gloss": "v. to feel deeply moved or sorrowful; 'xì' here functions as a nominaliser or intensifier, making the phrase mean 'to be filled with deep emotion'"
+      },
+      {
+       "word": "初客遼西",
+       "gloss": "v. to first reside as a guest in Liao West (a region); 'chū' means 'initially', 'kè' is 'guest/resident'"
+      },
+      {
+       "word": "旋遊津淀",
+       "gloss": "v. to soon travel to Jin Dian (a place name); 'xuán' means 'soon thereafter', 'yóu' is 'to travel'"
+      },
+      {
+       "word": "今春復",
+       "gloss": "adv. again this spring; 'fù' here means 'again'"
+      },
+      {
+       "word": "役",
+       "gloss": "n. military service or campaign; here referring to a specific military operation or duty"
+      },
+      {
+       "word": "年年壓線",
+       "gloss": "v. to be pressed against the line year after year; metaphorically meaning to be constantly under pressure or constraint"
+      },
+      {
+       "word": "依舊幫傭",
+       "gloss": "v. to continue helping as a hired hand; 'bāng' is 'to help', 'yōng' is 'hired servant'"
+      },
+      {
+       "word": "良",
+       "gloss": "adv. truly; indeed; certainly (here emphasizing the reason)"
+      },
+      {
+       "word": "村女蛾眉",
+       "gloss": "n. a village girl with beautiful eyebrows; 'é méi' is a classical term for beautiful eyebrows, often used to describe an attractive woman"
+      },
+      {
+       "word": "時賞耳",
+       "gloss": "v. only to be appreciated at the right time; 'ěr' is a particle indicating limitation or finality, meaning 'that's all'"
+      }
+     ]
+    },
+    "grammar": {
+     "seconds": 110.39071329194121,
+     "prompt_tokens": 1816,
+     "output_tokens": 1568,
+     "checks": []
+    },
+    "translate": {
+     "seconds": 46.45781133393757,
+     "prompt_tokens": 582,
+     "output_tokens": 528,
+     "output": "My younger brother has long been a friend of Mr. Jifang, and through him I have heard of Yuanfang's excellence; I have always wished to meet him for my own satisfaction. Yesterday, while in the capital city, we met by chance, and I found that Elder Brother's talent and bearing surpass even what I had heard. I regret deeply that our meeting came so late; now that we must part after just one night, I also lament how quickly we are to be separated. After our parting, on the fourth day I arrived in Tianjin, and on the tenth day I visited Pingshu. In less than a month, I have already changed two places. Tired from travel and dust, I find myself merely working as a clerk; I pity myself and even laugh at my own situation. Now that my fellow scholars are returning to their hometowns, I am the only one left in the residence; moreover, with the sound of clear bells and red fish, it feels like practicing cultivation in an ancient temple. As the west wind blows and yellow leaves fall, memories of our past together often arise; surely the gift of the two carp will not abandon me. Has your health recovered? With wedding affairs causing much trouble, please take good care of yourself. Sending this with the wind to convey my thoughts; there is much more I wish to express but cannot fully say here. For a long time I have not seen the graceful appearance of green paulownia and bamboo; whenever the moon is bright and the breeze clear, I deeply long for them. Furthermore, I have been puzzled by your prolonged absence from official duty. Recently I received a letter from Mr. Ruan Xihou, learning that you have traveled to the left side of the state, and that planting lotus in Chuqiu has already been going on for more than a day. Green reeds and jade-like treasures are sold everywhere; this is naturally so. Your younger brother's talent and spirit, I fully believed, would be like a solitary crane on Jishan, sufficient to lift the spirits of the rooster flock; who expected that the zither would be broken and the grass on the grave already grown overnight, causing such deep sorrow! My younger brother first stayed as a guest in western Liaoning, then traveled around Tianjin. This spring he again undertook the mission to Pingshu. Year after year, I am pressed by deadlines, still working as a hired hand; this is truly because village women with beautiful brows are hard for the times to appreciate.",
+     "gold": "I, your younger brother, formerly had the good fortune to make friends with your younger brother, and so heard of your worth as the elder, and longed for the pleasure of meeting you. Yesterday I met you by chance in the provincial capital, and felt that your talent and bearing surpassed even what I had heard. Just as I was regretting that we had not met sooner, we unexpectedly parted after a single night, and now I regret that we were separated so soon. After we parted, I reached Tianjin on the fourth and went to Pingshu on the tenth: in less than a month I have changed place twice. Travel-worn, I do nothing but weed other people's fields; I pity myself, and can also laugh at myself. Just now my colleagues have gone home, and I live alone in the office; add the clear chime and the red wooden fish, and it is just like an old temple for religious practice. With the west wind and the yellow leaves, I often long for you deeply; you will surely not abandon me, but will send me a letter. Have you recovered your health? With the wedding arrangements so many and tiring, please take good care of yourself. I send my thoughts by the wind, and cannot express all I feel. I have long not seen your bearing, like green parasol trees and jade bamboo; whenever the moon is bright and the wind clear, I long for you in spirit. I had wondered why you had not been on duty for so long. Recently I received a letter from Ruan Xihou and learnt that you have travelled to Shandong and have long been serving in a secretariat at Chuqiu. Fine swords and fine jade are sought after everywhere: that is only to be expected. Your younger brother's talent and spirit, I was sure, like Ji Shao, the lone crane, would shine among the flock of chickens. Who could have expected that Boya's zither would be broken, and that the grass on the grave is already a year old? It moves one to sorrow! I, your younger brother, first lived in Liaoxi, then soon moved to Tianjin and its lakes. This spring I have again taken up a post at Pingshu. Year after year I sew for others, still a hired hand: truly because a village girl's fine eyebrows are hard for the age to admire.",
+     "verdict": "minor",
+     "judge_note": "The translation renders '碧梧翠竹' as 'green paulownia and bamboo,' which loses some of the original's poetic nuance, as 梧 (wú) refers to a paulownia tree, not a green tree in general."
+    }
+   },
+   "gaps": 74
+  }
+ ]
+}

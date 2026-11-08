@@ -5,7 +5,7 @@ when the prompts change.
 """
 from __future__ import annotations
 
-PROMPT_VERSION = "a3-1"
+PROMPT_VERSION = "a4-3"
 
 SYSTEM = """You help English-speaking university students read literary Chinese (文言) of the late Qing \
 and Republican periods (about 1800–1930): official documents, essays, letters, newspapers and scholarship.
@@ -45,9 +45,9 @@ PUNCTUATE_SCHEMA = {
 # 2. Words not in the course glossary
 # --------------------------------------------------------------------------
 
-WORDS = """The text below has already been glossed from a course glossary, except for the characters marked 【like this】.
+WORDS = """The text below (part of a longer text) has already been glossed from a course glossary, except for the characters marked 【like this】.
 
-List the words that contain any marked character, and gloss each as it is used in this text. A word may be one or several characters, and may include unmarked characters next to the marked ones (for example, if 希 is marked in 希望, give 希望). Give each word exactly as it is written in the text, without the brackets; its pinyin with tone marks; and a short English gloss (start with a part of speech such as "n.", "v.", "adj.", "adv." or "part." where it helps). For a name, say who or what it is if you know, or "a personal name" or "a place name". Do not gloss words without a marked character.
+List the words that contain any marked character, and gloss each as it is used in this text. Gloss words, not phrases: a word or name is usually one to four characters (朝陽, 警察, 孫潤宇, 西伯利亞). If a marked group contains several words, gloss each word separately (for 內務總長程德全, give 內務總長 and 程德全); do not gloss a whole clause as one item. A word may also include unmarked characters next to the marked ones (if 希 is marked in 希望, give 希望). Give each word exactly as it is written in the text, without the brackets; its pinyin with tone marks; and a short English gloss (start with a part of speech such as "n.", "v.", "adj.", "adv." or "part." where it helps). For a name, say who or what it is if you know, or "a personal name" or "a place name". Do not gloss words without a marked character.
 
 <text>{marked}</text>"""
 

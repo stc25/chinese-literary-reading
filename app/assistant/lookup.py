@@ -140,18 +140,28 @@ def find_glossary_matches(text: str, index: dict[str, list[Entry]]) -> list[Matc
     return matches
 
 
-def uncovered(text: str, matches: list[Match], also_covered: list[tuple[int, int]] = ()) -> list[tuple[int, int]]:
-    """Runs of letters that no glossary term covers (left for the AI).
+def uncovered(text: str, matches: list[Match], also_covered: list[tuple[int, int]] = (),
+              no_extend: set[str] = frozenset()) -> list[tuple[int, int]]:
+    """Runs of letters that the glossary does not cover well (left for the AI).
 
-    `also_covered` adds spans explained in other ways, such as dates.
+    A character covered only by a single-character gloss is "weakly" covered: a gap
+    extends over one such neighbour on each side, because the two are often one word
+    whose sense the single-character gloss misses (朝 + 陽 in 朝陽, 字 + 典 in 字典).
+    `also_covered` adds spans explained in other ways, such as dates. Characters in
+    `no_extend` (single-character function words such as 之, 也) are never added to a gap.
     """
-    covered = [False] * len(text)
-    for a, b in [(m.start, m.end) for m in matches] + list(also_covered):
+    strong = [False] * len(text)
+    weak = [False] * len(text)
+    for m in matches:
+        target = strong if m.end - m.start > 1 else weak
+        for i in range(m.start, m.end):
+            target[i] = True
+    for a, b in also_covered:
         for i in range(a, b):
-            covered[i] = True
+            strong[i] = True
     runs, start = [], None
     for i, c in enumerate(text):
-        gap = is_letter(c) and not covered[i]
+        gap = is_letter(c) and not strong[i] and not weak[i]
         if gap and start is None:
             start = i
         elif not gap and start is not None:
@@ -159,7 +169,22 @@ def uncovered(text: str, matches: list[Match], also_covered: list[tuple[int, int
             start = None
     if start is not None:
         runs.append((start, len(text)))
-    return runs
+
+    def extendable(i: int) -> bool:
+        return (0 <= i < len(text) and is_letter(text[i]) and weak[i] and not strong[i]
+                and key(text[i]) not in no_extend)
+
+    out: list[tuple[int, int]] = []
+    for a, b in runs:
+        if extendable(a - 1):
+            a -= 1
+        if extendable(b):
+            b += 1
+        if out and a <= out[-1][1]:
+            out[-1] = (out[-1][0], max(b, out[-1][1]))
+        else:
+            out.append((a, b))
+    return out
 
 
 # --------------------------------------------------------------------------
@@ -319,6 +344,8 @@ def analyse(raw: str, course: Course, glossary: list[Entry], max_chars: int = 60
     a.matches = find_glossary_matches(p.text, glossary_index(glossary))
     a.dates = find_dates(p.text, course)
     # dates are explained by the date converter, so they are not left for the AI
-    a.gaps = uncovered(p.text, a.matches, [(d.start, d.end) for d in a.dates])
-    a.function_words = find_function_words(p.text, function_forms(course))
+    forms = function_forms(course)
+    a.gaps = uncovered(p.text, a.matches, [(d.start, d.end) for d in a.dates],
+                       no_extend={f for f in forms if len(f) == 1})
+    a.function_words = find_function_words(p.text, forms)
     return a
