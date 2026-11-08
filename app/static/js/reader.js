@@ -75,9 +75,9 @@
         var f = el("p", "gloss-from");
         var fa = text("a", "", "Unit " + g.from.unit + ": " + g.from.title);
         fa.href = g.from.url;
-        f.appendChild(document.createTextNode("Glossed earlier, in "));
+        f.appendChild(document.createTextNode(g.fromLabel || "Glossed earlier, in "));
         f.appendChild(fa);
-        f.appendChild(document.createTextNode(". The sense here may differ."));
+        f.appendChild(document.createTextNode(g.fromNote !== undefined ? g.fromNote : ". The sense here may differ."));
         item.appendChild(f);
       }
       if (g.ref) {

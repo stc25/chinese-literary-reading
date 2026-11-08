@@ -407,3 +407,18 @@ h2 a:hover { text-decoration: underline; }
   .review-note { background: #2a2038; color: #e7d8fb; border-left-color: #b892e6; }
   .review-note .review-where { color: #c9a8ef; }
 }
+
+/* ------------------------------------------------------------------------
+   Reading assistant
+   ------------------------------------------------------------------------ */
+
+.assistant-form { max-width: var(--measure); margin: 1rem 0 1.5rem; }
+.assistant-form textarea { display: block; width: 100%; font-family: var(--font-zh); font-size: 1.25rem; line-height: 1.8;
+  color: var(--text); background: var(--surface); border: 1px solid var(--muted); border-radius: 6px; padding: 0.5rem; margin: 0.25rem 0; }
+.assistant-form .btn { margin-top: 0.5rem; }
+.zh-text .nogloss { background: color-mix(in srgb, var(--draft-bg) 70%, transparent); border-radius: 2px; }
+.coverage { color: var(--muted); font-size: 0.95rem; max-width: var(--measure); }
+.source-tag { display: inline-block; font-family: var(--font-sans); font-size: 0.7rem; font-weight: 600; letter-spacing: 0.02em;
+  padding: 0 0.4rem; border-radius: 999px; background: color-mix(in srgb, #2e7d32 15%, transparent); color: var(--text); vertical-align: middle; }
+.function-words td.zh { font-size: 1.2rem; }
+.date-list li { margin-bottom: 0.4rem; }

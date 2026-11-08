@@ -17,6 +17,7 @@
           <li><a href="{{ url_for('pages.course_map') }}#units"{% if request.endpoint in ('pages.unit', 'pages.passage') %} aria-current="true"{% endif %}>Units</a></li>
           <li><a href="{{ url_for('pages.grammar_index') }}"{% if request.endpoint in ('pages.grammar_index', 'pages.grammar') %} aria-current="true"{% endif %}>Grammar</a></li>
           <li><a href="{{ url_for('pages.glossary') }}"{% if request.endpoint == 'pages.glossary' %} aria-current="true"{% endif %}>Glossary</a></li>
+          {% if config.ASSISTANT_ENABLED %}<li><a href="{{ url_for('assistant.page') }}"{% if request.endpoint and request.endpoint.startswith('assistant.') %} aria-current="true"{% endif %}>Assistant</a></li>{% endif %}
           <li><a href="{{ url_for('pages.toolkit_index') }}"{% if request.endpoint in ('pages.toolkit_index', 'pages.toolkit') %} aria-current="true"{% endif %}>Toolkit</a></li>
           <li><button type="button" class="btn btn-small" data-action="toggle-pinyin" aria-pressed="false" hidden>Pinyin: <span class="state">off</span></button></li>
         </ul>

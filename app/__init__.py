@@ -59,7 +59,9 @@ def create_app(config: dict | None = None) -> Flask:
         REVIEWERS=[],
         DEV_USER="dev",
         TRUST_PROXY=0,
-        ACCESSIBILITY_CONTACT="",  # e-mail address for accessibility problems, shown on /accessibility             # number of reverse proxies in front of the app (sets the https scheme)
+        ACCESSIBILITY_CONTACT="",
+        ASSISTANT_ENABLED=True,
+        ASSISTANT_MAX_CHARS=600,  # e-mail address for accessibility problems, shown on /accessibility             # number of reverse proxies in front of the app (sets the https scheme)
         SESSION_COOKIE_SAMESITE="Lax",
         SESSION_COOKIE_HTTPONLY=True,
         PERMANENT_SESSION_LIFETIME=timedelta(hours=12),
@@ -110,9 +112,10 @@ def create_app(config: dict | None = None) -> Flask:
 
     app.jinja_env.filters["passage_progress_item"] = passage_progress_item
 
-    from . import auth, views
+    from . import assistant, auth, views
     auth.init_app(app)
     app.register_blueprint(views.bp)
+    app.register_blueprint(assistant.bp)
 
     @app.after_request
     def security_headers(resp):

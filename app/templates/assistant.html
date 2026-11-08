@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% from "_macros.html" import breadcrumbs with context %}
+{% block title %}Reading assistant · {{ course.title }}{% endblock %}
+{% block breadcrumbs %}{{ breadcrumbs([('Course', url_for('pages.course_map')), ('Reading assistant', None)]) }}{% endblock %}
+{% block content %}
+<h1>Reading assistant</h1>
+<div class="prose">
+  <p>Paste a passage of literary Chinese (up to {{ max_chars }} characters). The assistant glosses the words
+    that the course has taught, points out function words with links to the grammar pages, and converts
+    dates. Every item says where it comes from.</p>
+  <p class="notice">AI suggestions for the remaining words, punctuation, translation and questions are being
+    added. This version uses only the reviewed course material and sends nothing to an AI service. Your text
+    is not stored.</p>
+</div>
+
+<form method="post" action="{{ url_for('assistant.page') }}" class="assistant-form">
+  <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+  <label for="as-text" class="field-label">Your text</label>
+  <textarea id="as-text" name="text" class="zh" lang="zh-Hant" rows="6" spellcheck="false"
+    aria-describedby="as-hint">{{ raw }}</textarea>
+  <p class="hint" id="as-hint">Traditional or simplified characters; simplified ones are converted to traditional.
+    Punctuated or unpunctuated.</p>
+  <button type="submit" class="btn">Analyse</button>
+</form>
+
+{% if analysis %}{% set p = analysis.prepared %}
+<div class="assistant-result" id="result">
+  {% if not p.text %}
+  <p class="notice">Paste some text first.</p>
+  {% elif p.too_long %}
+  <p class="notice notice-draft" role="alert">The text is longer than {{ max_chars }} characters. Please analyse it in parts.</p>
+  {% else %}
+  {% if p.converted %}<p class="notice">Simplified characters were converted to traditional ones. Check the result:
+    a few simplified characters stand for more than one traditional character.</p>{% endif %}
+
+  <section aria-labelledby="as-text-h" class="reader view-modern" data-view="modern">
+    <h2 id="as-text-h">1. Text and words</h2>
+    <p class="reader-hint" id="reader-hint">Select an underlined word to see its gloss from the course. With a keyboard,
+      Tab into the text, move between words with the arrow keys and press Enter.</p>
+    <div class="text-block">
+      <div class="zh-text text-modern" lang="zh-Hant" aria-describedby="reader-hint">
+        {%- for para in segments -%}
+        <p>
+          {%- for s in para -%}
+            {%- if s.occ -%}<button type="button" class="g{{ ' pu' if s.punct }}" data-occ="{{ s.occ | join(' ') }}" aria-haspopup="dialog" aria-expanded="false" tabindex="-1">{{ s.text }}</button>
+            {%- elif s.punct -%}<span class="pu">{{ s.text }}</span>
+            {%- else -%}<span class="nogloss">{{ s.text }}</span>{%- endif -%}
+          {%- endfor -%}
+        </p>
+        {%- endfor -%}
+      </div>
+    </div>
+    <p class="coverage">The course glossary covers {{ (analysis.coverage * 100) | round | int }}% of the characters.
+      {% if gap_text %}Not covered: <span class="zh" lang="zh-Hant">{{ gap_text | join('、') }}</span>.{% endif %}</p>
+  </section>
+
+  <div id="gloss-panel" class="gloss-panel" role="dialog" aria-modal="false" aria-labelledby="gloss-panel-title" tabindex="-1" hidden>
+    <div class="gloss-panel-head">
+      <h2 id="gloss-panel-title" class="gloss-panel-title">Gloss</h2>
+      <button type="button" class="gloss-panel-close" aria-label="Close gloss">×</button>
+    </div>
+    <div class="gloss-panel-body"></div>
+  </div>
+  <script type="application/json" id="gloss-data">{{ glosses | tojson }}</script>
+
+  <section aria-labelledby="as-gram-h">
+    <h2 id="as-gram-h">2. Function words</h2>
+    {% if words %}
+    <p class="hint">Found from the grammar pages. Where several grammar points are listed, decide from the context which one applies.</p>
+    <div class="table-wrap">
+      <table class="function-words">
+        <thead><tr><th scope="col">Word</th><th scope="col">Times</th><th scope="col">Grammar <span class="source-tag">Course grammar</span></th></tr></thead>
+        <tbody>
+          {% for w in words %}
+          <tr>
+            <td class="zh" lang="zh-Hant">{{ w.form }}</td>
+            <td>{{ w.count }}</td>
+            <td>{% for gr in w.grammar %}<a class="xref" href="{{ url_for('pages.grammar', gid=gr.id) }}" data-ref="/grammar/{{ gr.id }}">{{ gr.title }}</a>{{ '; ' if not loop.last }}{% endfor %}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}<p>No function words from the grammar pages were found.</p>{% endif %}
+  </section>
+
+  <section aria-labelledby="as-date-h">
+    <h2 id="as-date-h">3. Dates</h2>
+    {% if analysis.dates %}
+    <ul class="date-list">
+      {% for d in analysis.dates %}
+      <li><span class="zh" lang="zh-Hant">{{ d.text }}</span>: {% for line in d.lines %}<span lang="zh-Hant">{{ line }}</span>{{ '; ' if not loop.last }}{% endfor %}
+        <span class="source-tag">Date converter</span>{% if d.note %}<br><span class="hint">{{ d.note }}</span>{% endif %}</li>
+      {% endfor %}
+    </ul>
+    <p class="hint">Only the year is converted; months and days before 1912 are lunar. See
+      <a href="{{ url_for('pages.toolkit', tid='t02') }}">Dates and calendars</a>.</p>
+    {% else %}<p>No reign, Republican or cyclical years were found.</p>{% endif %}
+  </section>
+  {% endif %}
+</div>
+{% endif %}
+{% endblock %}
+{% block scripts %}{% if analysis and glosses is defined %}<script src="{{ url_for('static', filename='js/reader.js') }}" defer></script>{% endif %}{% endblock %}
