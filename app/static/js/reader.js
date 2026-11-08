@@ -71,10 +71,20 @@
       py.setAttribute("lang", "zh-Latn-pinyin");
       item.appendChild(py);
       item.appendChild(el("p", "gloss-text", g.gloss));   // server-rendered, escaped Markdown
+      if (g.from) {
+        var f = el("p", "gloss-from");
+        var fa = text("a", "", "Unit " + g.from.unit + ": " + g.from.title);
+        fa.href = g.from.url;
+        f.appendChild(document.createTextNode("Glossed earlier, in "));
+        f.appendChild(fa);
+        f.appendChild(document.createTextNode(". The sense here may differ."));
+        item.appendChild(f);
+      }
       if (g.ref) {
         var p = el("p", "gloss-ref");
         var a = text("a", "xref", g.refTitle);
         a.href = g.ref;
+        a.setAttribute("data-ref", g.ref);
         p.appendChild(document.createTextNode("Grammar: "));
         p.appendChild(a);
         item.appendChild(p);

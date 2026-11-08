@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% from "_macros.html" import breadcrumbs with context %}
+{% block title %}Glossary · {{ course.title }}{% endblock %}
+{% block breadcrumbs %}{{ breadcrumbs([('Course', url_for('pages.course_map')), ('Glossary', None)]) }}{% endblock %}
+{% block content %}
+<h1>Glossary</h1>
+<p class="prose">Every word and phrase glossed in the course passages, in pinyin order. A word with
+  several meanings has one entry for each. <em>First seen</em> links to the passage where the gloss first appears.</p>
+
+<form class="search-box" method="get" action="{{ url_for('pages.glossary') }}" role="search">
+  <label for="gloss-q">Search Chinese, pinyin (tone marks optional) or English</label>
+  <div class="search-row">
+    <input id="gloss-q" name="q" type="search" value="{{ q }}" autocomplete="off" spellcheck="false">
+    <button type="submit" class="btn">Search</button>
+  </div>
+  <p class="search-count" role="status" aria-live="polite">{{ count }} {{ 'entry' if count == 1 else 'entries' }}{% if q %} matching “{{ q }}” · <a href="{{ url_for('pages.glossary') }}">show all</a>{% endif %}</p>
+</form>
+
+{% if groups %}
+<nav class="letter-nav" aria-label="Letters">
+  <ul>{% for letter in groups %}<li><a href="#letter-{{ letter }}">{{ letter }}</a></li>{% endfor %}</ul>
+</nav>
+{% endif %}
+
+{% for letter, entries in groups.items() %}
+<section class="gloss-group" aria-labelledby="letter-{{ letter }}">
+  <h2 id="letter-{{ letter }}">{{ letter }}</h2>
+  <div class="table-wrap">
+    <table class="glossary-table">
+      <thead><tr><th scope="col">Term</th><th scope="col">Pinyin</th><th scope="col">Gloss</th><th scope="col">First seen</th></tr></thead>
+      <tbody>
+        {% for e in entries %}{% set gl_html = md_inline(e.gloss, e.first) %}
+        <tr data-search="{{ e.term }} {{ plain_pinyin(e.pinyin) | replace(' ', '') }} {{ strip_html(gl_html | string) | lower }}">
+          <td class="zh" lang="zh-Hant">{{ e.term }}</td>
+          <td class="py" lang="zh-Latn-pinyin">{{ e.pinyin }}</td>
+          <td>{{ gl_html }}{% if e.grammar and ref_url(e.grammar) %} <a class="xref" href="{{ ref_url(e.grammar) }}" data-ref="{{ ref_url(e.grammar) }}">{{ ref_title(e.grammar) }}</a>{% endif %}</td>
+          <td class="first-seen"><a href="{{ url_for('pages.passage', uid=e.first.unit_id, num=e.first.number) }}">Unit {{ course.units[e.first.unit_id].number }}</a>{% if e.passages | length > 1 %} <span class="muted">+{{ e.passages | length - 1 }}</span>{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% else %}
+<p>No entries match “{{ q }}”.</p>
+{% endfor %}
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/glossary.js') }}" defer></script>{% endblock %}

@@ -77,6 +77,8 @@ def create_app(config: dict | None = None) -> Flask:
 
         return dict(course=course, md=md, md_inline=md_inline, content_error=g.get("content_error"))
 
+    app.jinja_env.filters["first_index"] = lambda occ_id: int(occ_id.split("-")[0])
+
     from . import views
     app.register_blueprint(views.bp)
     return app

@@ -1,12 +1,59 @@
 {% extends "base.html" %}
 {% from "_macros.html" import status_badge, draft_notice, breadcrumbs, exercises with context %}
 {% block title %}{{ t.title }} · Toolkit · {{ course.title }}{% endblock %}
-{% block breadcrumbs %}{{ breadcrumbs([('Course', url_for('pages.course_map')), ('Toolkit', url_for('pages.course_map') ~ '#toolkit'), (t.title, None)]) }}{% endblock %}
+{% block breadcrumbs %}{{ breadcrumbs([('Course', url_for('pages.course_map')), ('Toolkit', url_for('pages.toolkit_index')), (t.title, None)]) }}{% endblock %}
 {% block content %}
 <p class="eyebrow">Toolkit</p>
 <h1>{{ t.title }} {{ status_badge(t) }}</h1>
 {{ draft_notice(t) }}
 <div class="prose lead">{{ md(t.summary, t) }}</div>
+
+{% if converter %}{% set a = converter.args %}
+<section aria-labelledby="conv-h" class="converter" id="converter">
+  <h2 id="conv-h">Date converter</h2>
+  <p>Convert reign years, Republican years and Western years. Results give the year only: a lunar date
+    late in a Chinese year may fall early in the next Western year.</p>
+  <div class="converter-forms">
+    <form method="get" action="#converter" class="conv-form">
+      <input type="hidden" name="mode" value="reign">
+      <fieldset>
+        <legend>Reign year → Western year</legend>
+        <label for="conv-reign">Reign</label>
+        <select id="conv-reign" name="reign">
+          {% for r in converter.reigns %}<option value="{{ r.reign }}"{% if a.get('reign') == r.reign %} selected{% endif %} lang="zh-Hant">{{ r.reign }} {{ r.pinyin }} ({{ r.first_year }}–{{ r.last_year }})</option>{% endfor %}
+        </select>
+        <label for="conv-year">Year of the reign</label>
+        <input id="conv-year" name="year" inputmode="numeric" pattern="[0-9]*" size="4" value="{{ a.get('year', '') }}">
+        <button type="submit" class="btn">Convert</button>
+      </fieldset>
+    </form>
+    <form method="get" action="#converter" class="conv-form">
+      <input type="hidden" name="mode" value="republic">
+      <fieldset>
+        <legend>Republican year → Western year</legend>
+        <label for="conv-ryear">民國 year</label>
+        <input id="conv-ryear" name="ryear" inputmode="numeric" pattern="[0-9]*" size="4" value="{{ a.get('ryear', '') }}">
+        <button type="submit" class="btn">Convert</button>
+      </fieldset>
+    </form>
+    <form method="get" action="#converter" class="conv-form">
+      <input type="hidden" name="mode" value="western">
+      <fieldset>
+        <legend>Western year → Chinese year</legend>
+        <label for="conv-western">Western year</label>
+        <input id="conv-western" name="western" inputmode="numeric" pattern="[0-9]*" size="5" value="{{ a.get('western', '') }}">
+        <button type="submit" class="btn">Convert</button>
+      </fieldset>
+    </form>
+  </div>
+  <div class="conv-result" role="status" aria-live="polite">
+    {% if converter.result %}
+      {% for line in converter.result.lines %}<p class="conv-line" lang="zh-Hant">{{ line }}</p>{% endfor %}
+      {% if converter.result.message %}<p class="conv-message">{{ converter.result.message }}</p>{% endif %}
+    {% endif %}
+  </div>
+</section>
+{% endif %}
 
 {% for name, body in t.sections.items() if name not in ('Summary', 'Practice') %}
 <section aria-labelledby="s{{ loop.index }}-h">

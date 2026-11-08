@@ -166,7 +166,7 @@ class RealContent(unittest.TestCase):
 
     def urls(self):
         c = self.course
-        yield "/"
+        yield from ("/", "/grammar", "/toolkit", "/glossary")
         yield from (f"/units/{u}" for u in c.units)
         yield from (f"/units/{p.unit_id}/{p.number}" for p in c.passages.values())
         yield from (f"/grammar/{g}" for g in c.grammar)
@@ -194,3 +194,90 @@ class RealContent(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Tools(unittest.TestCase):
+    def setUp(self):
+        from app.tools import reigns_from_rows
+        self.reigns = reigns_from_rows(load(CONTENT).data["qing-reign-periods.csv"])
+
+    def test_cyclical(self):
+        from app.tools import cyclical
+        self.assertEqual(cyclical(1864), "甲子")
+        self.assertEqual(cyclical(1898), "戊戌")
+        self.assertEqual(cyclical(1911), "辛亥")
+
+    def test_year_names(self):
+        from app.tools import year_name
+        self.assertEqual([year_name(n) for n in (1, 2, 10, 11, 24, 30)], ["元年", "二年", "十年", "十一年", "二十四年", "三十年"])
+
+    def test_reign_to_western(self):
+        from app.tools import reign_to_western
+        r = reign_to_western(self.reigns, "光緒", 24)
+        self.assertTrue(r.ok)
+        self.assertIn("1898", r.lines[0])
+        self.assertFalse(reign_to_western(self.reigns, "宣統", 4).ok)
+
+    def test_western_to_chinese(self):
+        from app.tools import western_to_chinese
+        self.assertIn("道光二十二年", western_to_chinese(self.reigns, 1842).lines[0])
+        self.assertIn("民國八年", western_to_chinese(self.reigns, 1919).lines[0])
+        self.assertFalse(western_to_chinese(self.reigns, 1700).ok)
+
+
+class M3Pages(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.client = make_app(CONTENT).test_client()
+        cls.course = load(CONTENT)
+
+    def test_converter_form(self):
+        html = self.client.get("/toolkit/t02?mode=reign&reign=光緒&year=24").get_data(as_text=True)
+        self.assertIn("光緒二十四年 = 1898 (戊戌)", html)
+
+    def test_glossary_search(self):
+        all_html = self.client.get("/glossary").get_data(as_text=True)
+        html = self.client.get("/glossary?q=qun").get_data(as_text=True)
+        self.assertIn(">群<", html)
+        self.assertLess(len(html), len(all_html))
+        self.assertIn(">群<", self.client.get("/glossary?q=society").get_data(as_text=True))
+
+    def test_index_pages(self):
+        for url in ("/grammar", "/toolkit", "/glossary"):
+            self.assertEqual(self.client.get(url).status_code, 200, url)
+
+    def test_summaries(self):
+        data = self.client.get("/summaries.json").get_json()
+        self.assertIn("/grammar/suo", data)
+        self.assertIn("/toolkit/t02", data)
+
+    def test_glossary_entries(self):
+        from app.content.glossary import build
+        entries = build(self.course)
+        keys = [(e.term, " ".join(e.gloss.split())) for e in entries]
+        self.assertEqual(len(keys), len(set(keys)))
+        total = sum(len(p.glosses) for p in self.course.passages.values())
+        self.assertLessEqual(len(entries), total)
+
+    def test_glossary_md_up_to_date(self):
+        from app.content.glossary import build, to_markdown
+        text = to_markdown(self.course, build(self.course))
+        current = (CONTENT / "glossary.md").read_text(encoding="utf-8")
+        self.assertEqual(current, text, "content/glossary.md is out of date: run python3 tools/build_glossary.py")
+
+    def test_earlier_glosses_never_overlap_own(self):
+        from app.content.glossary import passages_in_order
+        from app.content.reader import earlier_glosses
+        order = passages_in_order(self.course)
+        for i, p in enumerate(order):
+            own = {k for gl in p.glosses for spans in gl.spans for a, b in spans for k in range(a, b)}
+            for e in earlier_glosses(p, order[:i]):
+                self.assertGreaterEqual(len(e.gloss.term), 2)
+                for spans in e.spans:
+                    for a, b in spans:
+                        self.assertFalse(own & set(range(a, b)), f"{p.id}: {e.gloss.term}")
+
+    def test_earlier_gloss_marked(self):
+        html = self.client.get("/units/u17/p02").get_data(as_text=True)
+        self.assertIn("g-earlier", html)
+        self.assertIn('"from"', html)

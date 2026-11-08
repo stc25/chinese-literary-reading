@@ -27,6 +27,13 @@ Then open <http://localhost:5050/>. In debug mode the app reloads the content wh
 `content/` changes. The app will not start if the validator reports errors. See
 [docs/app-plan.md](docs/app-plan.md) for the plan.
 
+The glossary (`content/glossary.md`) is generated from the passage gloss tables. After changing
+glosses, regenerate it (a test fails if it is out of date):
+
+```bash
+python3 tools/build_glossary.py
+```
+
 Run all tests (validator and app) with:
 
 ```bash

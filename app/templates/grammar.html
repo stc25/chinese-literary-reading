@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% from "_macros.html" import status_badge, draft_notice, breadcrumbs with context %}
 {% block title %}{{ gr.title }} · Grammar · {{ course.title }}{% endblock %}
-{% block breadcrumbs %}{{ breadcrumbs([('Course', url_for('pages.course_map')), ('Grammar', None), (gr.title, None)]) }}{% endblock %}
+{% block breadcrumbs %}{{ breadcrumbs([('Course', url_for('pages.course_map')), ('Grammar', url_for('pages.grammar_index')), (gr.title, None)]) }}{% endblock %}
 {% block content %}
 <p class="eyebrow">Grammar</p>
 <h1>{{ gr.title }} {{ status_badge(gr) }}</h1>
@@ -38,6 +38,10 @@
   <h2 id="see-h">See also</h2>
   <div class="prose">{{ md(gr.sections['See also'], gr) }}</div>
 </section>
+{% endif %}
+
+{% if units %}
+<p class="taught-in">Taught in {% for u in units %}<a href="{{ url_for('pages.unit', uid=u.id) }}">Unit {{ u.number }}: {{ u.title }}</a>{{ ', ' if not loop.last }}{% endfor %}.</p>
 {% endif %}
 
 {% if used %}

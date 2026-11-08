@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% from "_macros.html" import breadcrumbs, status_badge with context %}
+{% block title %}Grammar · {{ course.title }}{% endblock %}
+{% block breadcrumbs %}{{ breadcrumbs([('Course', url_for('pages.course_map')), ('Grammar', None)]) }}{% endblock %}
+{% block content %}
+<h1>Grammar</h1>
+<p class="prose">All grammar points and reading skills, grouped by the unit that introduces them.</p>
+{% for u, items in groups %}
+<section aria-labelledby="gu-{{ u.id }}">
+  <h2 id="gu-{{ u.id }}"><a href="{{ url_for('pages.unit', uid=u.id) }}">Unit {{ u.number }}: {{ u.title }}</a></h2>
+  <ul class="grammar-list">
+    {% for gr in items %}
+    <li><a href="{{ url_for('pages.grammar', gid=gr.id) }}">{{ gr.title }}</a> {{ status_badge(gr) }}
+      <div class="summary">{{ md_inline(gr.summary, gr) }}</div></li>
+    {% endfor %}
+  </ul>
+</section>
+{% endfor %}
+{% if other %}
+<section aria-labelledby="gu-other">
+  <h2 id="gu-other">Other</h2>
+  <ul class="grammar-list">
+    {% for gr in other %}
+    <li><a href="{{ url_for('pages.grammar', gid=gr.id) }}">{{ gr.title }}</a> {{ status_badge(gr) }}
+      <div class="summary">{{ md_inline(gr.summary, gr) }}</div></li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+{% endblock %}

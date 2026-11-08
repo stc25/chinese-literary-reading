@@ -5,6 +5,7 @@ pages always rest on files that meet docs/content-spec.md.
 """
 from __future__ import annotations
 
+import csv
 import re
 from collections import defaultdict
 from pathlib import Path
@@ -226,6 +227,9 @@ def load(root: Path, spec: Path = v.DEFAULT_SPEC) -> Course:
     )
     for n, uid in enumerate(course.unit_order(), 1):
         units[uid].number = n
+    for path in idx.data_files:
+        with path.open(encoding="utf-8", newline="") as f:
+            course.data[path.name] = list(csv.DictReader(f))
     return course
 
 

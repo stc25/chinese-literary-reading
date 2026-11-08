@@ -105,6 +105,7 @@ class Course:
     toolkit: dict[str, Toolkit]
     urls: dict[Path, str]           # resolved file path -> app URL
     warnings: list[str] = field(default_factory=list)
+    data: dict[str, list[dict]] = field(default_factory=dict)   # toolkit data file name -> rows
 
     def unit_order(self) -> list[str]:
         return [u for level in ("beginner", "intermediate") for u in self.levels.get(level, [])]

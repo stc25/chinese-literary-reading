@@ -23,7 +23,7 @@
     {%- for para in paras -%}
     <p{% if extra_class %} class="{{ extra_class }}"{% endif %}>
       {%- for s in para -%}
-        {%- if s.occ -%}<button type="button" class="g{{ ' pu' if s.punct }}" data-occ="{{ s.occ | join(' ') }}" aria-haspopup="dialog" aria-expanded="false">{{ s.text }}</button>
+        {%- if s.occ -%}<button type="button" class="g{{ ' pu' if s.punct }}{{ ' g-earlier' if s.occ | map('first_index') | min >= own }}" data-occ="{{ s.occ | join(' ') }}" aria-haspopup="dialog" aria-expanded="false">{{ s.text }}</button>
         {%- elif s.punct -%}<span class="pu">{{ s.text }}</span>
         {%- else -%}{{ s.text }}{%- endif -%}
       {%- endfor -%}
@@ -75,7 +75,7 @@
               <td class="zh" lang="zh-Hant">{{ gl.term }}{% if gl.occurrences %}<span class="occ" title="Only these occurrences in the text"> #{{ gl.occurrences | join(' #') }}</span>{% endif %}</td>
               <td class="pinyin pinyin-col" lang="zh-Latn-pinyin">{{ gl.pinyin }}</td>
               <td>{{ md_inline(gl.gloss, p) }}</td>
-              <td>{% if gl.grammar and ref_url(gl.grammar) %}<a class="xref" href="{{ ref_url(gl.grammar) }}">{{ ref_title(gl.grammar) }}</a>{% endif %}</td>
+              <td>{% if gl.grammar and ref_url(gl.grammar) %}<a class="xref" href="{{ ref_url(gl.grammar) }}" data-ref="{{ ref_url(gl.grammar) }}">{{ ref_title(gl.grammar) }}</a>{% endif %}</td>
             </tr>
             {% endfor %}
           </tbody>

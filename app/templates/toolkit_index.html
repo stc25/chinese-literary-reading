@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% from "_macros.html" import breadcrumbs, status_badge with context %}
+{% block title %}Toolkit · {{ course.title }}{% endblock %}
+{% block breadcrumbs %}{{ breadcrumbs([('Course', url_for('pages.course_map')), ('Toolkit', None)]) }}{% endblock %}
+{% block content %}
+<h1>Toolkit</h1>
+<p class="prose">Reference pages you can use at any time: scripts and dictionaries, dates, names and offices,
+  money and measures, romanisation, research resources, and the grammatical terms used in the course.</p>
+<ul class="toolkit-list">
+  {% for tid in course.toolkit_ids %}{% set t = course.toolkit[tid] %}{% if visible(t) %}
+  <li><a href="{{ url_for('pages.toolkit', tid=tid) }}">{{ t.title }}</a> {{ status_badge(t) }}
+    <div class="summary">{{ md_inline(t.summary, t) }}</div></li>
+  {% endif %}{% endfor %}
+</ul>
+<p><a href="{{ url_for('pages.glossary') }}">Glossary</a>: every word glossed in the course.</p>
+{% endblock %}
