@@ -61,7 +61,11 @@ def create_app(config: dict | None = None) -> Flask:
         TRUST_PROXY=0,
         ACCESSIBILITY_CONTACT="",
         ASSISTANT_ENABLED=True,
-        ASSISTANT_MAX_CHARS=600,  # e-mail address for accessibility problems, shown on /accessibility             # number of reverse proxies in front of the app (sets the https scheme)
+        ASSISTANT_MAX_CHARS=600,
+        ASSISTANT_MODEL="qwen3.5:9b",
+        ASSISTANT_TIMEOUT=60,
+        OLLAMA_HOST="http://localhost:11434",   # the cloud service: https://ollama.com
+        OLLAMA_API_KEY="",                      # cloud only; kept on the server  # e-mail address for accessibility problems, shown on /accessibility             # number of reverse proxies in front of the app (sets the https scheme)
         SESSION_COOKIE_SAMESITE="Lax",
         SESSION_COOKIE_HTTPONLY=True,
         PERMANENT_SESSION_LIFETIME=timedelta(hours=12),

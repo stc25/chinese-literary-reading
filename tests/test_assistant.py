@@ -152,3 +152,160 @@ class Page(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+# --------------------------------------------------------------------------
+# A2: AI steps, with the model replaced by a stub
+# --------------------------------------------------------------------------
+
+import json  # noqa: E402
+
+from app.assistant import steps  # noqa: E402
+from app.assistant.client import ModelError, OllamaClient  # noqa: E402
+
+
+class FakeResponse:
+    def __init__(self, content, status=200):
+        self.status_code = status
+        self._body = {"message": {"content": content}, "prompt_eval_count": 10, "eval_count": 5}
+
+    def json(self):
+        return self._body
+
+
+class FakeSession:
+    """Returns the queued replies in order and records the requests."""
+
+    def __init__(self, *replies, status=200):
+        self.replies = list(replies)
+        self.status = status
+        self.requests = []
+
+    def post(self, url, json=None, headers=None, timeout=None):
+        self.requests.append({"url": url, "json": json, "headers": headers})
+        content = self.replies.pop(0) if self.replies else "{}"
+        return FakeResponse(content if isinstance(content, str) else globals()["json"].dumps(content), self.status)
+
+
+def stub(*replies, status=200, api_key=""):
+    return OllamaClient("http://model.test", "test-model", api_key=api_key, session=FakeSession(*replies, status=status))
+
+
+class Client(unittest.TestCase):
+    def test_request_shape(self):
+        c = stub({"punctuated": "之。"}, api_key="k")
+        steps.punctuate(c, "之")
+        req = c.session.requests[0]
+        self.assertEqual(req["url"], "http://model.test/api/chat")
+        self.assertEqual(req["json"]["model"], "test-model")
+        self.assertIn("format", req["json"])
+        self.assertFalse(req["json"]["stream"])
+        self.assertEqual(req["headers"]["Authorization"], "Bearer k")
+        self.assertIn("<text>", req["json"]["messages"][1]["content"])
+
+    def test_retry_then_fail(self):
+        c = stub("not json", "still not json")
+        with self.assertRaises(ModelError):
+            steps.punctuate(c, "之乎")
+        self.assertEqual(len(c.session.requests), 2)
+
+    def test_usage_limit(self):
+        with self.assertRaises(ModelError) as cm:
+            steps.translate(stub("{}", status=429), "之")
+        self.assertIn("limit", str(cm.exception))
+
+
+class Steps(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.course = load(CONTENT)
+        cls.glossary = build(cls.course)
+
+    def analysis(self, text):
+        return analyse(text, self.course, self.glossary)
+
+    def test_punctuation_must_keep_characters(self):
+        c = stub({"punctuated": "日本人稱中國，"}, {"punctuated": "日本人之稱我中國也。"})
+        r = steps.punctuate(c, "日本人之稱我中國也")
+        self.assertEqual(r.data["punctuated"], "日本人之稱我中國也。")
+        self.assertEqual(r.usage.calls, 2)      # the first reply changed the characters
+
+    def test_words_kept_only_in_gaps(self):
+        a = self.analysis("黿鼉之")
+        self.assertEqual(a.gaps, [(0, 2)])
+        c = stub({"words": [
+            {"word": "黿鼉", "pinyin": "yuántuó", "gloss": "n. turtles and alligators"},
+            {"word": "日本", "pinyin": "Rìběn", "gloss": "Japan"},      # not in the text
+            {"word": "之", "pinyin": "zhī", "gloss": "part."},          # in the text but covered by the glossary
+        ]})
+        r = steps.gloss_gaps(c, a)
+        self.assertEqual([w["word"] for w in r.data["words"]], ["黿鼉"])
+        self.assertIn("【", c.session.requests[0]["json"]["messages"][1]["content"])
+
+    def test_grammar_ids_must_be_offered(self):
+        a = self.analysis("此其所以不若也")
+        c = stub({"notes": [
+            {"number": 1, "grammar_id": "demonstratives", "note": "this"},
+            {"number": 2, "grammar_id": "made-up-id", "note": "his"},
+            {"number": 99, "grammar_id": None, "note": "out of range"},
+        ]})
+        notes = steps.grammar_notes(c, a, self.course).data["notes"]
+        self.assertEqual(len(notes), 2)
+        self.assertEqual(notes[0]["grammar_id"], "demonstratives")
+        self.assertIsNone(notes[1]["grammar_id"])
+
+    def test_names_never_include_dates(self):
+        a = self.analysis("光緒二十六年，梁啓超作此文。")
+        c = stub({"items": [
+            {"text": "光緒二十六年", "kind": "title", "note": "1899"},
+            {"text": "梁啓超", "kind": "person", "note": "Liang Qichao"},
+            {"text": "孫文", "kind": "person", "note": "not in the text"},
+        ]})
+        items = steps.names(c, a).data["items"]
+        self.assertEqual([i["text"] for i in items], ["梁啓超"])
+
+    def test_dates_are_not_gaps(self):
+        a = self.analysis("光緒二十六年")
+        self.assertEqual(a.gaps, [])
+
+    def test_translate(self):
+        r = steps.translate(stub({"translation": " This is it. ", "literal": "this be it"}), "是也", literal=True)
+        self.assertEqual(r.data, {"translation": "This is it.", "literal": "this be it"})
+
+
+class Api(unittest.TestCase):
+    def setUp(self):
+        self.app = create_app({"TESTING": True})
+        self.client = self.app.test_client()
+        html = self.client.get("/assistant/").get_data(as_text=True)
+        self.token = re.search(r'name="csrf" value="([^"]+)"', html).group(1)
+
+    def call(self, step, body, token=None):
+        return self.client.post(f"/assistant/api/{step}", json=body,
+                                headers={"X-CSRF-Token": self.token if token is None else token})
+
+    def test_translate_endpoint(self):
+        self.app.extensions["assistant_client"] = stub({"translation": "When the Japanese speak of our China"})
+        r = self.call("translate", {"text": "日本人之稱我中國也"})
+        self.assertEqual(r.status_code, 200)
+        d = r.get_json()
+        self.assertTrue(d["ok"])
+        self.assertEqual(d["source"], "ai")
+        self.assertIn("Japanese", d["data"]["translation"])
+        self.assertIn("no-store", r.headers["Cache-Control"])
+
+    def test_needs_token(self):
+        self.assertEqual(self.call("translate", {"text": "之"}, token="wrong").status_code, 400)
+
+    def test_unknown_step(self):
+        self.assertEqual(self.call("poem", {"text": "之"}).status_code, 404)
+
+    def test_empty_or_long_text(self):
+        self.assertEqual(self.call("translate", {"text": " "}).status_code, 400)
+        self.assertEqual(self.call("translate", {"text": "之" * 700}).status_code, 400)
+
+    def test_model_failure_is_reported(self):
+        self.app.extensions["assistant_client"] = stub("bad", "bad")
+        r = self.call("punctuate", {"text": "日本人之稱我中國也"})
+        self.assertEqual(r.status_code, 502)
+        self.assertFalse(r.get_json()["ok"])

@@ -140,11 +140,14 @@ def find_glossary_matches(text: str, index: dict[str, list[Entry]]) -> list[Matc
     return matches
 
 
-def uncovered(text: str, matches: list[Match]) -> list[tuple[int, int]]:
-    """Runs of letters that no glossary term covers (left for the AI)."""
+def uncovered(text: str, matches: list[Match], also_covered: list[tuple[int, int]] = ()) -> list[tuple[int, int]]:
+    """Runs of letters that no glossary term covers (left for the AI).
+
+    `also_covered` adds spans explained in other ways, such as dates.
+    """
     covered = [False] * len(text)
-    for m in matches:
-        for i in range(m.start, m.end):
+    for a, b in [(m.start, m.end) for m in matches] + list(also_covered):
+        for i in range(a, b):
             covered[i] = True
     runs, start = [], None
     for i, c in enumerate(text):
@@ -314,7 +317,8 @@ def analyse(raw: str, course: Course, glossary: list[Entry], max_chars: int = 60
     if not p.text or p.too_long:
         return a
     a.matches = find_glossary_matches(p.text, glossary_index(glossary))
-    a.gaps = uncovered(p.text, a.matches)
-    a.function_words = find_function_words(p.text, function_forms(course))
     a.dates = find_dates(p.text, course)
+    # dates are explained by the date converter, so they are not left for the AI
+    a.gaps = uncovered(p.text, a.matches, [(d.start, d.end) for d in a.dates])
+    a.function_words = find_function_words(p.text, function_forms(course))
     return a

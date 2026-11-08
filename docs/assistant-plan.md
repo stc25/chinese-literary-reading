@@ -107,7 +107,7 @@ supply the examples for the help page.
 | | Milestone | Result to review |
 |---|---|---|
 | A1 ✓ | Deterministic layer | glossary lookup, grammar forms and date detection on any pasted text, with tests; a page that shows them without any model |
-| A2 | Model steps | Ollama client, prompts and schemas for punctuation, words, grammar notes, names and translation; works with the local model |
+| A2 ✓ | Model steps | Ollama client, prompts and schemas for punctuation, words, grammar notes, names and translation; works with the local model |
 | A3 | Assistant page | the five steps, source labels, follow-up questions, limits, notices; help page; accessibility tests |
 | A4 | Evaluation | harness and report; local model compared with two or three cloud models; choice of model and prompt |
 | A5 | Hardening | timeouts, error messages, limits under load, deployment settings and documentation |

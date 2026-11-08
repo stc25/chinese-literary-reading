@@ -44,6 +44,10 @@ Settings are read from environment variables starting with `MLC_` (lists are wri
 | `MLC_DEV_USER` | With `none`, the user to act as, e.g. `cz201` to try reviewer mode |
 | `MLC_SHOW_UNREVIEWED` | `false` at release: hide pages not yet reviewed (reviewers still see them) |
 | `MLC_TRUST_PROXY` | Number of reverse proxies in front of the app, e.g. `1` behind nginx |
+| `MLC_ASSISTANT_ENABLED` | `false` to switch the reading assistant off |
+| `MLC_OLLAMA_HOST` | The AI model server: `http://localhost:11434` (local Ollama, the default) or `https://ollama.com` |
+| `MLC_OLLAMA_API_KEY` | API key for the Ollama cloud service (kept on the server) |
+| `MLC_ASSISTANT_MODEL` | The model, default `qwen3.5:9b` |
 
 The sign-in callback URL to register is `https://<host>/auth/callback`. Nothing about users is stored
 on the server: the signed-in user's id and name are kept in the session cookie.
@@ -52,6 +56,12 @@ To try reviewer mode locally:
 
 ```bash
 MLC_DEV_USER=cz201 MLC_REVIEWERS='["cz201"]' flask --app app run --debug --port 5050
+```
+
+To try the assistant's AI steps on a text from the command line (local Ollama by default):
+
+```bash
+python3 tools/try_assistant.py "日本人之稱我中國也，一則曰老大帝國"
 ```
 
 The glossary (`content/glossary.md`) is generated from the passage gloss tables. After changing
