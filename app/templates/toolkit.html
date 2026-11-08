@@ -65,7 +65,8 @@
 {% if t.practice %}
 <section aria-labelledby="practice-h">
   <h2 id="practice-h">Practice</h2>
-  {{ exercises(t.practice, t) }}
+  {{ exercises(t.practice, t, t.id) }}
 </section>
 {% endif %}
 {% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/exercises.js') }}" defer></script>{% endblock %}

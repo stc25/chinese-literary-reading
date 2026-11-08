@@ -18,12 +18,13 @@
   <h2 id="pass-h">Passages</h2>
   <ol class="passage-list">
     {% for p in passages %}
-    <li class="passage-card">
+    <li class="passage-card" data-passage="{{ p.id }}" data-exercises="{{ p.exercises | length }}">
       <a href="{{ url_for('pages.passage', uid=unit.id, num=p.number) }}">
         <span class="passage-title">{{ p.title }}</span>
         <span class="zh passage-title-zh" lang="zh-Hant">{{ p.title_zh }}</span>
       </a>
       <span class="passage-meta">{{ p.meta.get('author', '') }} · {{ p.meta.get('date', '') }} · {{ p.meta.get('genre', '') }} {{ status_badge(p) }}</span>
+      <span class="progress-mark" data-progress hidden></span>
     </li>
     {% endfor %}
     {% for title in unit.planned_passages %}

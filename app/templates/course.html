@@ -8,6 +8,10 @@
   <div class="prose lead">{{ md(course.sections.get('Introduction', '')) }}</div>
 </section>
 
+<aside class="continue" data-continue hidden aria-label="Continue reading">
+  <p>Continue where you left off: <a href="#" data-continue-link></a></p>
+</aside>
+
 <section aria-labelledby="how-h">
   <h2 id="how-h">How to use this course</h2>
   <div class="prose">{{ md(course.sections.get('How to use this course', '')) }}</div>
@@ -19,12 +23,13 @@
   <h3>{{ label }}</h3>
   <ol class="unit-list">
     {% for uid in course.levels[level] %}{% set u = course.units[uid] %}{% if visible(u) %}
-    <li class="unit-card">
+    <li class="unit-card" data-unit-passages='{{ u.passage_ids | map("passage_progress_item") | list | tojson }}'>
       <a href="{{ url_for('pages.unit', uid=uid) }}">
         <span class="unit-number">Unit {{ u.number }}</span>
         <span class="unit-title">{{ u.title }}</span>
       </a>
       <span class="unit-meta">{{ u.passage_ids | length }} passages {{ status_badge(u) }}</span>
+      <span class="progress-mark" data-progress hidden></span>
     </li>
     {% endif %}{% endfor %}
   </ol>
@@ -42,5 +47,13 @@
     </li>
     {% endif %}{% endfor %}
   </ul>
+</section>
+
+<section aria-labelledby="progress-h" class="progress-note">
+  <h2 id="progress-h">Your progress</h2>
+  <p>Your progress (passages read and exercises tried) and your settings are saved only in this browser, on this
+    device. Nothing is sent to the server. Clearing your browser data removes them.</p>
+  <p class="js-only" hidden><button type="button" class="btn" data-action="reset-progress">Reset my progress</button>
+    <span class="muted" data-reset-done role="status"></span></p>
 </section>
 {% endblock %}

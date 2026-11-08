@@ -79,6 +79,13 @@ def create_app(config: dict | None = None) -> Flask:
 
     app.jinja_env.filters["first_index"] = lambda occ_id: int(occ_id.split("-")[0])
 
+    def passage_progress_item(pid):
+        course = g.get("course") or store.course
+        p = course.passages.get(pid)
+        return [pid, len(p.exercises) if p else 0]
+
+    app.jinja_env.filters["passage_progress_item"] = passage_progress_item
+
     from . import views
     app.register_blueprint(views.bp)
     return app

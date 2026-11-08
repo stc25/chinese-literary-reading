@@ -281,3 +281,45 @@ class M3Pages(unittest.TestCase):
         html = self.client.get("/units/u17/p02").get_data(as_text=True)
         self.assertIn("g-earlier", html)
         self.assertIn('"from"', html)
+
+
+class Exercises(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.client = make_app(CONTENT).test_client()
+        cls.course = load(CONTENT)
+
+    def test_choice_inputs(self):
+        html = self.client.get("/units/u01/p01").get_data(as_text=True)
+        self.assertIn('data-ex="u01-p01#1"', html)
+        self.assertIn('type="radio" name="u01-p01-ex1"', html)
+        self.assertEqual(html.count("data-correct"), sum(
+            1 for ex in self.course.passages["u01-p01"].exercises if ex.type == "choice" for ok, _ in ex.options if ok))
+
+    def test_multi_select_uses_checkboxes(self):
+        for p in self.course.passages.values():
+            for ex in p.exercises:
+                if ex.type == "choice" and sum(ok for ok, _ in ex.options) > 1:
+                    html = self.client.get(f"/units/{p.unit_id}/{p.number}").get_data(as_text=True)
+                    self.assertIn(f'type="checkbox" name="{p.id}-ex{ex.number}"', html)
+                    return
+        self.skipTest("no multi-select exercise in the content")
+
+    def test_punctuate_form(self):
+        p = next(p for p in self.course.passages.values() if any(e.type == "punctuate" for e in p.exercises))
+        ex = next(e for e in p.exercises if e.type == "punctuate")
+        html = self.client.get(f"/units/{p.unit_id}/{p.number}").get_data(as_text=True)
+        self.assertIn(f'data-text="{ex.text}"', html)
+        self.assertIn('class="punct-answer"', html)
+
+    def test_toolkit_practice(self):
+        html = self.client.get("/toolkit/t02").get_data(as_text=True)
+        self.assertIn('data-ex="t02#1"', html)
+        self.assertIn("exercises.js", html)
+
+    def test_progress_hooks(self):
+        html = self.client.get("/").get_data(as_text=True)
+        self.assertIn("data-unit-passages=", html)
+        self.assertIn('data-action="reset-progress"', html)
+        html = self.client.get("/units/u05").get_data(as_text=True)
+        self.assertIn('data-passage="u05-p01"', html)

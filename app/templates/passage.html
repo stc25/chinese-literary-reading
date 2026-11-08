@@ -3,7 +3,7 @@
 {% block title %}{{ p.title }} · Unit {{ unit.number }} · {{ course.title }}{% endblock %}
 {% block breadcrumbs %}{{ breadcrumbs([('Course', url_for('pages.course_map')), ('Unit ' ~ unit.number, url_for('pages.unit', uid=unit.id)), (p.title, None)]) }}{% endblock %}
 {% block content %}
-<article class="passage">
+<article class="passage" data-passage="{{ p.id }}" data-title="{{ p.title }}" data-exercises="{{ p.exercises | length }}">
   <header class="passage-header">
     <p class="eyebrow">Unit {{ unit.number }} · Passage {{ p.number[1:] | int }}</p>
     <h1>{{ p.title }} {{ status_badge(p) }}</h1>
@@ -114,7 +114,8 @@
   {% if p.exercises %}
   <section aria-labelledby="ex-h">
     <h2 id="ex-h">Exercises</h2>
-    {{ exercises(p.exercises, p) }}
+    <p class="ex-progress muted" data-ex-progress="{{ p.id }}" data-count="{{ p.exercises | length }}" hidden></p>
+    {{ exercises(p.exercises, p, p.id) }}
   </section>
   {% endif %}
 
@@ -136,4 +137,5 @@
   {% if next %}<a class="pager-next" href="{{ url_for('pages.passage', uid=unit.id, num=next.number) }}" rel="next">{{ next.title }} →</a>{% else %}<a class="pager-next" href="{{ url_for('pages.unit', uid=unit.id) }}">Back to unit {{ unit.number }} →</a>{% endif %}
 </nav>
 {% endblock %}
-{% block scripts %}<script src="{{ url_for('static', filename='js/reader.js') }}" defer></script>{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/reader.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/exercises.js') }}" defer></script>{% endblock %}

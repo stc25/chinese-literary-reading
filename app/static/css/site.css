@@ -43,6 +43,7 @@
 }
 
 *, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
 
 html { -webkit-text-size-adjust: 100%; }
 
@@ -329,3 +330,49 @@ h2 a:hover { text-decoration: underline; }
 .zh-text .g.g-earlier { text-decoration-style: dashed; text-decoration-color: var(--rule); }
 .js .zh-text .g.g-earlier:not(.hl):not(.hl-main) { text-decoration-color: color-mix(in srgb, var(--muted) 45%, transparent); }
 .gloss-from { font-size: 0.85rem; color: var(--muted); }
+
+/* ------------------------------------------------------------------------
+   M4: exercises and progress
+   ------------------------------------------------------------------------ */
+
+.exercise fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+.exercise legend { padding: 0; }
+.exercise legend p { margin: 0.25rem 0; }
+.hint { display: block; font-size: 0.85rem; color: var(--muted); margin: 0.25rem 0; }
+.choice-options { list-style: none; padding-left: 0; margin: 0.5rem 0; }
+.choice-options li { display: flex; align-items: baseline; gap: 0.5rem; padding: 0.3rem 0.4rem; border-radius: 6px; }
+.choice-options input { flex: none; margin: 0; transform: translateY(0.1em); }
+.choice-options label { flex: 1; cursor: pointer; }
+.option-mark { flex: none; font-weight: 700; min-width: 1rem; }
+.choice-options li.opt-right { background: color-mix(in srgb, #2e7d32 14%, transparent); }
+.choice-options li.opt-right .option-mark { color: #2e7d32; }
+.choice-options li.opt-wrong { background: color-mix(in srgb, var(--error-text) 12%, transparent); }
+.choice-options li.opt-wrong .option-mark { color: var(--error-text); }
+.exercise-actions { margin: 0.5rem 0; display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.btn-quiet { background: none; }
+.field-label { display: block; font-weight: 600; font-size: 0.9rem; margin-top: 0.5rem; }
+.exercise textarea { display: block; width: 100%; font: inherit; color: var(--text); background: var(--bg);
+  border: 1px solid var(--muted); border-radius: 6px; padding: 0.4rem 0.5rem; margin-top: 0.25rem; }
+.exercise textarea.punct-input { font-family: var(--font-zh); font-size: 1.3rem; letter-spacing: 0.05em; line-height: 1.8; }
+.js .exercise[data-type="punctuate"] .exercise-text { display: none; }
+.exercise-feedback { margin: 0.4rem 0; }
+.exercise-feedback:empty { display: none; }
+.fb-right { color: #2e7d32; }
+.fb-wrong { color: var(--error-text); }
+.fb-info { color: var(--muted); }
+.punct-compare { font-size: 1.3rem; letter-spacing: 0.05em; line-height: 2; overflow-wrap: anywhere; }
+.pm { border-radius: 3px; padding: 0 0.05em; }
+.pm-right { background: color-mix(in srgb, #2e7d32 18%, transparent); }
+.pm-missed { background: color-mix(in srgb, #e0a000 30%, transparent); }
+.pm-extra { background: color-mix(in srgb, var(--error-text) 20%, transparent); text-decoration: line-through; }
+.exercise-status { font-family: var(--font-sans); font-size: 0.75rem; font-weight: 600; margin-left: 0.4rem; padding: 0.05rem 0.45rem; border-radius: 999px; background: var(--rule); color: var(--muted); }
+.exercise-status.status-correct { background: color-mix(in srgb, #2e7d32 18%, transparent); color: #2e7d32; }
+.self-check { margin-top: 0.5rem; display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+.self-check .hint { margin: 0; }
+.progress-mark { display: block; font-size: 0.8rem; color: var(--muted); margin-top: 0.2rem; }
+.progress-mark.done { color: #2e7d32; font-weight: 600; }
+.continue { background: var(--accent-soft); border-radius: 8px; padding: 0.5rem 0.9rem; margin: 1rem 0; max-width: var(--measure); }
+.continue p { margin: 0; }
+@media (prefers-color-scheme: dark) {
+  .fb-right, .choice-options li.opt-right .option-mark, .progress-mark.done, .exercise-status.status-correct { color: #8bd18f; }
+}

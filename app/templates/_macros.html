@@ -20,24 +20,53 @@
 </nav>
 {%- endmacro %}
 
-{% macro exercises(items, page, heading_level=3) -%}
-<ol class="exercises">
-  {%- for ex in items %}
-  <li class="exercise" id="ex-{{ ex.number }}" data-type="{{ ex.type }}">
-    <h{{ heading_level }} class="exercise-heading">Exercise {{ ex.number }} <span class="exercise-type">{{ ex.type | replace('-', ' ') }}</span></h{{ heading_level }}>
-    <div class="exercise-prompt">{{ md(ex.prompt, page) }}</div>
+{% macro exercises(items, page, key, heading_level=3) -%}
+{#- key: the progress key prefix, e.g. the passage or toolkit id -#}
+<ol class="exercises" data-key="{{ key }}">
+  {%- for ex in items %}{% set eid = key ~ '-ex' ~ ex.number %}
+  {% set multi = (ex.options | map('first') | select | list | length) > 1 %}
+  <li class="exercise" id="ex-{{ ex.number }}" data-type="{{ ex.type }}" data-ex="{{ key }}#{{ ex.number }}">
+    <h{{ heading_level }} class="exercise-heading">Exercise {{ ex.number }} <span class="exercise-type">{{ ex.type | replace('-', ' ') }}</span>
+      <span class="exercise-status" data-status hidden></span></h{{ heading_level }}>
     {%- if ex.type == 'choice' %}
-    <ul class="choice-options">
-      {%- for correct, text in ex.options %}
-      <li>{{ md_inline(text, page) }}</li>
-      {%- endfor %}
-    </ul>
-    {%- endif %}
+    <form class="exercise-form" novalidate>
+      <fieldset>
+        <legend class="exercise-prompt">{{ md(ex.prompt, page) }}{% if multi %}<span class="hint">Choose all that apply.</span>{% endif %}</legend>
+        <ul class="choice-options">
+          {%- for correct, text in ex.options %}
+          <li>
+            <input type="{{ 'checkbox' if multi else 'radio' }}" name="{{ eid }}" id="{{ eid }}-o{{ loop.index }}" value="{{ loop.index }}"{% if correct %} data-correct{% endif %}>
+            <label for="{{ eid }}-o{{ loop.index }}">{{ md_inline(text, page) }}</label>
+            <span class="option-mark" aria-hidden="true"></span>
+          </li>
+          {%- endfor %}
+        </ul>
+      </fieldset>
+      <div class="exercise-actions js-only" hidden><button type="submit" class="btn">Check</button></div>
+    </form>
+    {%- else %}
+    <div class="exercise-prompt">{{ md(ex.prompt, page) }}</div>
     {%- if ex.type == 'punctuate' %}
     <p class="zh exercise-text" lang="zh-Hant">{{ ex.text }}</p>
+    <form class="exercise-form js-only" novalidate hidden>
+      <label for="{{ eid }}-in" class="field-label">Your punctuated text</label>
+      <textarea id="{{ eid }}-in" class="zh punct-input" lang="zh-Hant" rows="3" spellcheck="false" data-text="{{ ex.text }}">{{ ex.text }}</textarea>
+      <p class="hint">Type punctuation between the characters (，。、；：？！「」 or , . ; : ? !). Do not change the characters.</p>
+      <div class="exercise-actions"><button type="submit" class="btn">Check</button> <button type="button" class="btn btn-quiet" data-action="reset-text">Start again</button></div>
+      <div class="punct-result" aria-live="polite"></div>
+      <script type="application/json" class="punct-answer">{{ ex.answer | tojson }}</script>
+    </form>
+    {%- else %}
+    <form class="exercise-form js-only" novalidate hidden>
+      <label for="{{ eid }}-in" class="field-label">Your answer</label>
+      <textarea id="{{ eid }}-in" rows="{{ 4 if ex.type == 'translate' else 3 }}"></textarea>
+      <p class="hint">Write your answer, then compare it with the model answer.</p>
+    </form>
     {%- endif %}
+    {%- endif %}
+    <div class="exercise-feedback" aria-live="polite"></div>
     <details class="answer">
-      <summary>Show answer</summary>
+      <summary>{{ 'Show model answer' if ex.type in ('short-answer', 'translate') else 'Show answer' }}</summary>
       {%- if ex.type == 'choice' %}
       <ul>
         {%- for correct, text in ex.options if correct %}
@@ -47,6 +76,13 @@
       {%- endif %}
       {%- if ex.answer %}{% if ex.type == 'punctuate' %}<div class="zh" lang="zh-Hant">{% else %}<div>{% endif %}{{ md(ex.answer, page) }}</div>{% endif %}
       {%- if ex.explanation %}<div class="explanation">{{ md(ex.explanation, page) }}</div>{% endif %}
+      {%- if ex.type in ('short-answer', 'translate') %}
+      <div class="self-check js-only" hidden>
+        <p class="hint">How did you do?</p>
+        <button type="button" class="btn" data-self="correct">I got it</button>
+        <button type="button" class="btn" data-self="attempted">Not quite</button>
+      </div>
+      {%- endif %}
     </details>
   </li>
   {%- endfor %}

@@ -23,6 +23,59 @@
   window.MLC.prefs = prefs;
   window.MLC.savePrefs = function () { writePrefs(prefs); };
 
+  /* ---- progress: kept only in this browser -------------------------------- */
+
+  var PKEY = "mlc.progress";
+  var RANK = { attempted: 1, correct: 2 };
+
+  function readProgress() {
+    try {
+      var p = JSON.parse(window.localStorage.getItem(PKEY)) || {};
+      p.ex = p.ex || {};
+      p.visited = p.visited || {};
+      return p;
+    } catch (e) {
+      return { ex: {}, visited: {} };
+    }
+  }
+
+  var progress = readProgress();
+
+  function saveProgress() {
+    try { window.localStorage.setItem(PKEY, JSON.stringify(progress)); } catch (e) { /* not available */ }
+  }
+
+  window.MLC.progress = {
+    data: progress,
+    exercise: function (id) { return progress.ex[id] || null; },
+    /* Record a result; a better result is never replaced by a worse one. */
+    setExercise: function (id, status) {
+      if ((RANK[status] || 0) >= (RANK[progress.ex[id]] || 0)) progress.ex[id] = status;
+      saveProgress();
+      return progress.ex[id];
+    },
+    visit: function (id, url, title) {
+      progress.visited[id] = Date.now();
+      progress.last = { id: id, url: url, title: title };
+      saveProgress();
+    },
+    /* A passage counts as done when it has been read and every exercise has been tried. */
+    passageDone: function (id, exerciseCount) {
+      if (!progress.visited[id]) return false;
+      for (var n = 1; n <= exerciseCount; n++) if (!progress.ex[id + "#" + n]) return false;
+      return true;
+    },
+    exercisesDone: function (id, exerciseCount) {
+      var k = 0;
+      for (var n = 1; n <= exerciseCount; n++) if (progress.ex[id + "#" + n]) k++;
+      return k;
+    },
+    reset: function () {
+      progress.ex = {}; progress.visited = {}; delete progress.last;
+      saveProgress();
+    }
+  };
+
   var root = document.documentElement;
 
   function applyPinyin() {
@@ -45,7 +98,65 @@
       });
     }
     applyPinyin();
+    document.querySelectorAll(".js-only").forEach(function (el) { el.hidden = false; });
+    recordVisit();
+    showProgress();
+    var reset = document.querySelector("[data-action='reset-progress']");
+    if (reset) {
+      reset.addEventListener("click", function () {
+        if (!window.confirm("Reset your progress? This removes the record of passages read and exercises tried in this browser.")) return;
+        window.MLC.progress.reset();
+        showProgress();
+        document.querySelector("[data-reset-done]").textContent = "Progress reset.";
+      });
+    }
   });
+
+  document.addEventListener("mlc:progress", function () { showProgress(); });
+
+  function recordVisit() {
+    var art = document.querySelector("article[data-passage]");
+    if (art) window.MLC.progress.visit(art.getAttribute("data-passage"), window.location.pathname, art.getAttribute("data-title"));
+  }
+
+  function showProgress() {
+    var P = window.MLC.progress;
+    // passage page: exercises tried
+    document.querySelectorAll("[data-ex-progress]").forEach(function (el) {
+      var n = parseInt(el.getAttribute("data-count"), 10), k = P.exercisesDone(el.getAttribute("data-ex-progress"), n);
+      el.hidden = false;
+      el.textContent = k === n ? "You have tried all " + n + " exercises." : "Exercises tried: " + k + " of " + n + ".";
+    });
+    // unit page: each passage
+    document.querySelectorAll(".passage-card[data-passage]").forEach(function (card) {
+      var id = card.getAttribute("data-passage"), n = parseInt(card.getAttribute("data-exercises"), 10);
+      var mark = card.querySelector("[data-progress]");
+      var done = P.passageDone(id, n), read = !!P.data.visited[id];
+      mark.hidden = !read;
+      mark.className = "progress-mark" + (done ? " done" : "");
+      mark.textContent = done ? "✓ Done" : read ? "Read · exercises " + P.exercisesDone(id, n) + "/" + n : "";
+    });
+    // course map: each unit
+    document.querySelectorAll(".unit-card[data-unit-passages]").forEach(function (card) {
+      var items = JSON.parse(card.getAttribute("data-unit-passages"));
+      var done = items.filter(function (it) { return P.passageDone(it[0], it[1]); }).length;
+      var started = items.some(function (it) { return P.data.visited[it[0]]; });
+      var mark = card.querySelector("[data-progress]");
+      mark.hidden = !started;
+      mark.className = "progress-mark" + (done === items.length ? " done" : "");
+      mark.textContent = done === items.length ? "✓ Done" : done + " of " + items.length + " passages done";
+    });
+    var cont = document.querySelector("[data-continue]");
+    if (cont) {
+      var last = P.data.last;
+      cont.hidden = !last;
+      if (last) {
+        var a = cont.querySelector("[data-continue-link]");
+        a.href = last.url;
+        a.textContent = last.title;
+      }
+    }
+  }
 
   applyPinyin();
 
