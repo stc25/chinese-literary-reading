@@ -109,7 +109,7 @@ supply the examples for the help page.
 | A1 ✓ | Deterministic layer | glossary lookup, grammar forms and date detection on any pasted text, with tests; a page that shows them without any model |
 | A2 ✓ | Model steps | Ollama client, prompts and schemas for punctuation, words, grammar notes, names and translation; works with the local model |
 | A3 ✓ | Assistant page | the five steps, source labels, follow-up questions, limits, notices; help page; accessibility tests |
-| A4 ✓ | Evaluation | harness and report; choice of prompt; results in [assistant-evaluation.md](assistant-evaluation.md). The cloud-model comparison waits for the API key |
+| A4 ✓ | Evaluation | harness and report; choice of prompt; results in [assistant-evaluation.md](assistant-evaluation.md): `gemma4:31b` on the Ollama free plan |
 | A5 | Hardening | timeouts, error messages, limits under load, deployment settings and documentation |
 
 ## Budget
@@ -138,5 +138,5 @@ took about four minutes in A4.
   pilot. The Language Centre holds the account and API key.
 - **Data protection.** The service is reported not to retain requests; record this, with the date and
   source, in case a data protection assessment asks for it.
-- **Cloud model.** Chosen in A4 from the Chinese-capable models Ollama offers at the time (for example
-  the Qwen, DeepSeek or Kimi families), weighing quality against cost.
+- **Cloud model.** Chosen in A4: `gemma4:31b`, the best of the models on the free plan. The
+  Chinese-specialist models (DeepSeek, GLM, Kimi) need paid credits and are untested.

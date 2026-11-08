@@ -202,12 +202,20 @@ class Client(unittest.TestCase):
         self.assertFalse(req["json"]["stream"])
         self.assertEqual(req["headers"]["Authorization"], "Bearer k")
         self.assertIn("<text>", req["json"]["messages"][1]["content"])
+        self.assertIn('"punctuated"', req["json"]["messages"][1]["content"])   # schema stated for cloud models
 
     def test_retry_then_fail(self):
         c = stub("not json", "still not json")
         with self.assertRaises(ModelError):
             steps.punctuate(c, "之乎")
         self.assertEqual(len(c.session.requests), 2)
+
+    def test_fenced_json_accepted(self):
+        from app.assistant.client import parse_json_object
+        self.assertEqual(parse_json_object('```json\n{"a": 1}\n```'), {"a": 1})
+        self.assertEqual(parse_json_object('Here it is: {"a": 1} '), {"a": 1})
+        with self.assertRaises(ValueError):
+            parse_json_object("no json here")
 
     def test_usage_limit(self):
         with self.assertRaises(ModelError) as cm:

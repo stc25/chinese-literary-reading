@@ -6,6 +6,7 @@ Every call asks for JSON matching a schema (Ollama's `format` parameter).
 from __future__ import annotations
 
 import json
+import re
 import time
 from dataclasses import dataclass, field
 
@@ -58,7 +59,10 @@ class OllamaClient:
             "think": False,
             "format": schema,
             "options": {"temperature": self.temperature},
-            "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}],
+            # Some cloud models ignore "format", so the expected form is also stated in the message.
+            "messages": [{"role": "system", "content": system},
+                         {"role": "user", "content": f"{user}\n\nReply with one JSON object that follows this "
+                                                     f"JSON schema: {json.dumps(schema, ensure_ascii=False)}"}],
         }
         headers = {"Authorization": f"Bearer {self.api_key}"} if self.api_key else {}
         total = Usage()
@@ -80,7 +84,7 @@ class OllamaClient:
                             time.monotonic() - start, 1))
             content = (body.get("message") or {}).get("content", "")
             try:
-                data = json.loads(content)
+                data = parse_json_object(content)
                 if not isinstance(data, dict):
                     raise ValueError("not a JSON object")
                 if validate:
@@ -89,6 +93,24 @@ class OllamaClient:
             except (ValueError, KeyError, TypeError) as e:
                 last_error = e
         raise ModelError("The AI service did not give a usable answer.") from last_error
+
+
+def parse_json_object(content: str):
+    """Parse the model's JSON, allowing a Markdown code fence or text around one object.
+
+    Some cloud models ignore the requested format and wrap the JSON in ```json … ```.
+    """
+    try:
+        return json.loads(content)
+    except ValueError:
+        pass
+    m = re.search(r"```(?:json)?\s*(.*?)```", content, re.S)
+    if m:
+        return json.loads(m.group(1))
+    a, b = content.find("{"), content.rfind("}")
+    if a != -1 and b > a:
+        return json.loads(content[a : b + 1])
+    raise ValueError("no JSON object in the answer")
 
 
 def client_from_config(config) -> OllamaClient:

@@ -30,7 +30,8 @@ category was added; nothing else in those runs changed.
 
 **Chosen prompt: `a4-3`.** It is the best or equal best on everything except word boundaries, where
 the differences are within noise, and it halves the words left unglossed. It costs about 4% more tokens
-than a4-2.
+than a4-2. The prompts in use are `a4-4`: a4-3 plus a line stating the JSON form, added for the
+cloud models (see below).
 
 ## What the numbers mean
 
@@ -108,20 +109,68 @@ checked (see the open points in the plan). If the plan cannot cover this:
 
 ## Cloud models
 
-**Not yet compared.** The comparison needs the Ollama API key. When it is available, run:
+The Language Centre's key is on Ollama's **free plan**. Of the 26 cloud models listed on
+2026-11-08, the free plan covers only `gemma4:31b`, `gpt-oss:20b`, `gpt-oss:120b`, `beam` and the
+`nemotron-3` models. The Chinese-specialist models (DeepSeek, GLM, Kimi, MiniMax, MiMo) all need paid
+credits, so they were not tested.
+
+Three free models were compared on the same 15 passages, with the same local judge:
 
 ```
-OLLAMA_HOST=https://ollama.com OLLAMA_API_KEY=… python3 tools/eval_assistant.py --sample 15 \
-    --model <cloud model> --judge-model gemma3:12b --out reports
+OLLAMA_API_KEY=… python3 tools/eval_assistant.py --sample 15 --model gemma4:31b \
+    --host https://ollama.com --judge-host http://localhost:11434 --out reports
 ```
 
-Run this for two or three Chinese-capable models, then add a column for each to the results table.
-The judge stays local, so the judging is the same for every model. Choose the cloud model on gloss
-quality ("same" plus "close"), translation, and tokens per analysis.
+Two fixes were needed first, because the cloud service ignores the requested JSON form for some
+models:
+
+- the client accepts JSON wrapped in a Markdown code fence;
+- every request states the expected JSON form in the message (prompt version `a4-4`, about 50 more
+  tokens a call).
+
+`qwen3.5:9b` was measured with `a4-3`, which differs only in that line.
+
+| | qwen3.5:9b (local, a4-3) | **gemma4:31b** | nemotron-3-ultra | gpt-oss:120b |
+|---|---|---|---|---|
+| Punctuation F1 | 92% | 91% | **94%** | 81% |
+| Clause and sentence ends F1 | 99% | 99% | 99% | 89% |
+| Word-boundary F1 | 62% | **66%** | 60% | 64% |
+| Glosses: same / close | 32% / 7% | **45% / 9%** | 26% / 3% | 32% / 14% |
+| Glosses: segmented differently | 58% | **44%** | 69% | 52% |
+| Glosses: not glossed | 3% | 2% | 2% | 1% |
+| Items longer than four characters | 42 of 268 | **0 of 201** | 85 of 326 | 1 of 239 |
+| Grammar point chosen (52) | 60% | 75% | 83% | **85%** |
+| Translation (faithful / minor) | 7 / 8 | 2 / 13 | 0 / 15 | 1 / 14 |
+| Tokens per analysis | about 6,490 | about 6,830 | about 6,740 | about 17,050 |
+| Seconds per analysis | about 230 | **about 15** | about 60 | about 31 |
+
+**Chosen: `gemma4:31b` on the free plan.**
+
+- It gives the best glosses by a clear margin: 54% same or close, against 39% for the local model.
+- It glosses words, never whole clauses, so the phrase-note fix planned for A5 matters much less.
+- Its grammar choices are better than the local model's.
+- A full analysis takes about 15 seconds, and it uses about as many tokens as the local model.
+
+`gpt-oss:120b` chooses grammar points best, but it punctuates poorly and uses two and a half times as
+many tokens, most of them on hidden reasoning. `nemotron-3-ultra` punctuates best, but it glosses whole
+clauses even more often than the local model.
+
+**Translations: the judge cannot be trusted.** The translation verdicts disagree with the other
+measures. Reading the judge's notes shows why: for u01-p01 it faulted the correct 填星 as wrong and
+proposed a reading that does not exist. The translation figures here are not a basis for choosing a
+model. The hand check below is needed.
+
+**The free plan's limits.** Ollama does not publish its free-plan limits as a token count. The three
+evaluation runs (about 300 calls) never hit them. Whether they cover 20 learners has to be seen in the
+pilot. If they do not:
+
+- lower `ASSISTANT_HOURLY_LIMIT` and `ASSISTANT_DAILY_LIMIT`; the page already says when a limit is
+  reached;
+- or buy pay-as-you-go credits within the £60 budget, which would also open the Chinese-specialist
+  models for a second comparison.
 
 ## Still to do before the pilot
 
-- Compare the cloud models (needs the key).
+- Run the pilot on the free plan and watch for usage-limit messages.
 - Hand-check a sample of 30 glosses and 5 translations against the judge's verdicts.
-- Show items longer than four characters as phrase notes (A5).
-- Check the Ollama plan against the token estimate above.
+- Show items longer than four characters as phrase notes (A5); needed only if the local model is used.

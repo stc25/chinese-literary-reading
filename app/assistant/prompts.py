@@ -5,7 +5,7 @@ when the prompts change.
 """
 from __future__ import annotations
 
-PROMPT_VERSION = "a4-3"
+PROMPT_VERSION = "a4-4"
 
 SYSTEM = """You help English-speaking university students read literary Chinese (文言) of the late Qing \
 and Republican periods (about 1800–1930): official documents, essays, letters, newspapers and scholarship.

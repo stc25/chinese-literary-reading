@@ -8,3 +8,8 @@ __pycache__/
 
 # Obsidian: per-user window state (other settings are shared)
 .obsidian/workspace*.json
+
+# Secrets
+.env
+*.env
+!deploy/*.env.example

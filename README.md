@@ -47,7 +47,7 @@ Settings are read from environment variables starting with `MLC_` (lists are wri
 | `MLC_ASSISTANT_ENABLED` | `false` to switch the reading assistant off |
 | `MLC_OLLAMA_HOST` | The AI model server: `http://localhost:11434` (local Ollama, the default) or `https://ollama.com` |
 | `MLC_OLLAMA_API_KEY` | API key for the Ollama cloud service (kept on the server) |
-| `MLC_ASSISTANT_MODEL` | The model, default `qwen3.5:9b` |
+| `MLC_ASSISTANT_MODEL` | The model: default `qwen3.5:9b` (local); `gemma4:31b` on the Ollama cloud service |
 | `MLC_ASSISTANT_DAILY_LIMIT`, `MLC_ASSISTANT_HOURLY_LIMIT` | AI calls per user per day (default 40) and for everyone per hour (default 150) |
 
 The sign-in callback URL to register is `https://<host>/auth/callback`. Nothing about users is stored
