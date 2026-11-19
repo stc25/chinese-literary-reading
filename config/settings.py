@@ -58,11 +58,11 @@ def build_settings(env: dict, debug: bool, testing: bool) -> dict:
     s = {k: v for k, v in values.items() if k not in ("SECRET_KEY", "DB_PATH", "AUTH_MODE")}
     s.update(
         DEBUG=debug,
-        SECRET_KEY=secret,
+        SECRET_KEY=str(secret),
         AUTH_MODE=mode,
-        AZURE_CLIENT_ID=values.get("AZURE_CLIENT_ID") or "",
-        AZURE_CLIENT_SECRET=values.get("AZURE_CLIENT_SECRET") or "",
-        AZURE_TENANT_ID=values.get("AZURE_TENANT_ID") or "",
+        AZURE_CLIENT_ID=str(values.get("AZURE_CLIENT_ID") or ""),
+        AZURE_CLIENT_SECRET=str(values.get("AZURE_CLIENT_SECRET") or ""),
+        AZURE_TENANT_ID=str(values.get("AZURE_TENANT_ID") or ""),
         ALLOWED_HOSTS=["*"],   # the reverse proxy decides the host
         INSTALLED_APPS=[
             "django.contrib.contenttypes",
@@ -90,6 +90,21 @@ def build_settings(env: dict, debug: bool, testing: bool) -> dict:
     return s
 
 
+def parse_bool(value, name: str) -> bool:
+    """Strict boolean for MLC_DEBUG and MLC_TESTING: anything unrecognised is an error."""
+    text = str(value).strip().lower()
+    if text in ("1", "true", "yes", "on"):
+        return True
+    if text in ("0", "false", "no", "off", ""):
+        return False
+    raise ImproperlyConfigured(f"MLC_{name} must be true or false, not {value!r}")
+
+
+def is_testing(argv: list, env: dict) -> bool:
+    """Explicit and narrow: `manage.py test`, or MLC_TESTING set (tests/__init__.py does that)."""
+    return argv[1:2] == ["test"] or parse_bool(env.get("MLC_TESTING", ""), "TESTING")
+
+
 def _environment() -> dict:
     out = {}
     for key, value in os.environ.items():
@@ -101,9 +116,9 @@ def _environment() -> dict:
     return out
 
 
-# `manage.py test`, or plain `python -m unittest` (which imports this module for build_settings)
-_TESTING = "test" in sys.argv or "unittest" in sys.modules
+_TESTING = is_testing(sys.argv, os.environ)
 _env = {} if _TESTING else read_env_file(ENV_FILE)
 _env.update(_environment())
-_debug = bool(_env.pop("DEBUG", False))
+_env.pop("TESTING", None)
+_debug = parse_bool(_env.pop("DEBUG", False), "DEBUG")
 globals().update(build_settings(_env, debug=_debug, testing=_TESTING))

@@ -1,11 +1,16 @@
+import os
 import tempfile
 import unittest
 from pathlib import Path
 
+# `unittest discover -s tests` imports this file as a top-level module, so tests/__init__.py
+# does not run; opt in to the test configuration explicitly before config.settings loads.
+os.environ.setdefault("MLC_TESTING", "1")
+
 from django.core.exceptions import ImproperlyConfigured
 
 from config.envfile import read_env_file
-from config.settings import build_settings
+from config.settings import build_settings, is_testing, parse_bool
 
 OIDC = {
     "AUTH_MODE": "oidc",
@@ -85,6 +90,36 @@ class Settings(unittest.TestCase):
         self.assertEqual(s["ASSISTANT_DAILY_LIMIT"], 5)
         self.assertEqual(s["DEV_USER"], "dev")
         self.assertEqual(s["DATA_UPLOAD_MAX_MEMORY_SIZE"], 256 * 1024)
+
+
+class Strictness(unittest.TestCase):
+    def test_parse_bool(self):
+        for v in ("1", "true", "True", "yes", "on", 1, True):
+            with self.subTest(v=v):
+                self.assertTrue(parse_bool(v, "DEBUG"))
+        for v in ("False", "FALSE", "no", "off", "0", "", 0, False):
+            with self.subTest(v=v):
+                self.assertFalse(parse_bool(v, "DEBUG"))
+
+    def test_parse_bool_rejects_unknown(self):
+        for v in ("maybe", "2", "nope"):
+            with self.subTest(v=v), self.assertRaises(ImproperlyConfigured):
+                parse_bool(v, "DEBUG")
+
+    def test_is_testing(self):
+        self.assertFalse(is_testing(["gunicorn"], {}))
+        self.assertFalse(is_testing(["manage.py", "runserver"], {"MLC_TESTING": ""}))
+        self.assertFalse(is_testing(["x", "unittest"], {"MLC_TESTING": "false"}))
+        self.assertTrue(is_testing(["manage.py", "test"], {}))
+        self.assertTrue(is_testing(["x"], {"MLC_TESTING": "1"}))
+        with self.assertRaises(ImproperlyConfigured):
+            is_testing(["x"], {"MLC_TESTING": "banana"})
+
+    def test_secrets_are_strings(self):
+        env = dict(OIDC, SECRET_KEY=12345, AZURE_CLIENT_ID=1, AZURE_CLIENT_SECRET=2, AZURE_TENANT_ID=3)
+        s = build_settings(env, debug=False, testing=False)
+        for k in ("SECRET_KEY", "AZURE_CLIENT_ID", "AZURE_CLIENT_SECRET", "AZURE_TENANT_ID"):
+            self.assertIsInstance(s[k], str)
 
 
 if __name__ == "__main__":
