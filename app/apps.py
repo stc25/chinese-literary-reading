@@ -1,3 +1,4 @@
+import threading
 from pathlib import Path
 
 from django.apps import AppConfig
@@ -9,6 +10,31 @@ class MlcConfig(AppConfig):
     label = "app"
     default_auto_field = "django.db.models.BigAutoField"
     _store = None
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._assistant = {}                      # "limits", "gate", "client": shared by all requests
+        self._assistant_lock = threading.Lock()
+
+    def assistant_shared(self, name, make):
+        """One limits object, gate or model client per process, created once even when the first
+        requests arrive together."""
+        obj = self._assistant.get(name)
+        if obj is None:
+            with self._assistant_lock:
+                obj = self._assistant.get(name)
+                if obj is None:
+                    obj = self._assistant[name] = make()
+        return obj
+
+    def set_assistant(self, name, obj):
+        """Tests swap in a stub model client (or a gate)."""
+        with self._assistant_lock:
+            self._assistant[name] = obj
+
+    def reset_assistant(self):
+        with self._assistant_lock:
+            self._assistant.clear()
 
     @staticmethod
     def build_store(root, reload):
@@ -42,3 +68,5 @@ class MlcConfig(AppConfig):
     def _settings_changed(self, setting, **kwargs):
         if setting in ("CONTENT_DIR", "RELOAD_CONTENT", "DEBUG"):
             self._store = None
+        if setting.startswith(("ASSISTANT_", "OLLAMA_")):
+            self.reset_assistant()      # limits, gate and client are rebuilt from the new settings

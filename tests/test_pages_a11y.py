@@ -85,10 +85,9 @@ class Pages(SimpleTestCase):
     def setUpClass(cls):
         super().setUpClass()
         c = current_course()
-        # Task 7 adds "/assistant/" and "/assistant/help" to this list.
         # The development user rv1 is a reviewer and pages() switches reviewer mode on, so the
         # reviewer-only markup (notes, Draft tags, the review list) is checked too.
-        cls.urls = (["/", "/grammar", "/toolkit", "/glossary?q=qun", "/accessibility", "/review", "/signed-out",
+        cls.urls = (["/", "/grammar", "/toolkit", "/glossary?q=qun", "/accessibility", "/review", "/signed-out", "/assistant/", "/assistant/help",
                      "/toolkit/t02?mode=reign&reign=光緒&year=24"]
                     + [f"/units/{u}" for u in c.units]
                     + [f"/units/{p.unit_id}/{p.number}" for p in c.passages.values()]

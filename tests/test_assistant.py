@@ -630,7 +630,7 @@ class ApiHardening(ApiBase):
         self.app.extensions.pop("assistant_gate", None)
         self.app.extensions["assistant_client"] = stub({"translation": "x"})
         with self.app.app_context():
-            from app.assistant import get_gate
+            from app.assistant.flask_views import get_gate
             gate = get_gate()
         gate.acquire()
         try:

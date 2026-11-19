@@ -176,7 +176,8 @@ def create_app(config: dict | None = None) -> Flask:
 
     app.jinja_env.filters["passage_progress_item"] = passage_progress_item
 
-    from . import assistant, auth, flask_views as views   # Task 9 removes the Flask app
+    from . import auth, flask_views as views
+    from .assistant import flask_views as assistant   # Task 9 removes the Flask app
     auth.init_app(app)
     app.register_blueprint(views.bp)
     app.register_blueprint(assistant.bp)

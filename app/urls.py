@@ -1,17 +1,14 @@
-from django.http import Http404, JsonResponse
+from django.http import JsonResponse
 from django.urls import path
 
 from . import views
+from .assistant import views as assistant_views
 
 handler404 = "app.views.not_found"
 
 
 def health(request):
     return JsonResponse({"status": "ok"})
-
-
-def not_yet(request, *args, **kwargs):
-    raise Http404   # placeholder for a page a later task ports (Task 7 assistant)
 
 
 urlpatterns = [
@@ -28,7 +25,7 @@ urlpatterns = [
     path("glossary", views.glossary, name="pages.glossary"),
     path("review", views.review_list, name="pages.review_list"),
     path("accessibility", views.accessibility, name="pages.accessibility"),
-    # Placeholders so the shared templates can link to them; Task 7 replaces them.
-    path("assistant/", not_yet, name="assistant.page"),
-    path("assistant/help", not_yet, name="assistant.help"),
+    path("assistant/", assistant_views.page, name="assistant.page"),
+    path("assistant/help", assistant_views.help, name="assistant.help"),
+    path("assistant/api/<str:step>", assistant_views.api, name="assistant.api"),
 ]

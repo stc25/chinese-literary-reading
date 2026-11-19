@@ -118,7 +118,7 @@ class RealContent(SimpleTestCase):
         for url in self.urls():
             html = self.client.get(url).content.decode()
             for h in re.findall(r'href="(/[^"#]*)', html):
-                if h.startswith(("/static/", "/assistant/")) or h in seen:   # Task 5 ports the assistant
+                if h.startswith("/static/") or h in seen:
                     continue
                 seen.add(h)
                 with self.subTest(link=h, page=url):
