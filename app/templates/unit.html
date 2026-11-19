@@ -1,11 +1,10 @@
 {% extends "base.html" %}
-{% from "_macros.html" import status_badge, draft_notice, review_notes, breadcrumbs with context %}
+{% from "_macros.html" import status_badge, review_notes, breadcrumbs with context %}
 {% block title %}Unit {{ unit.number }}: {{ unit.title }} · {{ course.title }}{% endblock %}
 {% block breadcrumbs %}{{ breadcrumbs([('Course', url_for('pages.course_map')), ('Unit ' ~ unit.number, None)]) }}{% endblock %}
 {% block content %}
 <p class="eyebrow">Unit {{ unit.number }} · {{ unit.level | capitalize }}</p>
 <h1>{{ unit.title }} {{ status_badge(unit) }}</h1>
-{{ draft_notice(unit) }}
 {{ review_notes(unit, [None, 'Introduction']) }}
 
 <div class="prose">{{ md(unit.sections.get('Introduction', ''), unit) }}</div>

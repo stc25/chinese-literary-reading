@@ -16,6 +16,7 @@ sys.path.insert(0, str(ROOT))
 from app import create_app  # noqa: E402
 
 CSS = ROOT / "app" / "static" / "css" / "site.css"
+TOKENS = ROOT / "app" / "static" / "css" / "tokens.css"
 VOID = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "source", "track", "wbr"}
 
 
@@ -156,9 +157,26 @@ class Pages(unittest.TestCase):
                             self.assertEqual(lang, "zh-Hant")
 
 
-def hex_to_rgb(h):
-    h = h.lstrip("#")
-    return tuple(int(h[i:i + 2], 16) / 255 for i in (0, 2, 4))
+def parse_colour(value, tokens, backdrop=(1, 1, 1)):
+    """A CSS colour from tokens.css/site.css as 0-1 RGB: #hex, rgba() (composited on `backdrop`),
+    var(--x) and color-mix(in srgb, A p%, B)."""
+    v = value.strip()
+    m = re.fullmatch(r"var\(--([\w-]+)\)", v)
+    if m:
+        return parse_colour(tokens[m.group(1)], tokens, backdrop)
+    m = re.fullmatch(r"color-mix\(in srgb,\s*(.+?)\s+(\d+)%,\s*(.+)\)", v)
+    if m:
+        x, y = parse_colour(m.group(1), tokens, backdrop), parse_colour(m.group(3), tokens, backdrop)
+        k = int(m.group(2)) / 100
+        return tuple(k * i + (1 - k) * j for i, j in zip(x, y))
+    if v.startswith("#"):
+        h = v[1:]
+        h = "".join(c * 2 for c in h) if len(h) == 3 else h
+        return tuple(int(h[i:i + 2], 16) / 255 for i in (0, 2, 4))
+    m = re.fullmatch(r"rgba?\(([^)]*)\)", v)
+    p = [float(x) for x in m.group(1).split(",")]
+    a = p[3] if len(p) > 3 else 1.0
+    return tuple(a * p[i] / 255 + (1 - a) * backdrop[i] for i in range(3))
 
 
 def luminance(rgb):
@@ -169,7 +187,7 @@ def luminance(rgb):
 
 
 def contrast(a, b):
-    la, lb = sorted((luminance(hex_to_rgb(a)), luminance(hex_to_rgb(b))), reverse=True)
+    la, lb = sorted((luminance(a), luminance(b)), reverse=True)
     return (la + 0.05) / (lb + 0.05)
 
 
@@ -185,17 +203,26 @@ class Contrast(unittest.TestCase):
     ]
 
     def tokens(self):
-        css = CSS.read_text(encoding="utf-8")
-        light = dict(re.findall(r"--([\w-]+):\s*(#[0-9a-fA-F]{6})", css.split("@media (prefers-color-scheme: dark)")[0]))
-        dark_block = re.search(r"@media \(prefers-color-scheme: dark\)\s*\{\s*:root\s*\{(.*?)\}", css, re.S).group(1)
-        dark = {**light, **dict(re.findall(r"--([\w-]+):\s*(#[0-9a-fA-F]{6})", dark_block))}
+        """Light and dark token values: tokens.css, then the course aliases in site.css (:root)."""
+        def decls(text):
+            return dict(re.findall(r"--([\w-]+)\s*:\s*([^;]+);", text))
+
+        def block(css, selector):
+            m = re.search(re.escape(selector) + r"\s*\{(.*?)\n?\}", css, re.S)
+            return decls(m.group(1)) if m else {}
+
+        tk, site = TOKENS.read_text(encoding="utf-8"), CSS.read_text(encoding="utf-8")
+        light = {**block(tk, ":root"), **block(site, ":root")}
+        dark = {**light, **block(tk, ':root[data-theme="dark"]'), **block(site, ':root[data-theme="dark"]')}
         return {"light": light, "dark": dark}
 
     def test_pairs(self):
         for mode, t in self.tokens().items():
             for fg, bg in self.PAIRS:
                 with self.subTest(mode=mode, pair=(fg, bg)):
-                    self.assertGreaterEqual(contrast(t[fg], t[bg]), 4.5, f"{fg} on {bg}: {contrast(t[fg], t[bg]):.2f}")
+                    page = parse_colour("var(--bg)", t)      # translucent colours (the rule) sit on the page
+                    c = contrast(parse_colour(f"var(--{fg})", t, page), parse_colour(f"var(--{bg})", t, page))
+                    self.assertGreaterEqual(c, 4.5, f"{fg} on {bg}: {c:.2f}")
 
 
 if __name__ == "__main__":

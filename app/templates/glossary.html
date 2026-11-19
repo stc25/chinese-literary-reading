@@ -25,7 +25,7 @@
 {% for letter, entries in groups.items() %}
 <section class="gloss-group" aria-labelledby="letter-{{ letter }}">
   <h2 id="letter-{{ letter }}">{{ letter }}</h2>
-  <div class="table-wrap">
+  <div class="table-wrap" tabindex="0">
     <table class="glossary-table">
       <thead><tr><th scope="col">Term</th><th scope="col">Pinyin</th><th scope="col">Gloss</th><th scope="col">First seen</th></tr></thead>
       <tbody>

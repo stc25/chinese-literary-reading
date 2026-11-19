@@ -10,7 +10,7 @@ import json
 import logging
 import secrets
 import threading
-from datetime import timedelta
+from datetime import datetime, timedelta
 from pathlib import Path
 
 from flask import Flask, g, request
@@ -165,7 +165,7 @@ def create_app(config: dict | None = None) -> Flask:
         def md_inline(text, page=None):
             return render_inline(text, page.path if page is not None else None, course.urls)
 
-        return dict(course=course, md=md, md_inline=md_inline, content_error=g.get("content_error"))
+        return dict(current_year=datetime.now().year, course=course, md=md, md_inline=md_inline, content_error=g.get("content_error"))
 
     app.jinja_env.filters["first_index"] = lambda occ_id: int(occ_id.split("-")[0])
 

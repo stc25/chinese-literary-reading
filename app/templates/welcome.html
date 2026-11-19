@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}{{ course.title }}{% endblock %}
+{% block content %}
+<section class="landing-hero" aria-labelledby="welcome-h">
+  <p class="eyebrow">University of Cambridge Language Centre</p>
+  <h1 id="welcome-h">{{ course.title }}</h1>
+  <div class="prose lead">{{ md(course.sections.get('Introduction', '')) }}</div>
+  <p class="landing-actions">
+    {% if current_user %}
+      <a class="btn-primary" href="{{ url_for('pages.course_map') }}">Open the course</a>
+    {% elif auth_mode == 'oidc' %}
+      <a class="btn-primary" href="{{ url_for('auth.login') }}">Sign in with your University of Cambridge account</a>
+    {% else %}
+      <a class="btn-primary" href="{{ url_for('pages.course_map') }}">Open the course</a>
+    {% endif %}
+  </p>
+  {% if not current_user %}
+    {% if auth_mode == 'oidc' %}
+    <p class="muted">The course is open to members of the University of Cambridge. You sign in with your usual University
+      account (Raven / Microsoft); the site stores nothing about you beyond your name and user name for this visit.</p>
+    {% else %}
+    <p class="muted">Development mode: sign-in is switched off. On the live site you would sign in here with your University account.</p>
+    {% endif %}
+  {% endif %}
+</section>
+
+<section aria-labelledby="offers-h">
+  <h2 id="offers-h">What is in the course</h2>
+  <ul class="feature-grid cam-autogrid">
+    <li class="feature-card">
+      <h3>Units</h3>
+      <p>{{ counts.units }} units in two levels, with {{ counts.passages }} reading passages taken from texts of the period.
+        The beginner units build up the core grammar step by step. The intermediate units each take one kind of
+        text, such as memorials, treaties, newspapers or letters.</p>
+    </li>
+    <li class="feature-card">
+      <h3>Reading with glosses</h3>
+      <p>Select an underlined word in a passage to see its gloss and pinyin, and a link to the grammar point behind it.
+        Switch between punctuated, unpunctuated and vertical layouts, and try the exercises after each passage.</p>
+    </li>
+    <li class="feature-card">
+      <h3>Grammar</h3>
+      <p>{{ counts.grammar }} short reference pages on the structures of literary Chinese, grouped by the unit that introduces them.</p>
+    </li>
+    <li class="feature-card">
+      <h3>Glossary</h3>
+      <p>{{ "{:,}".format(counts.terms) }} terms from every passage, searchable by character, pinyin or English.</p>
+    </li>
+    <li class="feature-card">
+      <h3>Toolkit</h3>
+      <p>Reference pages to use at any time, including a converter between Qing reign years, Republican years and Western dates.</p>
+    </li>
+    {% if assistant %}
+    <li class="feature-card">
+      <h3>Reading assistant</h3>
+      <p>Paste a text of your own for help with punctuation, unfamiliar words, grammar, names and allusions, and a draft
+        translation, built on the course glossary and grammar pages. AI suggestions are marked as such, and a help page explains how to check them.</p>
+    </li>
+    {% endif %}
+  </ul>
+</section>
+
+<section aria-labelledby="how-h">
+  <h2 id="how-h">How to use it</h2>
+  <div class="prose">{{ md(course.sections.get('How to use this course', '')) }}</div>
+</section>
+
+<section aria-labelledby="privacy-h">
+  <h2 id="privacy-h">Your progress and your texts</h2>
+  <div class="prose">
+    <p>Your progress (passages read and exercises tried) and your settings are saved only in your own browser. Nothing is sent
+      to the server.</p>
+    {% if assistant %}
+    <p>Texts you paste into the reading assistant are sent to an AI service to produce suggestions and are not stored by the
+      site. Each user has a daily allowance of AI suggestions ({{ daily }} calls).</p>
+    {% endif %}
+    <p>See the <a href="{{ url_for('pages.accessibility') }}">accessibility statement</a>.</p>
+  </div>
+</section>
+{% endblock %}

@@ -142,9 +142,17 @@ class Pages(unittest.TestCase):
         html = self.client.get("/units/u01/p01?view=sideways").get_data(as_text=True)
         self.assertIn('class="reader view-modern"', html)
 
-    def test_draft_label(self):
+    def test_draft_tag_is_for_reviewers_only(self):
         html = self.client.get("/units/u01/p01").get_data(as_text=True)
+        self.assertNotIn("badge-draft", html)
+        self.assertNotIn("Development", html)
+        self.assertNotIn("notice-draft", html)
+        reviewer = make_app(REVIEWERS=["dev"]).test_client()
+        with reviewer.session_transaction() as s:
+            s["review_mode"] = True
+        html = reviewer.get("/units/u01/p01").get_data(as_text=True)
         self.assertIn("badge-draft", html)
+        self.assertNotIn("notice-draft", html)     # the notice is gone for everyone
 
     def test_unknown_pages(self):
         for url in ("/units/u99", "/units/u01/p09", "/grammar/nothing", "/toolkit/t99"):
@@ -381,7 +389,7 @@ class SignIn(unittest.TestCase):
     def test_non_cambridge_account_refused(self):
         r = self.sign_in("someone@example.com")
         self.assertEqual(r.status_code, 403)
-        self.assertEqual(self.client.get("/").status_code, 302)
+        self.assertEqual(self.client.get("/glossary").status_code, 302)     # still not signed in
 
     def test_failed_exchange(self):
         from unittest import mock
@@ -405,7 +413,8 @@ class SignIn(unittest.TestCase):
         token = self.csrf(self.client.get("/").get_data(as_text=True))
         r = self.client.post("/logout", data={"csrf": token})
         self.assertIn("/signed-out", r.location)
-        self.assertEqual(self.client.get("/").status_code, 302)
+        self.assertEqual(self.client.get("/glossary").status_code, 302)
+        self.assertIn("Sign in with", self.client.get("/").get_data(as_text=True))   # back to the landing page
 
     def test_session_cookie_is_secure(self):
         r = self.sign_in()
@@ -542,3 +551,69 @@ class EnvFile(unittest.TestCase):
 
     def test_env_files_are_ignored_by_git(self):
         self.assertIn(".env", (Path(__file__).resolve().parent.parent / ".gitignore").read_text().split())
+
+
+class ThemeAndFooter(unittest.TestCase):
+    """The light/dark switch, its pre-paint script and the Language Centre footer (UI refresh)."""
+
+    def setUp(self):
+        self.client = make_app().test_client()
+
+    def test_page_has_theme_switch_and_scripts(self):
+        html = self.client.get("/").get_data(as_text=True)
+        self.assertIn('id="theme-switch"', html)
+        self.assertIn('role="switch"', html)
+        # theme-init.js sets data-theme before first paint, so it must come before the stylesheets
+        self.assertLess(html.index("js/theme-init.js"), html.index("css/tokens.css"))
+        self.assertIn("js/theme.js", html)
+        self.assertNotRegex(html, r"<script>")      # the CSP allows no inline scripts
+
+    def test_footer(self):
+        html = self.client.get("/").get_data(as_text=True)
+        self.assertIn('class="footer"', html)
+        self.assertIn("Creative Commons Attribution-NonCommercial 4.0", html)
+        self.assertIn("/accessibility", html)
+        self.assertEqual(html.count("footer-img-light"), html.count("footer-img-dark"))
+
+    def test_theme_and_footer_assets_are_served(self):
+        for path in ("css/tokens.css", "css/footer.css", "js/theme-init.js", "js/theme.js", "js/back-to-top.js",
+                     "img/icons.svg", "img/footer/ucam-lockup-light.png", "img/footer/ucam-lockup-dark.png"):
+            r = self.client.get("/static/" + path)
+            self.assertEqual(r.status_code, 200, path)
+            r.close()
+
+
+class Landing(unittest.TestCase):
+    """The landing page: public, with the sign-in button, and no course content."""
+
+    def oidc(self):
+        return make_app(AUTH_MODE="oidc", SECRET_KEY="x" * 40, OIDC_METADATA_URL="https://example.invalid/.well-known",
+                        OIDC_CLIENT_ID="id", OIDC_CLIENT_SECRET="secret").test_client()
+
+    def test_signed_out_visitor_sees_landing_at_root(self):
+        r = self.oidc().get("/")
+        self.assertEqual(r.status_code, 200)
+        html = r.get_data(as_text=True)
+        self.assertIn("Sign in with your University of Cambridge account", html)
+        self.assertIn('href="/login"', html)
+        self.assertIn('id="theme-switch"', html)
+        self.assertNotIn("/grammar", html.split('<footer')[0])      # no course navigation or links before sign-in
+
+    def test_other_pages_still_require_sign_in(self):
+        for path in ("/grammar", "/glossary", "/units/u01", "/assistant/", "/summaries.json"):
+            r = self.oidc().get(path)
+            self.assertEqual(r.status_code, 302, path)
+            self.assertIn("/login", r.headers["Location"], path)
+
+    def test_welcome_page_in_development_links_to_course(self):
+        r = make_app().test_client().get("/welcome")
+        self.assertEqual(r.status_code, 200)
+        self.assertIn("Open the course", r.get_data(as_text=True))
+
+    def test_signed_in_user_gets_course_map_at_root(self):
+        c = self.oidc()
+        with c.session_transaction() as s:
+            s["user"] = {"id": "abc1", "name": "A B", "reviewer": False}
+        html = c.get("/").get_data(as_text=True)
+        self.assertIn('id="units"', html)
+        self.assertNotIn("landing-hero", html)

@@ -39,7 +39,7 @@ def _make_md() -> MarkdownIt:
     def table_open(tokens, idx, options, env):
         # wrap tables so they scroll sideways on narrow screens instead of the page
         html = default_table(tokens, idx, options, env) if default_table else md.renderer.renderToken(tokens, idx, options, env)
-        return '<div class="table-wrap">' + html
+        return '<div class="table-wrap" tabindex="0">' + html
 
     def table_close(tokens, idx, options, env):
         return md.renderer.renderToken(tokens, idx, options, env) + "</div>"

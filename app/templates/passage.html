@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "_macros.html" import status_badge, draft_notice, review_notes, breadcrumbs, exercises with context %}
+{% from "_macros.html" import status_badge, review_notes, breadcrumbs, exercises with context %}
 {% block title %}{{ p.title }} · Unit {{ unit.number }} · {{ course.title }}{% endblock %}
 {% block breadcrumbs %}{{ breadcrumbs([('Course', url_for('pages.course_map')), ('Unit ' ~ unit.number, url_for('pages.unit', uid=unit.id)), (p.title, None)]) }}{% endblock %}
 {% block content %}
@@ -10,7 +10,6 @@
     <p class="zh passage-title-zh" lang="zh-Hant">{{ p.title_zh }}</p>
     <p class="passage-meta">{{ p.meta.get('author', '') }} · {{ p.meta.get('date', '') }}</p>
   </header>
-  {{ draft_notice(p) }}
 {{ review_notes(p, [None]) }}
 
   {% if p.sections.get('Introduction') %}
@@ -70,7 +69,7 @@
     {{ review_notes(p, ['Glosses']) }}
     <details class="gloss-table">
       <summary>All glosses in a table ({{ p.glosses | length }})</summary>
-      <div class="table-wrap">
+      <div class="table-wrap" tabindex="0">
         <table class="glosses">
           <thead><tr><th scope="col">Term</th><th scope="col" class="pinyin-col">Pinyin</th><th scope="col">Gloss</th><th scope="col">Grammar</th></tr></thead>
           <tbody>

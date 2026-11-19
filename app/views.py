@@ -52,7 +52,25 @@ def view_helpers():
 
 @bp.route("/")
 def course_map():
+    if current_user() is None:      # not signed in (the sign-in check lets this page through)
+        return welcome()
     return render_template("course.html")
+
+
+@bp.route("/welcome")
+def welcome():
+    """The landing page: what the site is, and the way in. Public, so it shows no course content,
+    only the introduction and counts."""
+    course = g.course
+    counts = {
+        "units": sum(1 for u in course.units.values() if visible(u)),
+        "passages": sum(1 for p in course.passages.values() if visible(p)),
+        "grammar": sum(1 for x in course.grammar.values() if visible(x)),
+        "terms": sum(1 for e in glossary_entries() if visible(e.first)),
+    }
+    return render_template("welcome.html", landing=True, counts=counts,
+                           assistant=current_app.config.get("ASSISTANT_ENABLED", True),
+                           daily=int(current_app.config.get("ASSISTANT_DAILY_LIMIT", 40)))
 
 
 @bp.route("/units/<uid>")

@@ -68,6 +68,7 @@
     words: function (d, out) {
       if (!d.words.length) { out.appendChild(el("p", "", "The AI gave no glosses for the uncovered words.")); return; }
       var wrap = el("div", "table-wrap"), t = el("table", "ai-words");
+      wrap.tabIndex = 0;        // a scrollable region must be reachable by keyboard
       var head = el("tr");
       ["Word", "Pinyin", "Gloss"].forEach(function (h, i) {
         var th = el("th", i === 1 ? "pinyin-col" : "", h); th.scope = "col"; head.appendChild(th);

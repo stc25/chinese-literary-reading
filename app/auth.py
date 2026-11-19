@@ -26,8 +26,9 @@ from flask import Blueprint, abort, current_app, redirect, render_template, requ
 bp = Blueprint("auth", __name__)
 
 # Pages that do not need sign-in
+# (pages.course_map shows the landing page to a visitor who is not signed in, the course map otherwise.)
 OPEN_ENDPOINTS = {"auth.login", "auth.callback", "auth.logout", "auth.signed_out", "static", "health",
-                  "pages.accessibility"}
+                  "pages.accessibility", "pages.course_map", "pages.welcome"}
 
 
 def user_id_from_claims(claims: dict) -> str:

@@ -36,7 +36,7 @@ For local development they can also go in `app/.env`, one `MLC_NAME=value` per l
 be given there as `Ollama_API=…`. Real environment variables win over the file. `.env` files are
 ignored by git: never commit one. On the server, use `mlc.env` (see `docs/deployment.md`).
 
-To use the cloud model locally, `app/.env` holds:
+To use the cloud model locally, copy `app/.env.example` to `app/.env` and put your key in it. It holds:
 
 ```
 Ollama_API=<key>
@@ -98,6 +98,12 @@ Run all tests (validator, app and accessibility checks) with:
 ```bash
 python3 -m unittest discover -s tests
 ```
+
+`tests/test_browser.py` also opens every main page in a real browser, in light and dark mode at phone,
+tablet and desktop widths, and checks for sideways scrolling, small tap targets, JavaScript errors and
+(with axe-core) WCAG violations. It takes about two minutes and is skipped unless Playwright and Chromium
+are installed: `pip install -r requirements-dev.txt && playwright install chromium`. For the axe check,
+point `AXE_CORE_JS` at `axe.min.js` (`npm install axe-core`). See the top of the file for details.
 
 ## Checking content
 
