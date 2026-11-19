@@ -71,6 +71,7 @@ def build_settings(env: dict, debug: bool, testing: bool) -> dict:
             "django.contrib.sessions",
             "django.contrib.staticfiles",
             "app.apps.MlcConfig",
+            "accounts",
         ],
         MIDDLEWARE=[
             "app.middleware.SecurityHeadersMiddleware",   # outermost: also covers static responses
