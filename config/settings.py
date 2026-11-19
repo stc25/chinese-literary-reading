@@ -74,6 +74,15 @@ def build_settings(env: dict, debug: bool, testing: bool) -> dict:
             "django.contrib.sessions.middleware.SessionMiddleware",
             "django.middleware.csrf.CsrfViewMiddleware",
         ],
+        TEMPLATES=[{
+            "BACKEND": "django.template.backends.jinja2.Jinja2",
+            "DIRS": [str(REPO / "app" / "templates")],
+            "OPTIONS": {
+                "environment": "app.jinja.environment",
+                "context_processors": ["app.context.template_context"],
+            },
+        }],
+        STATIC_URL="/static/",
         ROOT_URLCONF="config.urls",
         WSGI_APPLICATION="config.wsgi.application",
         DATABASES={"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": values["DB_PATH"]}},
