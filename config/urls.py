@@ -1,2 +1,6 @@
-"""URL configuration. Views are added in later tasks."""
-urlpatterns = []
+"""URL configuration."""
+from django.urls import include, path
+
+urlpatterns = [
+    path("", include("app.urls")),
+]

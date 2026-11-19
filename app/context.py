@@ -1,6 +1,7 @@
 """Template context for the Jinja2 backend (Flask's context processors, ported)."""
 from __future__ import annotations
 
+from contextvars import ContextVar
 from datetime import datetime
 
 from django.apps import apps
@@ -10,9 +11,12 @@ from django.middleware.csrf import get_token
 from .content.render import render, render_inline
 
 
+current_course_var: ContextVar = ContextVar("current_course", default=None)   # set by CourseMiddleware
+
+
 def current_course(request):
     """The course for this request: set by CourseMiddleware, else the app's store, else None."""
-    course = getattr(request, "course", None)
+    course = getattr(request, "course", None) or current_course_var.get()
     if course is None:
         store = getattr(apps.get_app_config("app"), "course_store", None)
         course = store.course if store is not None else None

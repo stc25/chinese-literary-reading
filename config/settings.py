@@ -38,6 +38,7 @@ DEFAULTS = {
     "OLLAMA_HOST": "http://localhost:11434",   # the cloud service: https://ollama.com
     "OLLAMA_API_KEY": "",                      # cloud only; kept on the server
     "DB_PATH": str(REPO / "var" / "db.sqlite3"),
+    "RELOAD_CONTENT": None,            # None: reload content files when DEBUG is on
 }
 
 
@@ -68,11 +69,15 @@ def build_settings(env: dict, debug: bool, testing: bool) -> dict:
             "django.contrib.contenttypes",
             "django.contrib.auth",
             "django.contrib.sessions",
+            "django.contrib.staticfiles",
             "app.apps.MlcConfig",
         ],
         MIDDLEWARE=[
+            "app.middleware.SecurityHeadersMiddleware",   # outermost: also covers static responses
+            "whitenoise.middleware.WhiteNoiseMiddleware",
             "django.contrib.sessions.middleware.SessionMiddleware",
             "django.middleware.csrf.CsrfViewMiddleware",
+            "app.middleware.CourseMiddleware",
         ],
         TEMPLATES=[{
             "BACKEND": "django.template.backends.jinja2.Jinja2",
@@ -82,7 +87,10 @@ def build_settings(env: dict, debug: bool, testing: bool) -> dict:
                 "context_processors": ["app.context.template_context"],
             },
         }],
+        TESTING=testing,
         STATIC_URL="/static/",
+        STATICFILES_DIRS=[str(REPO / "app" / "static")],
+        WHITENOISE_USE_FINDERS=debug or testing,           # production serves the collected files
         ROOT_URLCONF="config.urls",
         WSGI_APPLICATION="config.wsgi.application",
         DATABASES={"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": values["DB_PATH"]}},
@@ -96,6 +104,8 @@ def build_settings(env: dict, debug: bool, testing: bool) -> dict:
         CSRF_HEADER_NAME="HTTP_X_CSRF_TOKEN",   # the header the existing assistant.js sends
         DATA_UPLOAD_MAX_MEMORY_SIZE=256 * 1024,  # pasted texts are at most a few KB
     )
+    if not (debug or testing):
+        s["STATIC_ROOT"] = str(REPO / "var" / "static")   # `manage.py collectstatic` target
     return s
 
 
