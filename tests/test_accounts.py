@@ -374,6 +374,50 @@ class SignInFlowTests(TestCase):
         self.assertEqual(r.status_code, 403)
         self.assertEqual(User.objects.count(), 0)
 
+    def test_real_id_token_validation(self):
+        """The ID token itself is checked (RS256 signature against the JWKS, audience, issuer, tenant):
+        only the code exchange and the key/metadata downloads are stubbed, with a locally made key."""
+        import time
+        from unittest import mock
+
+        import jwt
+        from cryptography.hazmat.primitives.asymmetric import rsa
+        from jwt.algorithms import RSAAlgorithm
+        from social_core.backends.azuread_tenant import AzureADTenantOAuth2
+
+        def key():
+            return rsa.generate_private_key(public_exponent=65537, key_size=2048)
+
+        good, other = key(), key()
+        jwk = {**RSAAlgorithm.to_jwk(good.public_key(), as_dict=True), "kid": "k1", "use": "sig"}
+        issuer = f"https://login.microsoftonline.com/{TENANT}/v2.0"
+        now = int(time.time())
+
+        def token(signing_key, **claims):
+            body = {**claims_for(), "aud": "test-client-id", "iss": issuer, "iat": now, "nbf": now,
+                    "exp": now + 600, **claims}
+            return jwt.encode(body, signing_key, algorithm="RS256", headers={"kid": "k1"})
+
+        def sign_in(id_token):
+            client = Client()
+            with no_network():
+                r = client.get("/login")
+                state = parse_qs(urlparse(r["Location"]).query)["state"][0]
+                with mock.patch.object(AzureADTenantOAuth2, "request_access_token",
+                                       return_value={"access_token": "a", "id_token": id_token}), \
+                        mock.patch.object(AzureADTenantOAuth2, "get_jwks_keys", return_value=[jwk]), \
+                        mock.patch.object(AzureADTenantOAuth2, "openid_configuration",
+                                          return_value={"issuer": issuer}):
+                    return client.get(COMPLETE, {"code": "c", "state": state})
+
+        self.assertEqual(sign_in(token(good))["Location"], "/")
+        self.assertEqual(User.objects.count(), 1)
+        for bad in (token(other), token(good, aud="another-app"), token(good, exp=now - 3600),
+                    token(good, tid="11111111-1111-1111-1111-111111111111")):
+            with self.subTest(), self.assertLogs("accounts", "WARNING"):
+                self.assertEqual(sign_in(bad).status_code, 400)
+        self.assertEqual(User.objects.count(), 1)
+
     def test_second_sign_in_reuses_the_account(self):
         sso_sign_in(self.client)
         self.client.post("/logout")
@@ -581,6 +625,20 @@ class GateTests(TestCase):
         self.assertNotIn("Glossary", r.content.decode())
         self.assertIn("DatabaseError", "\n".join(logs.output))
 
+    def test_admin_add_view_stores_the_normalised_entry(self):
+        User.objects.create_superuser("admin", password="a-long-admin-password-123")
+        client = Client(enforce_csrf_checks=True)
+        client.login(username="admin", password="a-long-admin-password-123")
+        url = "/django-admin/accounts/allowedlogin/add/"
+        html = client.get(url).content.decode()
+        token = re.search(r'name="csrfmiddlewaretoken" value="([^"]+)"', html).group(1)
+        r = client.post(url, {"csrfmiddlewaretoken": token, "entry": "  @Ling.CAM.ac.uk ", "note": "Linguistics"})
+        self.assertEqual(r.status_code, 302, r.content.decode()[:500])
+        self.assertTrue(AllowedLogin.objects.filter(entry="@ling.cam.ac.uk", note="Linguistics").exists())
+        r = client.post(url, {"csrfmiddlewaretoken": token, "entry": "not valid!"})
+        self.assertEqual(r.status_code, 200)      # the form again, with the error
+        self.assertFalse(AllowedLogin.objects.filter(entry="not valid!").exists())
+
     def test_admin_password_login_only_counts_inside_the_admin(self):
         User.objects.create_superuser("admin", password="a-long-admin-password-123")
         self.assertTrue(self.client.login(username="admin", password="a-long-admin-password-123"))
@@ -625,6 +683,28 @@ class CsrfTests(TestCase):
         self.assertEqual(self.client.get("/glossary").status_code, 302)
         self.assertIn("Sign in with", self.client.get("/").content.decode())     # back to the landing page
         self.assertIn("You have signed out", self.client.get("/signed-out").content.decode())
+
+    def proxied_post(self, origin):
+        token = csrf_from(self.client.get("/").content.decode())
+        return self.client.post("/logout", {"csrfmiddlewaretoken": token}, HTTP_HOST="mlc.example.ac.uk",
+                                HTTP_ORIGIN=origin, HTTP_X_FORWARDED_PROTO="https")
+
+    def test_origin_check_behind_the_proxy(self):
+        """Production: TLS ends at the proxy; with MLC_TRUST_PROXY Django sees https and the Origin matches."""
+        with self.settings(SECURE_PROXY_SSL_HEADER=("HTTP_X_FORWARDED_PROTO", "https"), USE_X_FORWARDED_HOST=True):
+            r = self.proxied_post("https://mlc.example.ac.uk")
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(r["Location"], "/signed-out")
+
+    def test_origin_check_fails_without_trust_proxy(self):
+        r = self.proxied_post("https://mlc.example.ac.uk")
+        self.assertEqual(r.status_code, 403)
+        self.assertEqual(self.client.get("/glossary").status_code, 200)     # still signed in
+
+    def test_origin_from_another_site_refused_behind_the_proxy(self):
+        with self.settings(SECURE_PROXY_SSL_HEADER=("HTTP_X_FORWARDED_PROTO", "https"), USE_X_FORWARDED_HOST=True):
+            r = self.proxied_post("https://evil.example.com")
+        self.assertEqual(r.status_code, 403)
 
     def test_forms_use_djangos_field_name_only(self):
         html = self.client.get("/").content.decode()
@@ -716,6 +796,8 @@ class ReviewerTests(TestCase):
         pages = [*course.units.values(), *course.passages.values(), *course.grammar.values(), *course.toolkit.values()]
         notes = [r for pg in pages for r in pg.reviews]
         self.assertTrue(notes)
+        for r in notes:
+            self.assertTrue(r.body and not r.body.startswith("REVIEW"))
         c = self.client_for("cz201")
         self.turn_on(c)
         shown = 0

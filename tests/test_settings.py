@@ -29,6 +29,13 @@ class EnvFile(unittest.TestCase):
                 p.write_text(text, encoding="utf-8")
             return read_env_file(p)
 
+    def test_read(self):
+        text = ('# comment\nOllama_API="abc"\nMLC_OLLAMA_HOST=https://ollama.com\n'
+                'export MLC_ASSISTANT_DAILY_LIMIT=10\nMLC_REVIEWERS=["a"]\nOTHER=x\n\n')
+        self.assertEqual(self.read(text), {"OLLAMA_API_KEY": "abc", "OLLAMA_HOST": "https://ollama.com",
+                                           "ASSISTANT_DAILY_LIMIT": 10, "REVIEWERS": ["a"]})
+        self.assertEqual(self.read(), {})
+
     def test_ollama_alias(self):
         self.assertEqual(self.read("Ollama_API=k\n"), {"OLLAMA_API_KEY": "k"})
 
