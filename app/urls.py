@@ -11,7 +11,7 @@ def health(request):
 
 
 def not_yet(request, *args, **kwargs):
-    raise Http404   # placeholder for a page a later task ports (Task 5 assistant, Task 6 sign-in)
+    raise Http404   # placeholder for a page a later task ports (Task 7 assistant)
 
 
 urlpatterns = [
@@ -28,10 +28,7 @@ urlpatterns = [
     path("glossary", views.glossary, name="pages.glossary"),
     path("review", views.review_list, name="pages.review_list"),
     path("accessibility", views.accessibility, name="pages.accessibility"),
-    # Placeholders so the shared templates can link to them; Tasks 5 and 6 replace them.
-    path("login", not_yet, name="auth.login"),
-    path("logout", not_yet, name="auth.logout"),
-    path("reviewer-mode", not_yet, name="auth.toggle_reviewer_mode"),
+    # Placeholders so the shared templates can link to them; Task 7 replaces them.
     path("assistant/", not_yet, name="assistant.page"),
     path("assistant/help", not_yet, name="assistant.help"),
 ]

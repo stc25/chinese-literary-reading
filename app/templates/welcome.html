@@ -17,7 +17,7 @@
   {% if not current_user %}
     {% if auth_mode == 'oidc' %}
     <p class="muted">The course is open to members of the University of Cambridge. You sign in with your usual University
-      account (Raven / Microsoft); the site stores nothing about you beyond your name and user name for this visit.</p>
+      account (Raven / Microsoft); the site stores only your user name and display name.</p>
     {% else %}
     <p class="muted">Development mode: sign-in is switched off. On the live site you would sign in here with your University account.</p>
     {% endif %}

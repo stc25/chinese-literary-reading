@@ -19,6 +19,23 @@ ENV_FILE = REPO / "app" / ".env"
 AUTH_MODES = ("oidc", "none")
 OIDC_REQUIRED = ("SECRET_KEY", "AZURE_CLIENT_ID", "AZURE_CLIENT_SECRET", "AZURE_TENANT_ID")
 
+# University SSO (Microsoft Entra ID) through python-social-auth, as in academic-reading-eng.
+# The allowlist check runs before any user or social-auth row is created; associate_by_email is
+# deliberately absent (an address never links an identity to an existing account).
+SOCIAL_AUTH_PIPELINE = (
+    "social_core.pipeline.social_auth.social_details",
+    "social_core.pipeline.social_auth.social_uid",
+    "social_core.pipeline.social_auth.auth_allowed",
+    "accounts.pipeline.enforce_allowlist",
+    "social_core.pipeline.social_auth.social_user",
+    "social_core.pipeline.user.get_username",
+    "social_core.pipeline.user.create_user",
+    "social_core.pipeline.social_auth.associate_user",
+    "social_core.pipeline.social_auth.load_extra_data",
+    "social_core.pipeline.user.user_details",
+    "accounts.pipeline.finish_login",
+)
+
 DEFAULTS = {
     "CONTENT_DIR": str(REPO / "content"),
     "SHOW_UNREVIEWED": True,     # False at release: hide pages below `reviewed` (reviewers still see them)
@@ -66,10 +83,13 @@ def build_settings(env: dict, debug: bool, testing: bool) -> dict:
         AZURE_TENANT_ID=str(values.get("AZURE_TENANT_ID") or ""),
         ALLOWED_HOSTS=["*"],   # the reverse proxy decides the host
         INSTALLED_APPS=[
+            "django.contrib.admin",
             "django.contrib.contenttypes",
             "django.contrib.auth",
             "django.contrib.sessions",
+            "django.contrib.messages",
             "django.contrib.staticfiles",
+            "social_django",
             "app.apps.MlcConfig",
             "accounts",
         ],
@@ -77,7 +97,12 @@ def build_settings(env: dict, debug: bool, testing: bool) -> dict:
             "app.middleware.SecurityHeadersMiddleware",   # outermost: also covers static responses
             "whitenoise.middleware.WhiteNoiseMiddleware",
             "django.contrib.sessions.middleware.SessionMiddleware",
+            "accounts.middleware.CsrfFieldMiddleware",    # the templates' `csrf` field, until they are Django-only
             "django.middleware.csrf.CsrfViewMiddleware",
+            "django.contrib.auth.middleware.AuthenticationMiddleware",
+            "django.contrib.messages.middleware.MessageMiddleware",
+            "accounts.middleware.RequireSignInMiddleware",
+            "accounts.middleware.SignInErrorMiddleware",
             "app.middleware.CourseMiddleware",
         ],
         TEMPLATES=[{
@@ -87,7 +112,34 @@ def build_settings(env: dict, debug: bool, testing: bool) -> dict:
                 "environment": "app.jinja.environment",
                 "context_processors": ["app.context.template_context"],
             },
+        }, {
+            # Only for the Django admin's own templates; the site's pages are Jinja2.
+            "BACKEND": "django.template.backends.django.DjangoTemplates",
+            "APP_DIRS": True,
+            "OPTIONS": {
+                "context_processors": [
+                    "django.template.context_processors.request",
+                    "django.contrib.auth.context_processors.auth",
+                    "django.contrib.messages.context_processors.messages",
+                ],
+            },
         }],
+        AUTHENTICATION_BACKENDS=[
+            "social_core.backends.azuread_tenant.AzureADTenantOAuth2",
+            "django.contrib.auth.backends.ModelBackend",   # the admin's own password login (superusers)
+        ],
+        LOGIN_URL="auth.login",
+        LOGIN_REDIRECT_URL="/",
+        SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_KEY=str(values.get("AZURE_CLIENT_ID") or ""),
+        SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_SECRET=str(values.get("AZURE_CLIENT_SECRET") or ""),
+        SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_TENANT_ID=str(values.get("AZURE_TENANT_ID") or ""),
+        SOCIAL_AUTH_PIPELINE=SOCIAL_AUTH_PIPELINE,
+        SOCIAL_AUTH_USERNAME_IS_FULL_EMAIL=False,
+        SOCIAL_AUTH_USER_FIELDS=["username"],          # create_user never copies the address
+        SOCIAL_AUTH_RAISE_EXCEPTIONS=False,
+        SOCIAL_AUTH_LOGIN_ERROR_URL="/signin-error",
+        SOCIAL_AUTH_LOGIN_REDIRECT_URL="/",
+        SOCIAL_AUTH_REDIRECT_IS_HTTPS=(mode == "oidc"),   # the redirect URI registered in Entra is https
         TESTING=testing,
         STATIC_URL="/static/",
         STATICFILES_DIRS=[str(REPO / "app" / "static")],
@@ -102,9 +154,15 @@ def build_settings(env: dict, debug: bool, testing: bool) -> dict:
         SESSION_COOKIE_SAMESITE="Lax",
         SESSION_COOKIE_HTTPONLY=True,
         SESSION_COOKIE_SECURE=(mode == "oidc"),
+        CSRF_COOKIE_SECURE=(mode == "oidc"),
         CSRF_HEADER_NAME="HTTP_X_CSRF_TOKEN",   # the header the existing assistant.js sends
         DATA_UPLOAD_MAX_MEMORY_SIZE=256 * 1024,  # pasted texts are at most a few KB
     )
+    if int(values.get("TRUST_PROXY") or 0):
+        # Behind the reverse proxy (Flask used ProxyFix): take the scheme and host it reports, so the
+        # SSO redirect URI and the CSRF origin check see https://<public host>.
+        s["SECURE_PROXY_SSL_HEADER"] = ("HTTP_X_FORWARDED_PROTO", "https")
+        s["USE_X_FORWARDED_HOST"] = True
     if not (debug or testing):
         s["STATIC_ROOT"] = str(REPO / "var" / "static")   # `manage.py collectstatic` target
     return s
@@ -142,3 +200,10 @@ _env.update(_environment())
 _env.pop("TESTING", None)
 _debug = parse_bool(_env.pop("DEBUG", False), "DEBUG")
 globals().update(build_settings(_env, debug=_debug, testing=_TESTING))
+
+# The SQLite file's folder (var/ by default) must exist before the first connection: `manage.py check`
+# connects too, for the social-auth tables' JSON field.
+try:
+    Path(DATABASES["default"]["NAME"]).parent.mkdir(parents=True, exist_ok=True)
+except OSError:
+    pass

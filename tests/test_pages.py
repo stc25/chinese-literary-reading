@@ -5,15 +5,27 @@ Run with:  python manage.py test tests.test_pages
 import re
 import unittest
 
-from tests.django_helpers import CONTENT, current_course, page_settings
+from tests.django_helpers import (CONTENT, current_course, no_network, oidc_settings, page_settings, sso_sign_in,
+                                  start_test_database, stop_test_database)
 
-from django.test import SimpleTestCase, override_settings
+from django.test import Client, SimpleTestCase, TestCase
 
 from app.content import load
 
+_db = None
+
+
+def setUpModule():
+    global _db
+    _db = start_test_database()
+
+
+def tearDownModule():
+    stop_test_database(_db)
+
 
 def oidc_mode():
-    return override_settings(AUTH_MODE="oidc")
+    return oidc_settings()
 
 
 @page_settings()
@@ -47,14 +59,15 @@ class Pages(SimpleTestCase):
         html = self.client.get("/units/u01/p01?view=sideways").content.decode()
         self.assertIn('class="reader view-modern"', html)
 
-    @unittest.skip("Task 6")   # needs reviewer mode (request.user_info and the session flag)
     def test_draft_tag_is_for_reviewers_only(self):
         html = self.client.get("/units/u01/p01").content.decode()
         self.assertNotIn("badge-draft", html)
         self.assertNotIn("Development", html)
         self.assertNotIn("notice-draft", html)
-        reviewer = self.client      # Task 6: a client signed in as a reviewer with reviewer mode on
-        html = reviewer.get("/units/u01/p01").content.decode()
+        with page_settings(DEV_USER="rv1", REVIEWERS=["rv1"]):
+            reviewer = Client()     # the development user is a reviewer; switch reviewer mode on
+            reviewer.post("/reviewer-mode", {"on": "1", "next": "/"})
+            html = reviewer.get("/units/u01/p01").content.decode()
         self.assertIn("badge-draft", html)
         self.assertNotIn("notice-draft", html)     # the notice is gone for everyone
 
@@ -216,6 +229,29 @@ class Exercises(SimpleTestCase):
 
 
 
+@page_settings(CONTENT)
+class Deployment(SimpleTestCase):
+    def test_accessibility_statement_is_public(self):
+        with oidc_mode():
+            r = self.client.get("/accessibility")
+        self.assertEqual(r.status_code, 200)
+        self.assertIn("Accessibility statement", r.content.decode())
+
+    def test_no_inline_scripts(self):
+        """The CSP forbids inline scripts; JSON data blocks are allowed."""
+        for url in ("/", "/units/u17/p02", "/glossary?q=qun", "/toolkit/t02"):
+            html = self.client.get(url).content.decode()
+            for attrs in re.findall(r"<script([^>]*)>", html):
+                self.assertTrue("src=" in attrs or 'type="application/json"' in attrs, f"{url}: inline script")
+            self.assertNotRegex(html, r"\son(click|load|change)=", url)
+
+    def test_text_is_one_tab_stop(self):
+        html = self.client.get("/units/u17/p02").content.decode()
+        buttons = re.findall(r'<button type="button" class="g(?: [^"]*)?"[^>]*>', html)
+        self.assertTrue(buttons)
+        self.assertTrue(all('tabindex="-1"' in b for b in buttons))
+
+
 @page_settings()
 class ThemeAndFooter(SimpleTestCase):
     """The light/dark switch, its pre-paint script and the Language Centre footer (UI refresh)."""
@@ -245,7 +281,7 @@ class ThemeAndFooter(SimpleTestCase):
 
 
 @page_settings()
-class Landing(SimpleTestCase):
+class Landing(TestCase):
     """The landing page: public, with the sign-in button, and no course content."""
 
     def oidc(self):
@@ -260,23 +296,36 @@ class Landing(SimpleTestCase):
         self.assertIn('href="/login"', html)
         self.assertIn('id="theme-switch"', html)
         self.assertNotIn("/grammar", html.split('<footer')[0])      # no course navigation or links before sign-in
+        # what sign-in keeps (accounts.pipeline.finish_login): the user name and the display name, no address
+        self.assertIn("the site stores only your user name and display name", " ".join(html.split()))
 
-    @unittest.skip("Task 6")   # the sign-in redirect is the accounts middleware's
+    def test_sign_in_link_starts_the_sso(self):
+        with oidc_mode(), no_network():
+            r = self.oidc().get("/login")
+        self.assertEqual(r.status_code, 302)
+        self.assertTrue(r["Location"].startswith("https://login.microsoftonline.com/"), r["Location"])
+
     def test_other_pages_still_require_sign_in(self):
-        for path in ("/grammar", "/glossary", "/units/u01", "/assistant/", "/summaries.json"):
+        for path in ("/grammar", "/glossary", "/units/u01", "/assistant/"):
             with oidc_mode():
                 r = self.oidc().get(path)
             self.assertEqual(r.status_code, 302, path)
             self.assertIn("/login", r.headers["Location"], path)
+        with oidc_mode():      # data for scripts: a JSON answer, not a redirect (plan Review Focus)
+            r = self.oidc().get("/summaries.json")
+        self.assertEqual(r.status_code, 401)
+        self.assertEqual(r.json(), {"error": "sign-in required"})
 
     def test_welcome_page_in_development_links_to_course(self):
         r = self.client.get("/welcome")
         self.assertEqual(r.status_code, 200)
         self.assertIn("Open the course", r.content.decode())
 
-    @unittest.skip("Task 6")   # needs a signed-in user (request.user_info)
     def test_signed_in_user_gets_course_map_at_root(self):
+        from accounts.models import AllowedLogin
+        AllowedLogin(entry="cz201").save()
         with oidc_mode():
+            sso_sign_in(self.oidc())
             html = self.oidc().get("/").content.decode()
         self.assertIn('id="units"', html)
         self.assertNotIn("landing-hero", html)

@@ -66,6 +66,38 @@ class Settings(unittest.TestCase):
         self.assertEqual(s["SESSION_ENGINE"], "django.contrib.sessions.backends.signed_cookies")
         self.assertEqual(s["CSRF_HEADER_NAME"], "HTTP_X_CSRF_TOKEN")
 
+    def test_sso_settings(self):
+        s = build_settings(dict(OIDC), debug=False, testing=False)
+        self.assertEqual(s["SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_KEY"], "id")
+        self.assertEqual(s["SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_SECRET"], "secret")
+        self.assertEqual(s["SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_TENANT_ID"], "tenant")
+        self.assertEqual(s["AUTHENTICATION_BACKENDS"][0], "social_core.backends.azuread_tenant.AzureADTenantOAuth2")
+        self.assertIs(s["SOCIAL_AUTH_RAISE_EXCEPTIONS"], False)
+        self.assertFalse(s["SOCIAL_AUTH_USERNAME_IS_FULL_EMAIL"])
+        self.assertTrue(s["SOCIAL_AUTH_REDIRECT_IS_HTTPS"])
+        self.assertEqual(s["SOCIAL_AUTH_LOGIN_ERROR_URL"], "/signin-error")
+        pipeline = s["SOCIAL_AUTH_PIPELINE"]
+        self.assertNotIn("social_core.pipeline.social_auth.associate_by_email", pipeline)
+        self.assertLess(pipeline.index("accounts.pipeline.enforce_allowlist"),
+                        pipeline.index("social_core.pipeline.user.create_user"))
+        self.assertEqual(pipeline[-1], "accounts.pipeline.finish_login")
+        self.assertTrue(s["CSRF_COOKIE_SECURE"])
+
+    def test_trust_proxy(self):
+        """Behind the TLS proxy (MLC_TRUST_PROXY, as Flask's ProxyFix): the scheme and host it reports,
+        so the SSO redirect URI and Django's CSRF origin check see https://<host>."""
+        s = build_settings(dict(OIDC, TRUST_PROXY=1), debug=False, testing=False)
+        self.assertEqual(s["SECURE_PROXY_SSL_HEADER"], ("HTTP_X_FORWARDED_PROTO", "https"))
+        self.assertTrue(s["USE_X_FORWARDED_HOST"])
+        s = build_settings(dict(OIDC), debug=False, testing=False)
+        self.assertNotIn("SECURE_PROXY_SSL_HEADER", s)
+        self.assertFalse(s.get("USE_X_FORWARDED_HOST", False))
+
+    def test_none_mode_needs_no_azure_settings(self):
+        s = build_settings({"AUTH_MODE": "none"}, debug=True, testing=False)
+        self.assertEqual(s["SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_KEY"], "")
+        self.assertFalse(s["SOCIAL_AUTH_REDIRECT_IS_HTTPS"])
+
     def test_oidc_requires_each_setting(self):
         for name in ("SECRET_KEY", "AZURE_CLIENT_ID", "AZURE_CLIENT_SECRET", "AZURE_TENANT_ID"):
             for value in ("", None):

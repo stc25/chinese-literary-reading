@@ -4,13 +4,13 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-from functools import wraps
-
 from django.conf import settings
 from django.http import Http404, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
 from django.utils.cache import patch_cache_control
+
+from accounts.decorators import reviewer_required
 
 from .context import current_course, current_request_var
 from .content.glossary import build as build_glossary
@@ -28,19 +28,8 @@ def the_course():
 
 
 def current_user() -> dict | None:
-    """The signed-in user of the request being served (Task 6 sets request.user_info)."""
+    """The signed-in user of the request being served (set by accounts' RequireSignInMiddleware)."""
     return getattr(current_request_var.get(), "user_info", None)
-
-
-def reviewer_required(view):
-    """404 unless the signed-in user is a reviewer. (Task 6 replaces this with the accounts one.)"""
-    @wraps(view)
-    def wrapped(request, *args, **kwargs):
-        user = getattr(request, "user_info", None)
-        if not (user and user.get("reviewer")):
-            raise Http404
-        return view(request, *args, **kwargs)
-    return wrapped
 
 
 def visible(page) -> bool:

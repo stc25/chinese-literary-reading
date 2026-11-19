@@ -85,8 +85,10 @@ class Pages(SimpleTestCase):
     def setUpClass(cls):
         super().setUpClass()
         c = current_course()
-        # Task 5/6 add "/review" (reviewer), "/signed-out", "/assistant/" and "/assistant/help" to this list.
-        cls.urls = (["/", "/grammar", "/toolkit", "/glossary?q=qun", "/accessibility",
+        # Task 7 adds "/assistant/" and "/assistant/help" to this list.
+        # The development user rv1 is a reviewer and pages() switches reviewer mode on, so the
+        # reviewer-only markup (notes, Draft tags, the review list) is checked too.
+        cls.urls = (["/", "/grammar", "/toolkit", "/glossary?q=qun", "/accessibility", "/review", "/signed-out",
                      "/toolkit/t02?mode=reign&reign=光緒&year=24"]
                     + [f"/units/{u}" for u in c.units]
                     + [f"/units/{p.unit_id}/{p.number}" for p in c.passages.values()]
@@ -95,6 +97,9 @@ class Pages(SimpleTestCase):
                     + [f"/toolkit/{t}" for t in c.toolkit])
 
     def pages(self):
+        r = self.client.post("/reviewer-mode", {"on": "1", "next": "/"})
+        self.assertEqual(r.status_code, 302)
+        self.assertIn('class="review-note"', self.client.get("/units/u17/p01").content.decode())
         for url in self.urls:
             html = self.client.get(url).content.decode()
             yield url, parse(html)
