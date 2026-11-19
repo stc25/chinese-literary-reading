@@ -1,4 +1,4 @@
-"""Sign-in, sign-out and reviewer mode (ported from the Flask app/auth.py)."""
+"""Sign-in, sign-out and reviewer mode ."""
 from __future__ import annotations
 
 from django.conf import settings

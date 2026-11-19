@@ -159,7 +159,7 @@ def build_settings(env: dict, debug: bool, testing: bool) -> dict:
         DATA_UPLOAD_MAX_MEMORY_SIZE=256 * 1024,  # pasted texts are at most a few KB
     )
     if int(values.get("TRUST_PROXY") or 0):
-        # Behind the reverse proxy (Flask used ProxyFix): take the scheme and host it reports, so the
+        # Behind the reverse proxy (MLC_TRUST_PROXY): take the scheme and host it reports, so the
         # SSO redirect URI and the CSRF origin check see https://<public host>.
         s["SECURE_PROXY_SSL_HEADER"] = ("HTTP_X_FORWARDED_PROTO", "https")
         s["USE_X_FORWARDED_HOST"] = True

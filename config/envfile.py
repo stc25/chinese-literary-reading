@@ -9,7 +9,7 @@ def read_env_file(path: Path) -> dict:
     """Settings from a local .env file (development): MLC_NAME=value lines, as in the environment.
 
     `Ollama_API` and `OLLAMA_API_KEY` are also accepted for the API key. Values are parsed as
-    JSON where possible (true, 40, ["a"]), like Flask's from_prefixed_env. A missing file is
+    JSON where possible (true, 40, ["a"]), as in the environment. A missing file is
     no error. The file is ignored by git and must never be committed.
     """
     out = {}

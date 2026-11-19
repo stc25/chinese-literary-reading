@@ -32,7 +32,7 @@ class SecurityHeadersMiddleware:
 
 
 class CourseMiddleware:
-    """Attaches the current course (reloaded in development) and what Flask's request offered."""
+    """Attaches the current course (reloaded in development) and the request helpers the templates use."""
 
     def __init__(self, get_response):
         self.get_response = get_response

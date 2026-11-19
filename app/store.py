@@ -1,4 +1,4 @@
-"""The loaded course, shared by all requests (moved unchanged from the Flask app)."""
+"""The loaded course, shared by all requests."""
 from __future__ import annotations
 
 import threading

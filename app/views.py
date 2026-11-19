@@ -173,7 +173,7 @@ def summaries(request):
     for tid, t in course.toolkit.items():
         if visible(t):
             out[f"/toolkit/{tid}"] = {"title": t.title, "summary": str(render_inline(t.summary, t.path, course.urls))}
-    resp = JsonResponse(out, json_dumps_params={"sort_keys": True})   # Flask's jsonify sorted keys
+    resp = JsonResponse(out, json_dumps_params={"sort_keys": True})   # sorted keys, as the page script expects
     patch_cache_control(resp, max_age=300)
     return resp
 

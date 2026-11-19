@@ -108,6 +108,7 @@ def page(request):
     return no_store(resp)   # the page contains the learner's text
 
 
+@require_http_methods(["GET", "HEAD"])
 def help(request):
     enabled()
     return render(request, "assistant_help.html", {"daily": int(cfg("ASSISTANT_DAILY_LIMIT", 40))})

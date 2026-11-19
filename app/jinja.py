@@ -1,4 +1,4 @@
-"""Jinja2 environment for Django: Flask-style helpers so the existing templates keep working."""
+"""Jinja2 environment for Django: `url_for` and friends so the existing templates keep working."""
 from __future__ import annotations
 
 from urllib.parse import urlencode
@@ -9,7 +9,7 @@ from jinja2 import Environment
 
 
 def url_for(name: str, **kwargs) -> str:
-    """Flask's url_for on Django's reverse(): kwargs not in the URL pattern become a query string."""
+    """`url_for` on Django's reverse(): kwargs not in the URL pattern become a query string."""
     if name == "static":
         return settings.STATIC_URL + kwargs.pop("filename")
     resolver = get_resolver()

@@ -34,7 +34,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from app import ENV_FILE, read_env_file  # noqa: E402
+from config.envfile import read_env_file  # noqa: E402
+
+ENV_FILE = ROOT / "app" / ".env"
 from app.assistant import steps  # noqa: E402
 from app.assistant.client import ModelError, OllamaClient, Usage  # noqa: E402
 from app.assistant.evaluate import (PRF, boundaries, glosses_agree, score_major_breaks,  # noqa: E402

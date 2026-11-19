@@ -22,7 +22,7 @@ def safe_next(url: str | None) -> str:
     parts = urlparse(url)
     if parts.scheme or parts.netloc or not url.startswith("/") or url.startswith("//"):
         return reverse("pages.course_map")
-    # Not in the Flask original: browsers read a backslash as a slash ("/\evil.com" is "//evil.com"),
+    # Browsers read a backslash as a slash ("/\evil.com" is "//evil.com"),
     # and control characters have no place in a path.
     if "\\" in url or any(ord(c) < 32 or ord(c) == 127 for c in url):
         return reverse("pages.course_map")

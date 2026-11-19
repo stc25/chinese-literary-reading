@@ -1,4 +1,4 @@
-"""Template context for the Jinja2 backend (Flask's context processors, ported)."""
+"""Template context for the Jinja2 backend (current year, markdown helpers, the course)."""
 from __future__ import annotations
 
 from contextvars import ContextVar

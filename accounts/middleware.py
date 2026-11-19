@@ -97,7 +97,7 @@ class SignInErrorMiddleware:
 
 
 class CsrfFieldMiddleware:
-    """The shared templates post the token as `csrf` (Flask's name); Django reads `csrfmiddlewaretoken`.
+    """The shared templates post the token as `csrf` (the name the shared templates use); Django reads `csrfmiddlewaretoken`.
     Copies one to the other before CsrfViewMiddleware checks it. (Task 9 renames the field.)"""
 
     FORM_TYPES = ("application/x-www-form-urlencoded", "multipart/form-data")

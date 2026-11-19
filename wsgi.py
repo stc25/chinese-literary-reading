@@ -1,4 +1,5 @@
-"""WSGI entry point for production servers, e.g.:  gunicorn wsgi:application"""
-from app import create_app
+"""WSGI entry point for production servers, e.g.:  gunicorn wsgi:application
 
-application = create_app()
+The same application as config.wsgi:application (which the Docker image uses).
+"""
+from config.wsgi import application  # noqa: F401

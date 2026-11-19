@@ -61,7 +61,8 @@ sudo systemctl daemon-reload
 sudo systemctl enable --now mlc
 sudo systemctl status mlc
 
-sudo -u mlc bash -c 'set -a; . /etc/mlc/mlc.env; cd /srv/mlc && .venv/bin/python manage.py createsuperuser'   # first admin
+sudo systemd-run --pty --wait --collect --quiet --uid=mlc --property=EnvironmentFile=/etc/mlc/mlc.env \
+  --property=WorkingDirectory=/srv/mlc /srv/mlc/.venv/bin/python manage.py createsuperuser   # first admin
 
 sudo cp deploy/nginx.conf.example /etc/nginx/sites-available/mlc   # then edit host name and certificates
 sudo ln -s /etc/nginx/sites-available/mlc /etc/nginx/sites-enabled/
@@ -77,7 +78,10 @@ curl -s https://<host>/healthz          # {"status": "ok"}
 Check the reading assistant's model settings with one short request:
 
 ```bash
-sudo -u mlc bash -c 'set -a; . /etc/mlc/mlc.env; cd /srv/mlc && .venv/bin/python manage.py assistant_check'
+sudo systemd-run --pty --wait --collect --quiet --uid=mlc --property=EnvironmentFile=/etc/mlc/mlc.env \
+  --property=WorkingDirectory=/srv/mlc /srv/mlc/.venv/bin/python manage.py assistant_check
+# systemd-run reads /etc/mlc/mlc.env exactly as the service does. Do not source the file in a shell:
+# the shell strips the quotes from JSON values such as MLC_REVIEWERS=["cz201"].
 # Model gemma4:31b at https://ollama.com; API key set.
 # OK: answered in 0.6 s (334 tokens): To learn and then practise it from time to time.
 ```
@@ -137,6 +141,8 @@ If the server runs containers instead:
 docker build -t mlc .                     # fails if the content has validation errors
 docker run -d --name mlc --env-file /etc/mlc/mlc.env -v mlc-var:/srv/mlc/var \
   -p 127.0.0.1:8000:8000 --restart unless-stopped mlc
+# If you bind-mount a host folder instead of a named volume, `chown` it to the container's `mlc` user first
+# (`docker run --rm --entrypoint id mlc -u mlc` shows the uid).
 docker exec -it mlc python manage.py createsuperuser                 # first admin
 ```
 
@@ -161,8 +167,9 @@ sudo systemctl restart mlc                            # migrations run first, th
 
 **Rolling back.** `git checkout <previous tag or commit>` and restart the service (or run the previous
 image). Migrations only add tables, so an older version runs against a newer database; to undo a
-change of the database itself, restore `var/db.sqlite3` from a copy taken before the update
-(`sudo -u mlc cp /srv/mlc/var/db.sqlite3{,.bak}`).
+change of the database itself, restore `var/db.sqlite3` from a copy taken before the update.
+Take the copy with SQLite's online backup, which is safe while the service runs (a plain `cp` can catch
+a half-written file): `sudo -u mlc sqlite3 /srv/mlc/var/db.sqlite3 ".backup '/srv/mlc/var/db.sqlite3.bak'"`.
 
 If new passages add characters that the web font lacks, rebuild the font on a development machine
 (`python3 tools/build_font.py --source NotoSerifCJKtc-Regular.otf`) and commit the new

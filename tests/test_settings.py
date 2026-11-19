@@ -42,6 +42,26 @@ class EnvFile(unittest.TestCase):
         self.assertEqual(self.read(None), {})
 
 
+    def test_env_files_are_ignored_by_git(self):
+        root = Path(__file__).resolve().parent.parent
+        self.assertIn(".env", (root / ".gitignore").read_text().split())
+
+
+class WsgiEntryPoints(unittest.TestCase):
+    """`gunicorn wsgi:application` and `gunicorn config.wsgi:application` are the same Django app."""
+
+    def test_root_wsgi_is_the_django_application(self):
+        import importlib
+        import sys
+        root = str(Path(__file__).resolve().parent.parent)
+        if root not in sys.path:
+            sys.path.insert(0, root)
+        wsgi = importlib.import_module("wsgi")
+        config_wsgi = importlib.import_module("config.wsgi")
+        self.assertIs(wsgi.application, config_wsgi.application)
+        self.assertTrue(callable(wsgi.application))
+
+
 class Settings(unittest.TestCase):
     def test_bad_auth_mode(self):
         with self.assertRaises(ImproperlyConfigured):
@@ -84,7 +104,7 @@ class Settings(unittest.TestCase):
         self.assertTrue(s["CSRF_COOKIE_SECURE"])
 
     def test_trust_proxy(self):
-        """Behind the TLS proxy (MLC_TRUST_PROXY, as Flask's ProxyFix): the scheme and host it reports,
+        """Behind the TLS proxy (MLC_TRUST_PROXY): the scheme and host it reports,
         so the SSO redirect URI and Django's CSRF origin check see https://<host>."""
         s = build_settings(dict(OIDC, TRUST_PROXY=1), debug=False, testing=False)
         self.assertEqual(s["SECURE_PROXY_SSL_HEADER"], ("HTTP_X_FORWARDED_PROTO", "https"))

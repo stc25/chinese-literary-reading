@@ -32,7 +32,7 @@ docker compose -f docker-compose.dev.yml up --build     # then open http://local
 ```
 
 `MLC_DEBUG=1` means no sign-in. Then open <http://localhost:5050/> (or port 5051 with Docker). For production, see [docs/deployment.md](docs/deployment.md)
-(Gunicorn behind nginx, or a container; configuration files in `deploy/`). In debug mode the app reloads the content when a file in
+(Gunicorn behind nginx, or a container; configuration files in `deploy/`). With `MLC_DEBUG=1` the app reloads the content when a file in
 `content/` changes. The app will not start if the validator reports errors. See
 [docs/app-plan.md](docs/app-plan.md) for the plan.
 
@@ -54,7 +54,7 @@ MLC_ASSISTANT_MODEL=gemma4:31b
 
 | Setting | Meaning |
 |---|---|
-| `MLC_AUTH_MODE` | `oidc` (Cambridge sign-in required) or `none` (no sign-in, for development). Default: `none` with `--debug`, otherwise `oidc` |
+| `MLC_AUTH_MODE` | `oidc` (Cambridge sign-in required) or `none` (no sign-in, for development). Default: `none` with `MLC_DEBUG=1`, otherwise `oidc` |
 | `MLC_AZURE_CLIENT_ID`, `MLC_AZURE_CLIENT_SECRET`, `MLC_AZURE_TENANT_ID` | The Microsoft Entra ID app registered for this site (required with `oidc`). The tenant ID may differ from other Cambridge apps, because this site has its own registration |
 | `MLC_SECRET_KEY` | A long random string that signs the session cookie (required with `oidc`) |
 | `MLC_REVIEWERS` | CRSids allowed to switch on reviewer notes, e.g. `["cz201"]` |

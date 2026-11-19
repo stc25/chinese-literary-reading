@@ -13,7 +13,7 @@ intermediate learners read a text of their own choosing, using the same method a
 | Reliability | Reviewed course material first, the model second. Every item is labelled with its source: *Course glossary*, *Course grammar*, *Date converter* (all checked) or *AI suggestion* (unchecked) |
 | Translation | Last, and only on request; the learner is invited to write their own first |
 | Storage | **Nothing is stored**: no texts, questions or answers on the server, and none in the logs. Only a per-user request count, in memory, for usage limits. The Language Centre reports that the Ollama cloud service does not retain requests, inputs or outputs |
-| Model | Local Ollama model in development: `qwen3.5:9b`. A large Chinese-capable Ollama cloud model for testing and release, chosen by the evaluation below. The browser never talks to the model: Flask calls it server-side. The API key will be supplied by the Language Centre |
+| Model | Local Ollama model in development: `qwen3.5:9b`. A large Chinese-capable Ollama cloud model for testing and release, chosen by the evaluation below. The browser never talks to the model: the Django server calls it. The API key will be supplied by the Language Centre |
 | Scale and budget | At most about 20 users at a time; a budget of **£60 a year** for the model service |
 | Simplified input | Converted to traditional characters (OpenCC) before analysis; the learner is told, and sees the converted text |
 | Evaluation | Automatic tests against the course's own reviewed passages: punctuation, segmentation and glosses scored against our answers, comparing models and prompts |

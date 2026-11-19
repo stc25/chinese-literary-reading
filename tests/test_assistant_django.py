@@ -1,5 +1,5 @@
-"""The reading assistant's Django views (ported from the Flask tests in tests/test_assistant.py,
-same assertions; the framework-free modules are tested there).
+"""The reading assistant's Django views and management command (the framework-free modules are tested in
+tests/test_assistant_core.py).
 
 Run with:  python manage.py test tests.test_assistant_django
 """
@@ -27,7 +27,7 @@ from django.test import Client, SimpleTestCase, override_settings
 from app.assistant import client as client_mod
 from app.assistant.client import ModelError, OllamaClient
 from tests.django_helpers import CONTENT, ROOT, oidc_settings
-from tests.test_assistant import ScriptedSession, stub  # noqa: E402  (the same model stubs as the Flask tests)
+from tests.assistant_helpers import ScriptedSession, stub  # noqa: E402
 
 TEXT = "日本人之稱我中國也"
 TOKEN_RE = r'name="csrf" value="([^"]+)"'
@@ -77,7 +77,7 @@ class Page(SimpleTestCase):
         self.assertNotIn("之乎者也", r.content.decode())
 
     def test_needs_token(self):
-        # Flask answered 400 from its own check; Django's CsrfViewMiddleware answers 403.
+        # Django's CsrfViewMiddleware answers 403.
         self.assertEqual(self.client.post("/assistant/", {"text": "之"}).status_code, 403)
 
     def test_too_long(self):
@@ -94,8 +94,7 @@ class Page(SimpleTestCase):
             self.assertEqual(r.status_code, 404)
 
     def test_result_page_accessibility(self):
-        sys.path.insert(0, str(ROOT / "tests"))
-        from test_accessibility import parse
+        from tests.test_pages_a11y import parse
         root = parse(self.post("日本人之稱我中國也，一則曰老大帝國。光緒二十四年").content.decode())
         nodes = list(root.iter())
         ids = [n.attrs["id"] for n in nodes if "id" in n.attrs]
@@ -135,14 +134,14 @@ class Api(ApiBase):
         self.assertIn("no-store", r["Cache-Control"])
 
     def test_needs_token(self):
-        # Flask: 400 (its own check). Django: 403 from CsrfViewMiddleware.
+        # 403 from CsrfViewMiddleware.
         self.assertEqual(self.call("translate", {"text": "之"}, token="wrong").status_code, 403)
 
     def test_no_token_at_all(self):
         r = self.client.post("/assistant/api/translate", {"text": TEXT}, content_type="application/json")
         self.assertEqual(r.status_code, 403)
 
-    def test_valid_token_gives_the_flask_json(self):
+    def test_valid_token_gives_the_json(self):
         set_client(stub({"translation": "x"}))
         d = self.call("translate", {"text": TEXT}).json()
         self.assertEqual(set(d), {"ok", "step", "source", "model", "data", "remaining"})
@@ -210,6 +209,12 @@ class A3Page(SimpleTestCase):
         r = self.client.get("/assistant/help")
         self.assertEqual(r.status_code, 200)
         self.assertIn("How it goes wrong", r.content.decode())
+
+    def test_help_page_is_get_only(self):
+        c = Client(enforce_csrf_checks=True)
+        token = re.search(TOKEN_RE, c.get("/assistant/").content.decode()).group(1)
+        self.assertEqual(c.post("/assistant/help", {"csrf": token}).status_code, 405)
+        self.assertEqual(c.head("/assistant/help").status_code, 200)
 
     def test_ai_controls_and_notice(self):
         c = Client(enforce_csrf_checks=True)

@@ -1,5 +1,7 @@
 # Web app — plan
 
+> Historical plan: the backend is now Django, not Flask (see `docs/superpowers/` for the Django port plan). The decisions about content, links and pages below still hold.
+
 Draft v0.1 · 2026-11-07
 
 This plan covers Phase 4 of [PLAN.md](../PLAN.md): the Flask app that renders the course. The

@@ -5,7 +5,7 @@ The AI steps (A2) are JSON endpoints under /assistant/api/, called by the page's
 Texts are sent by POST, so they never appear in URLs or server logs, and nothing the
 learner pastes is stored.
 
-The Django views are in views.py. flask_views.py is the old Flask blueprint (Task 9 deletes it).
+The Django views are in views.py.
 This module imports no web framework.
 """
 from . import steps  # noqa: F401
