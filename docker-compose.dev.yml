@@ -1,4 +1,4 @@
-# Development container: the repo is mounted, Flask runs in debug mode with reload.
+# Development container: the repo is mounted, Django's runserver reloads on changes.
 #   docker compose -f docker-compose.dev.yml up --build
 # Then open http://localhost:5051/. Settings come from app/.env (see app/.env.example).
 services:
@@ -6,11 +6,12 @@ services:
     build:
       context: .
       target: dev
-    command: flask --app app run --debug --host 0.0.0.0 --port 5050
+    command: sh -c "python manage.py migrate --noinput && python manage.py runserver 0.0.0.0:5050"
     ports:
       - "127.0.0.1:5051:5050"
     volumes:
-      - .:/srv/mlc
+      - .:/srv/mlc      # includes ./var (the SQLite database), which git ignores
     environment:
       PYTHONDONTWRITEBYTECODE: "1"
       PYTHONUNBUFFERED: "1"
+      MLC_DEBUG: "1"

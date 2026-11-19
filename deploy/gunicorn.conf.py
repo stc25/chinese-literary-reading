@@ -1,6 +1,6 @@
 """Gunicorn settings for the course app.
 
-    gunicorn -c deploy/gunicorn.conf.py wsgi:application
+    gunicorn -c deploy/gunicorn.conf.py config.wsgi:application
 """
 import os
 

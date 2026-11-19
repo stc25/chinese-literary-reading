@@ -19,14 +19,16 @@ Settings (environment variables, all optional):
 """
 import os
 import sys
-import threading
 import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
+os.environ.setdefault("MLC_TESTING", "1")          # the Django settings need an explicit opt-in to run tests
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 
-from app import create_app  # noqa: E402
+import django  # noqa: E402
+django.setup()
 
 try:
     from playwright.sync_api import sync_playwright
@@ -75,18 +77,28 @@ def axe_source():
 class BrowserLayout(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        from werkzeug.serving import make_server
-        app = create_app({"TESTING": True, "CONTENT_DIR": ROOT / "content"})
-        cls.server = make_server("127.0.0.1", 0, app, threaded=True)
-        cls.base = f"http://127.0.0.1:{cls.server.server_port}"
-        threading.Thread(target=cls.server.serve_forever, daemon=True).start()
+        # The real content (the default CONTENT_DIR) in auth mode none (the testing default), served by
+        # Django's threaded WSGI server in a thread. Static files come through WhiteNoise.
+        from django.test import override_settings
+        from django.test.testcases import LiveServerThread
+        cls.settings = override_settings(CONTENT_DIR=str(ROOT / "content"), AUTH_MODE="none")
+        cls.settings.enable()
+        cls.server = LiveServerThread("127.0.0.1", lambda app: app, port=0)
+        cls.server.daemon = True
+        cls.server.start()
+        cls.server.is_ready.wait()
+        if cls.server.error:
+            cls.settings.disable()
+            raise cls.server.error
+        cls.base = f"http://127.0.0.1:{cls.server.port}"
         cls.pw = sync_playwright().start()
         try:
             exe = os.environ.get("MLC_TEST_CHROMIUM")
             cls.browser = cls.pw.chromium.launch(executable_path=exe) if exe else cls.pw.chromium.launch()
         except Exception as e:                                  # no browser installed
             cls.pw.stop()
-            cls.server.shutdown()
+            cls.server.terminate()
+            cls.settings.disable()
             raise unittest.SkipTest(f"Chromium is not available ({str(e).splitlines()[0]})")
         cls.axe = axe_source()
 
@@ -94,7 +106,8 @@ class BrowserLayout(unittest.TestCase):
     def tearDownClass(cls):
         cls.browser.close()
         cls.pw.stop()
-        cls.server.shutdown()
+        cls.server.terminate()
+        cls.settings.disable()
 
     def test_pages_at_every_size_and_theme(self):
         problems = []

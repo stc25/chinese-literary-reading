@@ -7,3 +7,8 @@
 .DS_Store
 tests
 templates
+
+# Local state and secrets
+var
+**/.env
+*.env

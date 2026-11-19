@@ -1,4 +1,6 @@
 # nginx site for the course app. Replace course.example.cam.ac.uk and the certificate paths.
+# The proxy must OVERWRITE X-Forwarded-Proto and X-Forwarded-Host (and Host), never append to
+# what the client sent: Django trusts them (MLC_TRUST_PROXY=1) for the sign-in redirect URI and the CSRF check.
 #   sudo cp deploy/nginx.conf.example /etc/nginx/sites-available/mlc
 #   sudo ln -s /etc/nginx/sites-available/mlc /etc/nginx/sites-enabled/ && sudo nginx -t && sudo systemctl reload nginx
 
@@ -27,7 +29,7 @@ server {
 
     # Static files (CSS, JavaScript, the font) straight from disk, cached by browsers.
     location /static/ {
-        alias /srv/mlc/app/static/;
+        alias /srv/mlc/var/static/;      # filled by `manage.py collectstatic`
         expires 7d;
         add_header Cache-Control "public";
         add_header X-Content-Type-Options "nosniff";

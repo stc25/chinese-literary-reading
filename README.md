@@ -11,7 +11,7 @@ See [PLAN.md](PLAN.md) for the project plan and
 | `content/` | The course: units, grammar points, toolkit pages |
 | `docs/` | Specifications |
 | `templates/` | Blank templates and a worked example passage |
-| `app/` | The Flask web app |
+| `app/`, `accounts/`, `config/` | The Django web app: pages and assistant, University sign-in and allowlist, settings |
 | `deploy/` | Server configuration: Gunicorn, nginx, systemd, settings template |
 | `tools/` | Scripts: validator, glossary and font builders |
 | `tests/` | Validator and app tests, and test fixtures |
@@ -21,10 +21,17 @@ See [PLAN.md](PLAN.md) for the project plan and
 Requires Python 3.10+ and the packages in `requirements.txt` (`pip install -r requirements.txt`).
 
 ```bash
-flask --app app run --debug --port 5050
+MLC_DEBUG=1 python manage.py runserver 5050
 ```
 
-Then open <http://localhost:5050/>. For production, see [docs/deployment.md](docs/deployment.md)
+or, in a container (the repository is mounted and the server reloads on changes; the database
+lives in `./var`):
+
+```bash
+docker compose -f docker-compose.dev.yml up --build     # then open http://localhost:5051/
+```
+
+`MLC_DEBUG=1` means no sign-in. Then open <http://localhost:5050/> (or port 5051 with Docker). For production, see [docs/deployment.md](docs/deployment.md)
 (Gunicorn behind nginx, or a container; configuration files in `deploy/`). In debug mode the app reloads the content when a file in
 `content/` changes. The app will not start if the validator reports errors. See
 [docs/app-plan.md](docs/app-plan.md) for the plan.
@@ -48,14 +55,15 @@ MLC_ASSISTANT_MODEL=gemma4:31b
 | Setting | Meaning |
 |---|---|
 | `MLC_AUTH_MODE` | `oidc` (Cambridge sign-in required) or `none` (no sign-in, for development). Default: `none` with `--debug`, otherwise `oidc` |
-| `MLC_OIDC_METADATA_URL` | The sign-in provider's discovery URL, e.g. `https://login.microsoftonline.com/<tenant-id>/v2.0/.well-known/openid-configuration` |
-| `MLC_OIDC_CLIENT_ID`, `MLC_OIDC_CLIENT_SECRET` | From the app's registration with University Information Services |
+| `MLC_AZURE_CLIENT_ID`, `MLC_AZURE_CLIENT_SECRET`, `MLC_AZURE_TENANT_ID` | The Microsoft Entra ID app registered for this site (required with `oidc`). The tenant ID may differ from other Cambridge apps, because this site has its own registration |
 | `MLC_SECRET_KEY` | A long random string that signs the session cookie (required with `oidc`) |
-| `MLC_ALLOWED_DOMAINS` | Accounts allowed to sign in; default `["cam.ac.uk"]` |
 | `MLC_REVIEWERS` | CRSids allowed to switch on reviewer notes, e.g. `["cz201"]` |
 | `MLC_DEV_USER` | With `none`, the user to act as, e.g. `cz201` to try reviewer mode |
 | `MLC_SHOW_UNREVIEWED` | `false` at release: hide pages not yet reviewed (reviewers still see them) |
-| `MLC_TRUST_PROXY` | Number of reverse proxies in front of the app, e.g. `1` behind nginx |
+| `MLC_TRUST_PROXY` | `1` behind nginx (**required** there: without it Django's CSRF origin check rejects sign-out and reviewer-mode posts, and the sign-in redirect address is wrong). Default `0` |
+| `MLC_DB_PATH` | The SQLite file that holds the allowlist and admin accounts. Default `var/db.sqlite3` |
+| `MLC_DEBUG` | `1` for development: Django debug mode, no sign-in by default, content reloads |
+| `MLC_TESTING` | Tests only (the test suite sets it): never set it in production |
 | `MLC_ASSISTANT_ENABLED` | `false` to switch the reading assistant off |
 | `MLC_OLLAMA_HOST` | The AI model server: `http://localhost:11434` (local Ollama, the default) or `https://ollama.com` |
 | `MLC_OLLAMA_API_KEY` | API key for the Ollama cloud service (kept on the server) |
@@ -64,13 +72,21 @@ MLC_ASSISTANT_MODEL=gemma4:31b
 | `MLC_ASSISTANT_TIMEOUT`, `MLC_ASSISTANT_STEP_DEADLINE` | Seconds allowed for one model call (default 60) and for a whole step (default 90) |
 | `MLC_ASSISTANT_MAX_CONCURRENT`, `MLC_ASSISTANT_QUEUE_WAIT` | Model calls at once for everyone (default 6), and seconds a request waits for a free slot before the page says the assistant is busy (default 20) |
 
-The sign-in callback URL to register is `https://<host>/auth/callback`. Nothing about users is stored
-on the server: the signed-in user's id and name are kept in the session cookie.
+The sign-in redirect URI to register in Microsoft Entra ID (platform Web) is
+`https://<host>/auth/sso/complete/azuread-tenant-oauth2/`; in production the operator adds it on
+lcapps. Local development needs none, because `MLC_DEBUG=1` uses no sign-in.
+
+**Allowlist.** Only people on the allowlist can sign in. Create the first admin with
+`python manage.py createsuperuser`, then add entries at `/django-admin/`: a CRSid (`abc123`), an
+exact address (`abc123@cam.ac.uk`) or a whole domain (`@ling.cam.ac.uk`). An account that signs in
+through SSO becomes SSO-only: its password is made unusable at its first SSO sign-in. So sign in to
+`/django-admin/` with the password before using SSO with that account, or use a separate admin
+account. The database stores only the CRSid, the display name and an active flag, no email address.
 
 To try reviewer mode locally:
 
 ```bash
-MLC_DEV_USER=cz201 MLC_REVIEWERS='["cz201"]' flask --app app run --debug --port 5050
+MLC_DEBUG=1 MLC_DEV_USER=cz201 MLC_REVIEWERS='["cz201"]' python manage.py runserver 5050
 ```
 
 To try the assistant's AI steps on a text from the command line (local Ollama by default):
