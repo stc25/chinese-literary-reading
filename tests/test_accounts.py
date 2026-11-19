@@ -126,7 +126,7 @@ FAILED = "The sign-in could not be completed."
 
 
 def csrf_from(html):
-    return re.search(r'name="csrf" value="([^"]+)"', html).group(1)
+    return re.search(r'name="csrfmiddlewaretoken" value="([^"]+)"', html).group(1)
 
 
 class SafeNextTests(TestCase):
@@ -619,17 +619,19 @@ class CsrfTests(TestCase):
         self.assertEqual(self.session_cookie(), before)
         self.assertEqual(self.client.get("/glossary").status_code, 200)     # still signed in
         token = csrf_from(self.client.get("/").content.decode())
-        r = self.client.post("/logout", {"csrf": token})
+        r = self.client.post("/logout", {"csrfmiddlewaretoken": token})
         self.assertEqual(r.status_code, 302)
         self.assertEqual(r["Location"], "/signed-out")
         self.assertEqual(self.client.get("/glossary").status_code, 302)
         self.assertIn("Sign in with", self.client.get("/").content.decode())     # back to the landing page
         self.assertIn("You have signed out", self.client.get("/signed-out").content.decode())
 
-    def test_logout_accepts_djangos_field_name(self):
-        token = csrf_from(self.client.get("/").content.decode())
-        r = self.client.post("/logout", {"csrfmiddlewaretoken": token})
-        self.assertEqual(r["Location"], "/signed-out")
+    def test_forms_use_djangos_field_name_only(self):
+        html = self.client.get("/").content.decode()
+        self.assertNotIn('name="csrf"', html)
+        token = csrf_from(html)
+        self.assertEqual(self.client.post("/logout", {"csrf": token}).status_code, 403)    # Flask's old name
+        self.assertEqual(self.client.post("/logout", {"csrfmiddlewaretoken": token})["Location"], "/signed-out")
 
     def test_logout_is_post_only(self):
         self.assertEqual(self.client.get("/logout").status_code, 405)
@@ -642,13 +644,13 @@ class CsrfTests(TestCase):
         self.assertEqual(self.session_cookie(), before)
         self.assertNotIn("review_mode", self.client.session)
         token = csrf_from(self.client.get("/").content.decode())
-        r = self.client.post("/reviewer-mode", {"csrf": token, "on": "1", "next": "/glossary"})
+        r = self.client.post("/reviewer-mode", {"csrfmiddlewaretoken": token, "on": "1", "next": "/glossary"})
         self.assertEqual(r["Location"], "/glossary")
         self.assertIn("Reviewer notes: on", self.client.get("/").content.decode())
 
     def test_reviewer_mode_next_is_same_site(self):
         token = csrf_from(self.client.get("/").content.decode())
-        r = self.client.post("/reviewer-mode", {"csrf": token, "on": "1", "next": "//evil.com"})
+        r = self.client.post("/reviewer-mode", {"csrfmiddlewaretoken": token, "on": "1", "next": "//evil.com"})
         self.assertEqual(r["Location"], "/")
 
 
@@ -688,7 +690,7 @@ class ReviewerTests(TestCase):
 
     def turn_on(self, client):
         token = csrf_from(client.get("/").content.decode())
-        client.post("/reviewer-mode", {"csrf": token, "on": "1", "next": "/"})
+        client.post("/reviewer-mode", {"csrfmiddlewaretoken": token, "on": "1", "next": "/"})
 
     def test_dev_user_identity(self):
         c = self.client_for("cz201")

@@ -30,7 +30,7 @@ from tests.django_helpers import CONTENT, ROOT, oidc_settings
 from tests.assistant_helpers import ScriptedSession, stub  # noqa: E402
 
 TEXT = "日本人之稱我中國也"
-TOKEN_RE = r'name="csrf" value="([^"]+)"'
+TOKEN_RE = r'name="csrfmiddlewaretoken" value="([^"]+)"'
 
 
 def scripted(*script, timeout=60.0):
@@ -58,7 +58,7 @@ class Page(SimpleTestCase):
     def post(self, text):
         html = self.client.get("/assistant/").content.decode()
         token = re.search(TOKEN_RE, html).group(1)
-        return self.client.post("/assistant/", {"csrf": token, "text": text})
+        return self.client.post("/assistant/", {"csrfmiddlewaretoken": token, "text": text})
 
     def test_form(self):
         self.assertEqual(self.client.get("/assistant/").status_code, 200)
@@ -213,14 +213,14 @@ class A3Page(SimpleTestCase):
     def test_help_page_is_get_only(self):
         c = Client(enforce_csrf_checks=True)
         token = re.search(TOKEN_RE, c.get("/assistant/").content.decode()).group(1)
-        self.assertEqual(c.post("/assistant/help", {"csrf": token}).status_code, 405)
+        self.assertEqual(c.post("/assistant/help", {"csrfmiddlewaretoken": token}).status_code, 405)
         self.assertEqual(c.head("/assistant/help").status_code, 200)
 
     def test_ai_controls_and_notice(self):
         c = Client(enforce_csrf_checks=True)
         html = c.get("/assistant/").content.decode()
         token = re.search(TOKEN_RE, html).group(1)
-        html = c.post("/assistant/", {"csrf": token, "text": "吾心目中有黿鼉"}).content.decode()
+        html = c.post("/assistant/", {"csrfmiddlewaretoken": token, "text": "吾心目中有黿鼉"}).content.decode()
         self.assertIn("external AI service", html)
         for step in ("punctuate", "words", "grammar", "names", "translate"):
             self.assertIn(f'data-run="{step}"', html)
@@ -230,7 +230,7 @@ class A3Page(SimpleTestCase):
     def test_api_url_shape(self):
         c = Client(enforce_csrf_checks=True)
         token = re.search(TOKEN_RE, c.get("/assistant/").content.decode()).group(1)
-        html = c.post("/assistant/", {"csrf": token, "text": TEXT}).content.decode()
+        html = c.post("/assistant/", {"csrfmiddlewaretoken": token, "text": TEXT}).content.decode()
         self.assertIn('data-api="/assistant/api/"', html)
 
     def test_url_names(self):

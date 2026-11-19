@@ -145,7 +145,6 @@ def build_settings(env: dict, debug: bool, testing: bool) -> dict:
             "app.middleware.SecurityHeadersMiddleware",   # outermost: also covers static responses
             "whitenoise.middleware.WhiteNoiseMiddleware",
             "django.contrib.sessions.middleware.SessionMiddleware",
-            "accounts.middleware.CsrfFieldMiddleware",    # the templates' `csrf` field, until they are Django-only
             "django.middleware.csrf.CsrfViewMiddleware",
             "django.contrib.auth.middleware.AuthenticationMiddleware",
             "django.contrib.messages.middleware.MessageMiddleware",

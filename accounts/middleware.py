@@ -1,4 +1,4 @@
-"""The sign-in gate, the sign-in error page and the templates' CSRF field name."""
+"""The sign-in gate and the sign-in error page."""
 from __future__ import annotations
 
 import logging
@@ -95,22 +95,3 @@ class SignInErrorMiddleware:
         if isinstance(exception, AuthForbidden):
             return render(request, "signin_error.html", {"reason": REFUSED}, status=403)
         return render(request, "signin_error.html", {"reason": FAILED}, status=400)
-
-
-class CsrfFieldMiddleware:
-    """The shared templates post the token as `csrf` (the name the shared templates use); Django reads `csrfmiddlewaretoken`.
-    Copies one to the other before CsrfViewMiddleware checks it. (Task 9 renames the field.)"""
-
-    FORM_TYPES = ("application/x-www-form-urlencoded", "multipart/form-data")
-
-    def __init__(self, get_response):
-        self.get_response = get_response
-
-    def __call__(self, request):
-        if request.method == "POST" and request.content_type in self.FORM_TYPES:
-            post = request.POST
-            if "csrf" in post and "csrfmiddlewaretoken" not in post:
-                post = post.copy()
-                post["csrfmiddlewaretoken"] = post["csrf"]
-                request.POST = post
-        return self.get_response(request)
