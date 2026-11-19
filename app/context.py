@@ -12,6 +12,7 @@ from .content.render import render, render_inline
 
 
 current_course_var: ContextVar = ContextVar("current_course", default=None)   # set by CourseMiddleware
+current_request_var: ContextVar = ContextVar("current_request", default=None)   # set by CourseMiddleware
 
 
 def current_course(request):
@@ -35,7 +36,12 @@ def template_context(request) -> dict:
     def md_inline(text, page=None):
         return render_inline(text, page.path if page is not None else None, course.urls)
 
+    from . import views
+
     return dict(
+        ref_url=views.ref_url,
+        ref_title=views.ref_title,
+        visible=views.visible,
         course=course,
         md=md,
         md_inline=md_inline,

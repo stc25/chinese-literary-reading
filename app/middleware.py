@@ -5,7 +5,7 @@ from django.conf import settings
 from django.urls import Resolver404, resolve
 from django.utils.cache import patch_cache_control
 
-from .context import current_course_var
+from .context import current_course_var, current_request_var
 
 CSP = ("default-src 'self'; img-src 'self' data:; object-src 'none'; "
        "base-uri 'self'; form-action 'self'; frame-ancestors 'none'")
@@ -47,7 +47,9 @@ class CourseMiddleware:
             request.endpoint = None
         request.full_path = request.get_full_path()
         token = current_course_var.set(request.course)
+        request_token = current_request_var.set(request)
         try:
             return self.get_response(request)
         finally:
+            current_request_var.reset(request_token)
             current_course_var.reset(token)
