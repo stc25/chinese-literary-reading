@@ -4,9 +4,10 @@ from __future__ import annotations
 import logging
 from urllib.parse import urlencode
 
+import requests
 from django.conf import settings
 from django.contrib.auth import BACKEND_SESSION_KEY, logout
-from django.http import Http404, JsonResponse
+from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from social_core.exceptions import SocialAuthBaseException
@@ -76,8 +77,9 @@ class RequireSignInMiddleware:
 
 
 class SignInErrorMiddleware:
-    """A failed or refused sign-in shows the sign-in error page instead of an error trace.
-    Logs only the kind of failure: exception messages can carry codes or tokens."""
+    """A failed or refused sign-in (a social-auth error, or the network failing on the way to
+    Microsoft) shows the sign-in error page. Logs only the kind of failure: those messages can carry
+    codes or tokens. Anything else is a bug: it propagates as a 500 and Django logs the traceback."""
 
     def __init__(self, get_response):
         self.get_response = get_response
@@ -86,9 +88,8 @@ class SignInErrorMiddleware:
         return self.get_response(request)
 
     def process_exception(self, request, exception):
-        if isinstance(exception, Http404):
-            return None
-        if not (isinstance(exception, SocialAuthBaseException) or request.path_info.startswith("/auth/sso/")):
+        network = isinstance(exception, requests.RequestException) and request.path_info.startswith("/auth/sso/")
+        if not (isinstance(exception, SocialAuthBaseException) or network):
             return None
         log.warning("sign-in failed: %s", type(exception).__name__)
         if isinstance(exception, AuthForbidden):

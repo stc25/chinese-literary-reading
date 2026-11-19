@@ -1,5 +1,6 @@
 import os
 import shutil
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -68,6 +69,45 @@ class Headers(SimpleTestCase):
     @override_settings(AUTH_MODE="oidc")
     def test_hsts_only_in_oidc_mode(self):
         self.assertIn("max-age", self.client.get("/healthz")["Strict-Transport-Security"])
+
+
+class Logging(SimpleTestCase):
+    """Production logging: errors on django.request (unhandled 500s) reach the stderr handler
+    even with DEBUG off (Django's own console handler only works in debug)."""
+
+    def test_unhandled_error_is_written_to_stderr(self):
+        import io
+        import logging
+
+        from django.urls import path
+
+        handler = next(h for h in logging.getLogger().handlers if h.name == "stderr")
+        stream, level = io.StringIO(), handler.level
+        old = handler.setStream(stream)
+        handler.setLevel(logging.NOTSET)
+        self.addCleanup(handler.setLevel, level)
+        self.addCleanup(handler.setStream, old)
+
+        def boom(request):
+            raise RuntimeError("boom for the log")
+
+        module = type(sys)("boom_urls")
+        module.urlpatterns = [path("boom", boom)]
+        sys.modules["boom_urls"] = module
+        self.addCleanup(sys.modules.pop, "boom_urls")
+        with override_settings(ROOT_URLCONF="boom_urls", DEBUG=False, CONTENT_DIR=str(FIXTURE)):
+            from django.test import Client
+            r = Client(raise_request_exception=False).get("/boom")
+        self.assertEqual(r.status_code, 500)
+        out = stream.getvalue()
+        self.assertIn("ERROR django.request: Internal Server Error: /boom", out)
+        self.assertIn("RuntimeError: boom for the log", out)
+
+    def test_app_and_accounts_log_info(self):
+        import logging
+        self.assertEqual(logging.getLogger("app").level, logging.INFO)
+        self.assertEqual(logging.getLogger("accounts").level, logging.INFO)
+        self.assertEqual(logging.getLogger().level, logging.WARNING)
 
 
 class Request(SimpleTestCase):

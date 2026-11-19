@@ -59,6 +59,27 @@ DEFAULTS = {
 }
 
 
+def logging_config(testing: bool) -> dict:
+    """Everything at WARNING and above to stderr (journald / docker logs), with the app's own INFO.
+    Django's default only prints django.request errors when DEBUG is on; here `django` has no
+    handler of its own and propagates to the root one, so unhandled 500s are logged in production."""
+    handler = {"class": "logging.StreamHandler", "stream": "ext://sys.stderr", "formatter": "plain"}
+    if testing:
+        handler["level"] = "CRITICAL"   # pristine test output; tests that need the output lower it
+    return {
+        "version": 1,
+        "disable_existing_loggers": False,
+        "formatters": {"plain": {"format": "%(asctime)s %(levelname)s %(name)s: %(message)s"}},
+        "handlers": {"stderr": handler},
+        "root": {"handlers": ["stderr"], "level": "WARNING"},
+        "loggers": {
+            "django": {"handlers": [], "level": "INFO", "propagate": True},
+            "app": {"level": "INFO"},
+            "accounts": {"level": "INFO"},
+        },
+    }
+
+
 def build_settings(env: dict, debug: bool, testing: bool) -> dict:
     """Django settings from `env` (unprefixed MLC names). Raises ImproperlyConfigured."""
     values = {**DEFAULTS, **env}
@@ -157,6 +178,7 @@ def build_settings(env: dict, debug: bool, testing: bool) -> dict:
         CSRF_COOKIE_SECURE=(mode == "oidc"),
         CSRF_HEADER_NAME="HTTP_X_CSRF_TOKEN",   # the header the existing assistant.js sends
         DATA_UPLOAD_MAX_MEMORY_SIZE=256 * 1024,  # pasted texts are at most a few KB
+        LOGGING=logging_config(testing),
     )
     if int(values.get("TRUST_PROXY") or 0):
         # Behind the reverse proxy (MLC_TRUST_PROXY): take the scheme and host it reports, so the

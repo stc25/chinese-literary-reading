@@ -335,12 +335,30 @@ class SignInFlowTests(TestCase):
         self.assertEqual(User.objects.count(), 0)
 
     def test_failed_exchange_shows_error_page_and_logs_no_secrets(self):
+        import requests
         with self.assertLogs("accounts", "WARNING") as logs:
-            r = sso_sign_in(self.client, exchange_error=ValueError("bad code test-access-token"))
+            r = sso_sign_in(self.client, exchange_error=requests.ConnectionError("bad code test-access-token"))
         self.assertEqual(r.status_code, 400)
         self.assertIn(FAILED, r.content.decode())
         self.assertNotIn("test-access-token", "\n".join(logs.output))
         self.assertNotIn("test-client-secret", "\n".join(logs.output))
+        self.assertEqual(User.objects.count(), 0)
+
+    def test_social_auth_error_shows_error_page(self):
+        from social_core.exceptions import AuthResponseError
+        with self.assertLogs("accounts", "WARNING"):
+            r = sso_sign_in(self.client, exchange_error=AuthResponseError(None, code="missing_claim"))
+        self.assertEqual(r.status_code, 400)
+        self.assertIn(FAILED, r.content.decode())
+
+    def test_programming_error_in_sign_in_is_a_logged_500(self):
+        """Only social-auth and network failures become the sign-in error page; a bug is a 500 with
+        a traceback in the log."""
+        client = Client(raise_request_exception=False)
+        with self.assertLogs("django.request", "ERROR") as logs:
+            r = sso_sign_in(client, exchange_error=RuntimeError("a bug"))
+        self.assertEqual(r.status_code, 500)
+        self.assertIn("Traceback", "\n".join(logs.output))
         self.assertEqual(User.objects.count(), 0)
 
     def test_wrong_state_refused(self):
@@ -481,6 +499,22 @@ class GateTests(TestCase):
         html = self.client.get("/").content.decode()
         self.assertIn("Sign in with", html)
         self.assertNotIn("C. Z.", html)
+
+    def test_database_error_in_the_recheck_fails_closed(self):
+        from unittest import mock
+
+        from django.db import DatabaseError
+        sso_sign_in(self.client)
+        client = Client(raise_request_exception=False)
+        client.cookies = self.client.cookies
+        with mock.patch.object(type(AllowedLogin.objects), "allows", side_effect=DatabaseError("locked")), \
+                self.assertLogs("django.request", "ERROR") as logs:
+            r = client.get("/glossary")
+            api = client.get("/summaries.json")
+        self.assertEqual(r.status_code, 500)
+        self.assertEqual(api.status_code, 500)
+        self.assertNotIn("Glossary", r.content.decode())
+        self.assertIn("DatabaseError", "\n".join(logs.output))
 
     def test_admin_password_login_only_counts_inside_the_admin(self):
         User.objects.create_superuser("admin", password="a-long-admin-password-123")

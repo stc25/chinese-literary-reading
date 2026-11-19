@@ -120,6 +120,19 @@ class Settings(unittest.TestCase):
         self.assertEqual(s["SESSION_ENGINE"], "django.contrib.sessions.backends.signed_cookies")
         self.assertEqual(s["CSRF_HEADER_NAME"], "HTTP_X_CSRF_TOKEN")
 
+    def test_logging_to_stderr(self):
+        s = build_settings(dict(OIDC), debug=False, testing=False)
+        log = s["LOGGING"]
+        self.assertEqual(log["handlers"]["stderr"]["class"], "logging.StreamHandler")
+        self.assertEqual(log["handlers"]["stderr"]["stream"], "ext://sys.stderr")
+        self.assertEqual(log["formatters"]["plain"]["format"], "%(asctime)s %(levelname)s %(name)s: %(message)s")
+        self.assertEqual(log["root"], {"handlers": ["stderr"], "level": "WARNING"})
+        self.assertEqual(log["loggers"]["django"]["handlers"], [])
+        self.assertTrue(log["loggers"]["django"]["propagate"])
+        self.assertEqual(log["loggers"]["app"]["level"], "INFO")
+        self.assertEqual(log["loggers"]["accounts"]["level"], "INFO")
+        self.assertNotIn("level", log["handlers"]["stderr"])     # quiet only under test
+
     def test_sso_settings(self):
         s = build_settings(dict(OIDC), debug=False, testing=False)
         self.assertEqual(s["SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_KEY"], "id")
