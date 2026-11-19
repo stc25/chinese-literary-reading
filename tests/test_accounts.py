@@ -186,6 +186,31 @@ class PipelineTests(TestCase):
             with self.subTest(ident=ident):
                 self.refused({"preferred_username": ident})
 
+    def test_identifier_needs_exactly_one_at(self):
+        allow("abc123", "@cam.ac.uk", "abc123@x.com", "@x.com")
+        for ident in ("abc123@x.com@cam.ac.uk", "abc123@cam.ac.uk@x.com", "abc123@@cam.ac.uk", "@cam.ac.uk",
+                      "abc123@"):
+            with self.subTest(ident=ident):
+                self.refused({"preferred_username": ident})
+        from accounts.pipeline import is_allowed
+        self.assertFalse(is_allowed("abc123@x.com@cam.ac.uk"))      # the per-request re-check too
+        self.assertTrue(is_allowed("abc123@cam.ac.uk"))
+
+    def test_non_cambridge_address_by_email_or_domain_entry(self):
+        allow("cz201", "visitor@example.ac.uk", "@partner.ac.uk")
+        out = self.enforce({"preferred_username": "Visitor@Example.ac.uk", "name": "V."})
+        self.assertEqual(out["login_identifier"], "visitor@example.ac.uk")
+        self.assertEqual(out["details"]["email"], "")
+        self.enforce({"preferred_username": "anyone.here@partner.ac.uk"})
+        self.refused({"preferred_username": "cz201@example.ac.uk"})     # a CRSid entry is for Cambridge only
+        self.refused({"preferred_username": "other@example.ac.uk"})
+
+    def test_identity_of(self):
+        from accounts.pipeline import identity_of
+        self.assertEqual(identity_of("cz201@cam.ac.uk"), "cz201")
+        self.assertEqual(identity_of("cz201@example.ac.uk"), "cz201@example.ac.uk")
+        self.assertEqual(identity_of("cz201@ling.cam.ac.uk"), "cz201@ling.cam.ac.uk")
+
     def test_domain_entry_is_exact(self):
         allow("@cam.ac.uk")
         self.enforce({"preferred_username": "x@cam.ac.uk"})
@@ -308,6 +333,46 @@ class SignInFlowTests(TestCase):
         self.assertEqual(b.post("/logout")["Location"], "/signed-out")
         self.assertEqual(b.get("/glossary").status_code, 302)
         self.assertEqual(a.get("/glossary").status_code, 200)
+
+    def test_v1_token_claims(self):
+        """A v1.0-shaped token (upn, unique_name, tid; no preferred_username) signs in by its upn."""
+        r = sso_sign_in(self.client, claims_for("cz201@cam.ac.uk", "C. Z.", v1=True), next="/glossary")
+        self.assertEqual(r["Location"], "/glossary")
+        r = self.client.get("/")
+        self.assertEqual(r.wsgi_request.user_info, {"id": "cz201", "name": "C. Z.", "reviewer": True})
+        self.assertEqual(User.objects.get().username, "cz201")
+
+    def test_non_cambridge_account_has_its_own_identity(self):
+        """cz201@example.ac.uk (allowlisted by address) is not the reviewer cz201 and has its own
+        assistant limit key."""
+        allow("cz201@example.ac.uk")
+        sso_sign_in(self.client, claims_for("cz201@example.ac.uk", "Visitor"))
+        r = self.client.get("/")
+        self.assertEqual(r.wsgi_request.user_info,
+                         {"id": "cz201@example.ac.uk", "name": "Visitor", "reviewer": False})
+        self.assertNotIn("Reviewer notes", r.content.decode())
+        self.assertEqual(self.client.get("/review").status_code, 404)
+        self.assertEqual(User.objects.get().email, "")
+
+        from django.apps import apps
+
+        from app.assistant.views import get_limits
+        from tests.assistant_helpers import stub
+        apps.get_app_config("app").set_assistant("client", stub({"translation": "x"}))
+        self.addCleanup(apps.get_app_config("app").reset_assistant)
+        with self.settings(CONTENT_DIR=str(CONTENT)):     # the assistant needs the real course's tables
+            r = self.client.post("/assistant/api/translate", {"text": "之"}, content_type="application/json")
+        self.assertEqual(r.status_code, 200, r.content)
+        limits = get_limits()
+        daily = limits.remaining("cz201")
+        self.assertEqual(limits.remaining("cz201@example.ac.uk"), daily - 1)
+
+    def test_two_at_signs_refused_and_no_user(self):
+        allow("@cam.ac.uk", "@x.com")
+        with self.assertLogs("accounts", "WARNING"):
+            r = sso_sign_in(self.client, claims_for("abc123@x.com@cam.ac.uk"))
+        self.assertEqual(r.status_code, 403)
+        self.assertEqual(User.objects.count(), 0)
 
     def test_second_sign_in_reuses_the_account(self):
         sso_sign_in(self.client)

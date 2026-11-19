@@ -67,8 +67,12 @@ def oidc_settings(**extra):
     return override_settings(**{**OIDC, **extra})
 
 
-def claims_for(username="cz201@cam.ac.uk", name="C. Z.", **extra):
-    return {"preferred_username": username, "name": name, "sub": "opaque-" + username.split("@")[0], "tid": TENANT, **extra}
+def claims_for(username="cz201@cam.ac.uk", name="C. Z.", v1=False, **extra):
+    """ID-token claims. v1=True: the shape of a v1.0 token (`upn` and `unique_name`, no `preferred_username`)."""
+    sub = "opaque-" + username.replace("@", "-at-")
+    if v1:
+        return {"upn": username, "unique_name": username, "name": name, "sub": sub, "tid": TENANT, **extra}
+    return {"preferred_username": username, "name": name, "sub": sub, "tid": TENANT, **extra}
 
 
 def no_network():

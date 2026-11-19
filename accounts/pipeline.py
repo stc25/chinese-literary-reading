@@ -2,8 +2,8 @@
 
 ``enforce_allowlist`` runs right after social-core's ``auth_allowed`` and refuses the sign-in
 before any user or social-auth row exists. ``finish_login`` runs last, once a stock
-``auth.User`` has been found or created. Only the user name (CRSid) and the display name are
-kept: never the address, never the tokens.
+``auth.User`` has been found or created. Only the user name (the CRSid, or the local part of a
+non-Cambridge address) and the display name are kept: never the address, never the tokens.
 """
 from __future__ import annotations
 
@@ -18,6 +18,7 @@ from .decorators import safe_next
 from .models import AllowedLogin
 
 CRSID_RE = re.compile(r"^[a-z0-9]+$")
+CAM_DOMAIN = "@cam.ac.uk"
 IDENTIFIER_CLAIMS = ("preferred_username", "upn", "email")   # never "sub": it is not a person's name
 SESSION_IDENTIFIER = "mlc_login"   # the IdP identifier, kept in the signed session cookie for the per-request re-check
 
@@ -31,15 +32,35 @@ def identifier_from_claims(claims: dict) -> str:
     return ""
 
 
+def well_formed(identifier: str) -> bool:
+    """One @, with something on both sides (so every part of the code splits it the same way)."""
+    local, _, domain = (identifier or "").partition("@")
+    return identifier.count("@") == 1 and bool(local) and bool(domain)
+
+
 def crsid_of(identifier: str) -> str:
-    """The CRSid: the part of the identifier before @, or "" if that is not a CRSid."""
+    """The CRSid of a Cambridge address (abc123@cam.ac.uk), or "" for any other identifier."""
+    if not (well_formed(identifier) and identifier.endswith(CAM_DOMAIN)):
+        return ""
     local = identifier.split("@", 1)[0]
     return local if CRSID_RE.match(local) else ""
 
 
+def identity_of(identifier: str) -> str:
+    """The user's id on this site (reviewer list, assistant limits): the CRSid for a Cambridge
+    address, the whole address otherwise, so another domain's `cz201` is never the CRSid cz201."""
+    return crsid_of(identifier) or identifier
+
+
 def is_allowed(identifier: str) -> bool:
-    crsid = crsid_of(identifier or "")
-    return bool(crsid) and AllowedLogin.objects.allows(identifier, crsid)
+    """The allowlist decision, at sign-in and again on every request. A Cambridge address must have
+    a CRSid as its local part; any other address can only match an email or a domain entry."""
+    if not well_formed(identifier):
+        return False
+    crsid = crsid_of(identifier)
+    if identifier.endswith(CAM_DOMAIN) and not crsid:
+        return False
+    return AllowedLogin.objects.allows(identifier, crsid)
 
 
 def enforce_allowlist(backend, details, response, *args, **kwargs):
@@ -48,10 +69,10 @@ def enforce_allowlist(backend, details, response, *args, **kwargs):
     identifier = identifier_from_claims(response or {})
     if not is_allowed(identifier):
         raise AuthForbidden(backend)
-    crsid = crsid_of(identifier)
-    name = str((response or {}).get("name") or "").strip() or crsid
+    username = crsid_of(identifier) or identifier.split("@", 1)[0]    # never the address itself
+    name = str((response or {}).get("name") or "").strip() or identity_of(identifier)
     return {
-        "details": {"username": crsid, "email": "", "fullname": name, "first_name": name[:150], "last_name": ""},
+        "details": {"username": username, "email": "", "fullname": name, "first_name": name[:150], "last_name": ""},
         "login_identifier": identifier,
     }
 

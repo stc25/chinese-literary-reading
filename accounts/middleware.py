@@ -13,7 +13,7 @@ from django.urls import reverse
 from social_core.exceptions import SocialAuthBaseException
 
 from .decorators import is_reviewer
-from .pipeline import SESSION_IDENTIFIER, AuthForbidden, crsid_of, is_allowed
+from .pipeline import SESSION_IDENTIFIER, AuthForbidden, identity_of, is_allowed
 
 log = logging.getLogger("accounts")
 
@@ -44,8 +44,8 @@ def signed_in_user(request) -> dict | None:
         return None
     identifier = request.session.get(SESSION_IDENTIFIER)
     if user.is_active and identifier and is_allowed(identifier):
-        crsid = crsid_of(identifier)    # the user name, unless social-auth had to make it unique
-        return {"id": crsid, "name": user.first_name or crsid, "reviewer": is_reviewer(crsid)}
+        uid = identity_of(identifier)    # the CRSid for a Cambridge address, else the whole address
+        return {"id": uid, "name": user.first_name or uid, "reviewer": is_reviewer(uid)}
     return None
 
 
