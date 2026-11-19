@@ -10,7 +10,7 @@ os.environ.setdefault("MLC_TESTING", "1")
 from django.core.exceptions import ImproperlyConfigured
 
 from config.envfile import read_env_file
-from config.settings import build_settings, is_testing, parse_bool
+from config.settings import build_settings, is_testing, merge_env, parse_bool
 
 OIDC = {
     "AUTH_MODE": "oidc",
@@ -60,6 +60,40 @@ class WsgiEntryPoints(unittest.TestCase):
         config_wsgi = importlib.import_module("config.wsgi")
         self.assertIs(wsgi.application, config_wsgi.application)
         self.assertTrue(callable(wsgi.application))
+
+
+class MergeEnv(unittest.TestCase):
+    FILE = {"OLLAMA_HOST": "from-file", "ASSISTANT_MODEL": "from-file", "OLLAMA_API_KEY": "file-key"}
+
+    def test_environment_wins_over_the_file(self):
+        out = merge_env(self.FILE, {"MLC_OLLAMA_HOST": "from-env"}, testing=False)
+        self.assertEqual(out["OLLAMA_HOST"], "from-env")
+
+    def test_file_fills_gaps(self):
+        out = merge_env(self.FILE, {"MLC_OLLAMA_HOST": "from-env", "HOME": "/x"}, testing=False)
+        self.assertEqual(out["ASSISTANT_MODEL"], "from-file")
+        self.assertNotIn("HOME", out)
+
+    def test_environment_values_are_json_parsed(self):
+        out = merge_env({}, {"MLC_ASSISTANT_DAILY_LIMIT": "10", "MLC_REVIEWERS": '["a"]', "MLC_X": "plain"}, testing=False)
+        self.assertEqual(out, {"ASSISTANT_DAILY_LIMIT": 10, "REVIEWERS": ["a"], "X": "plain"})
+
+    def test_testing_ignores_the_file(self):
+        out = merge_env(self.FILE, {"MLC_OLLAMA_HOST": "from-env"}, testing=True)
+        self.assertEqual(out, {"OLLAMA_HOST": "from-env"})
+
+    def test_file_alias_key_and_environment_override(self):
+        file_env = read_env_file_text("Ollama_API=k\n")
+        self.assertEqual(merge_env(file_env, {}, testing=False), {"OLLAMA_API_KEY": "k"})
+        self.assertEqual(merge_env(file_env, {"MLC_OLLAMA_API_KEY": "env-key"}, testing=False),
+                         {"OLLAMA_API_KEY": "env-key"})
+
+
+def read_env_file_text(text):
+    with tempfile.TemporaryDirectory() as d:
+        p = Path(d) / ".env"
+        p.write_text(text, encoding="utf-8")
+        return read_env_file(p)
 
 
 class Settings(unittest.TestCase):

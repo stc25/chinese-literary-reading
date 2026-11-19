@@ -183,9 +183,9 @@ def is_testing(argv: list, env: dict) -> bool:
     return argv[1:2] == ["test"] or parse_bool(env.get("MLC_TESTING", ""), "TESTING")
 
 
-def _environment() -> dict:
+def _environment(environ) -> dict:
     out = {}
-    for key, value in os.environ.items():
+    for key, value in environ.items():
         if key.startswith("MLC_"):
             try:
                 out[key[4:]] = json.loads(value)
@@ -194,9 +194,15 @@ def _environment() -> dict:
     return out
 
 
+def merge_env(file_env: dict, environ: dict, testing: bool) -> dict:
+    """Settings from app/.env (ignored when testing) overlaid by the real MLC_* environment, which wins."""
+    merged = {} if testing else dict(file_env)
+    merged.update(_environment(environ))
+    return merged
+
+
 _TESTING = is_testing(sys.argv, os.environ)
-_env = {} if _TESTING else read_env_file(ENV_FILE)
-_env.update(_environment())
+_env = merge_env({} if _TESTING else read_env_file(ENV_FILE), os.environ, _TESTING)
 _env.pop("TESTING", None)
 _debug = parse_bool(_env.pop("DEBUG", False), "DEBUG")
 globals().update(build_settings(_env, debug=_debug, testing=_TESTING))
