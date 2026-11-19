@@ -7,6 +7,7 @@ import json
 import os
 import secrets
 import sys
+import uuid
 from datetime import timedelta
 from pathlib import Path
 
@@ -18,6 +19,13 @@ REPO = Path(__file__).resolve().parent.parent
 ENV_FILE = REPO / "app" / ".env"
 AUTH_MODES = ("oidc", "none")
 OIDC_REQUIRED = ("SECRET_KEY", "AZURE_CLIENT_ID", "AZURE_CLIENT_SECRET", "AZURE_TENANT_ID")
+MIN_SECRET_LENGTH = 32
+PASSWORD_VALIDATORS = [   # the admin's password logins (createsuperuser, changepassword, the admin form)
+    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
+]
 
 # University SSO (Microsoft Entra ID) through python-social-auth, as in academic-reading-eng.
 # The allowlist check runs before any user or social-auth row is created; associate_by_email is
@@ -87,12 +95,31 @@ def build_settings(env: dict, debug: bool, testing: bool) -> dict:
     if mode not in AUTH_MODES:
         raise ImproperlyConfigured(f"MLC_AUTH_MODE must be one of {AUTH_MODES}, not {mode!r}")
     secret = values.get("SECRET_KEY") or ""
+    tenant = str(values.get("AZURE_TENANT_ID") or "")
     if mode == "oidc":
         for name in OIDC_REQUIRED:
             if not values.get(name):
                 raise ImproperlyConfigured(f"MLC_{name} is required when MLC_AUTH_MODE is oidc")
+        secret = str(secret)
+        if len(secret) < MIN_SECRET_LENGTH or secret == "dev" or secret.startswith("<"):
+            raise ImproperlyConfigured(
+                f"MLC_SECRET_KEY must be a long random string (at least {MIN_SECRET_LENGTH} characters, "
+                "e.g. python3 -c 'import secrets; print(secrets.token_hex(32))'), not a placeholder")
+        try:
+            # A tenant GUID: "common" or "organizations" would turn off social-core's tenant (tid) check.
+            tenant = str(uuid.UUID(tenant))
+        except ValueError:
+            raise ImproperlyConfigured(
+                "MLC_AZURE_TENANT_ID must be the tenant's ID (a GUID such as "
+                "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx), not a name or 'common'") from None
     elif not secret:
         secret = secrets.token_hex(32)   # development only: sessions end when the app restarts
+
+    reload_content = values.get("RELOAD_CONTENT")
+    if reload_content is not None and reload_content != "":
+        reload_content = parse_bool(reload_content, "RELOAD_CONTENT")
+    else:
+        reload_content = None    # reload content files when DEBUG is on
 
     s = {k: v for k, v in values.items() if k not in ("SECRET_KEY", "DB_PATH", "AUTH_MODE")}
     s.update(
@@ -101,7 +128,7 @@ def build_settings(env: dict, debug: bool, testing: bool) -> dict:
         AUTH_MODE=mode,
         AZURE_CLIENT_ID=str(values.get("AZURE_CLIENT_ID") or ""),
         AZURE_CLIENT_SECRET=str(values.get("AZURE_CLIENT_SECRET") or ""),
-        AZURE_TENANT_ID=str(values.get("AZURE_TENANT_ID") or ""),
+        AZURE_TENANT_ID=tenant,
         ALLOWED_HOSTS=["*"],   # the reverse proxy decides the host
         INSTALLED_APPS=[
             "django.contrib.admin",
@@ -149,11 +176,13 @@ def build_settings(env: dict, debug: bool, testing: bool) -> dict:
             "social_core.backends.azuread_tenant.AzureADTenantOAuth2",
             "django.contrib.auth.backends.ModelBackend",   # the admin's own password login (superusers)
         ],
+        AUTH_PASSWORD_VALIDATORS=PASSWORD_VALIDATORS,
+        RELOAD_CONTENT=reload_content,
         LOGIN_URL="auth.login",
         LOGIN_REDIRECT_URL="/",
         SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_KEY=str(values.get("AZURE_CLIENT_ID") or ""),
         SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_SECRET=str(values.get("AZURE_CLIENT_SECRET") or ""),
-        SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_TENANT_ID=str(values.get("AZURE_TENANT_ID") or ""),
+        SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_TENANT_ID=tenant,
         SOCIAL_AUTH_PIPELINE=SOCIAL_AUTH_PIPELINE,
         SOCIAL_AUTH_USERNAME_IS_FULL_EMAIL=False,
         SOCIAL_AUTH_USER_FIELDS=["username"],          # create_user never copies the address

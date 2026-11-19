@@ -14,10 +14,10 @@ from config.settings import build_settings, is_testing, merge_env, parse_bool
 
 OIDC = {
     "AUTH_MODE": "oidc",
-    "SECRET_KEY": "s",
+    "SECRET_KEY": "k" * 20 + "0123456789abcdefghijklmnopqrstuv",
     "AZURE_CLIENT_ID": "id",
     "AZURE_CLIENT_SECRET": "secret",
-    "AZURE_TENANT_ID": "tenant",
+    "AZURE_TENANT_ID": "6a3c1b6e-2f4d-4e8a-9b1c-0d2e3f4a5b6c",
 }
 
 
@@ -137,7 +137,7 @@ class Settings(unittest.TestCase):
         s = build_settings(dict(OIDC), debug=False, testing=False)
         self.assertEqual(s["SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_KEY"], "id")
         self.assertEqual(s["SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_SECRET"], "secret")
-        self.assertEqual(s["SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_TENANT_ID"], "tenant")
+        self.assertEqual(s["SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_TENANT_ID"], OIDC["AZURE_TENANT_ID"])
         self.assertEqual(s["AUTHENTICATION_BACKENDS"][0], "social_core.backends.azuread_tenant.AzureADTenantOAuth2")
         self.assertIs(s["SOCIAL_AUTH_RAISE_EXCEPTIONS"], False)
         self.assertFalse(s["SOCIAL_AUTH_USERNAME_IS_FULL_EMAIL"])
@@ -164,6 +164,41 @@ class Settings(unittest.TestCase):
         s = build_settings({"AUTH_MODE": "none"}, debug=True, testing=False)
         self.assertEqual(s["SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_KEY"], "")
         self.assertFalse(s["SOCIAL_AUTH_REDIRECT_IS_HTTPS"])
+
+    def test_weak_secret_key_refused(self):
+        for bad in ("dev", "short-key-0123456789", "x" * 31, "<a long random string, e.g. from secrets.token_hex(32)>"):
+            with self.subTest(bad=bad), self.assertRaises(ImproperlyConfigured) as cm:
+                build_settings(dict(OIDC, SECRET_KEY=bad), debug=False, testing=False)
+            self.assertIn("MLC_SECRET_KEY", str(cm.exception))
+        build_settings(dict(OIDC, SECRET_KEY="x" * 32), debug=False, testing=False)
+        build_settings({"AUTH_MODE": "none", "SECRET_KEY": "dev"}, debug=True, testing=False)   # development only
+
+    def test_tenant_must_be_a_uuid(self):
+        for bad in ("common", "organizations", "consumers", "cam.ac.uk", "6a3c1b6e"):
+            with self.subTest(bad=bad), self.assertRaises(ImproperlyConfigured) as cm:
+                build_settings(dict(OIDC, AZURE_TENANT_ID=bad), debug=False, testing=False)
+            self.assertIn("MLC_AZURE_TENANT_ID", str(cm.exception))
+        s = build_settings(dict(OIDC, AZURE_TENANT_ID=OIDC["AZURE_TENANT_ID"].upper()), debug=False, testing=False)
+        self.assertEqual(s["SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_TENANT_ID"], OIDC["AZURE_TENANT_ID"])
+
+    def test_password_validators(self):
+        s = build_settings(dict(OIDC), debug=False, testing=False)
+        names = [v["NAME"].rsplit(".", 1)[1] for v in s["AUTH_PASSWORD_VALIDATORS"]]
+        self.assertEqual(names, ["UserAttributeSimilarityValidator", "MinimumLengthValidator",
+                                 "CommonPasswordValidator", "NumericPasswordValidator"])
+
+    def test_reload_content_is_strict(self):
+        def reload(value):
+            return build_settings({"RELOAD_CONTENT": value}, debug=True, testing=False)["RELOAD_CONTENT"]
+        self.assertIsNone(build_settings({}, debug=True, testing=False)["RELOAD_CONTENT"])
+        self.assertIsNone(reload(""))
+        for v in ("no", "false", "0", 0, False, "off"):
+            self.assertIs(reload(v), False, v)
+        for v in ("yes", "true", "1", 1, True, "on"):
+            self.assertIs(reload(v), True, v)
+        with self.assertRaises(ImproperlyConfigured) as cm:
+            reload("sometimes")
+        self.assertIn("MLC_RELOAD_CONTENT", str(cm.exception))
 
     def test_oidc_requires_each_setting(self):
         for name in ("SECRET_KEY", "AZURE_CLIENT_ID", "AZURE_CLIENT_SECRET", "AZURE_TENANT_ID"):
@@ -215,7 +250,7 @@ class Strictness(unittest.TestCase):
             is_testing(["x"], {"MLC_TESTING": "banana"})
 
     def test_secrets_are_strings(self):
-        env = dict(OIDC, SECRET_KEY=12345, AZURE_CLIENT_ID=1, AZURE_CLIENT_SECRET=2, AZURE_TENANT_ID=3)
+        env = dict(OIDC, SECRET_KEY=10 ** 40, AZURE_CLIENT_ID=1, AZURE_CLIENT_SECRET=2)
         s = build_settings(env, debug=False, testing=False)
         for k in ("SECRET_KEY", "AZURE_CLIENT_ID", "AZURE_CLIENT_SECRET", "AZURE_TENANT_ID"):
             self.assertIsInstance(s[k], str)
