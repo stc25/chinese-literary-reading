@@ -7,3 +7,5 @@ urlpatterns = [
     path("django-admin/", admin.site.urls),
     path("", include("app.urls")),
 ]
+
+handler404 = "app.views.not_found"   # Django reads it from the root URLconf only

@@ -33,9 +33,10 @@ def start_test_database():
     Returns a handle for stop_test_database (None when there was nothing to do)."""
     from django.db import connection
     from django.test.runner import DiscoverRunner
+    from django.test.utils import _TestState
     name = str(connection.settings_dict["NAME"])
-    if "memorydb" in name or name == ":memory:":
-        return None
+    if "memorydb" in name or name == ":memory:" or hasattr(_TestState, "saved_data"):
+        return None     # `manage.py test` is in charge (it skips the database when no selected test needs one)
     runner = DiscoverRunner(verbosity=0, interactive=False)
     runner.setup_test_environment()
     return runner, runner.setup_databases()

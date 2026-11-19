@@ -9,6 +9,7 @@ from django.http import Http404, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
 from django.utils.cache import patch_cache_control
+from django.views.decorators.http import require_safe
 
 from accounts.decorators import reviewer_required
 
@@ -60,12 +61,14 @@ def ref_title(ref: str) -> str:
     return page.title if page else ref
 
 
+@require_safe
 def course_map(request):
     if settings.AUTH_MODE == "oidc" and current_user() is None:   # not signed in (the sign-in check lets this page through)
         return welcome(request)
     return render(request, "course.html")
 
 
+@require_safe
 def welcome(request):
     """The landing page: what the site is, and the way in. Public, so it shows no course content,
     only the introduction and counts."""
@@ -81,6 +84,7 @@ def welcome(request):
         daily=int(getattr(settings, "ASSISTANT_DAILY_LIMIT", 40))))
 
 
+@require_safe
 def unit(request, uid: str):
     course = the_course()
     u = get_or_404(course.units, uid)
@@ -123,6 +127,7 @@ def passages_before(p) -> list:
     return order[:order.index(p)] if p in order else []
 
 
+@require_safe
 def passage(request, uid: str, num: str):
     p = get_or_404(the_course().passages, f"{uid}-{num}")
     u = the_course().units[uid]
@@ -141,6 +146,7 @@ def passage(request, uid: str, num: str):
     ))
 
 
+@require_safe
 def grammar_index(request):
     """Grammar points grouped by the unit that introduces them, in course order."""
     course = the_course()
@@ -155,6 +161,7 @@ def grammar_index(request):
     return render(request, "grammar_index.html", dict(groups=groups, other=other))
 
 
+@require_safe
 def grammar(request, gid: str):
     gr = get_or_404(the_course().grammar, gid)
     used = [p for p in the_course().passages_for_grammar(gid) if visible(p)]
@@ -163,6 +170,7 @@ def grammar(request, gid: str):
     return render(request, "grammar.html", dict(gr=gr, used=used, units=units))
 
 
+@require_safe
 def summaries(request):
     """Titles and summaries of grammar and toolkit pages, for link tooltips."""
     course = the_course()
@@ -178,10 +186,12 @@ def summaries(request):
     return resp
 
 
+@require_safe
 def toolkit_index(request):
     return render(request, "toolkit_index.html")
 
 
+@require_safe
 def toolkit(request, tid: str):
     t = get_or_404(the_course().toolkit, tid)
     converter = None
@@ -228,6 +238,7 @@ def strip_html(html: str) -> str:
     return re.sub(r"<[^>]+>", "", html)
 
 
+@require_safe
 def glossary(request):
     entries = [e for e in glossary_entries() if visible(e.first)]
     q = request.GET.get("q", "").strip()
@@ -248,6 +259,7 @@ def page_url(page) -> str:
     return the_course().urls.get(page.path.resolve(), "/")
 
 
+@require_safe
 @reviewer_required
 def review_list(request):
     """Every REVIEW comment in the course, for reviewers."""
@@ -263,6 +275,7 @@ def review_list(request):
     return render(request, "review_list.html", dict(pages=pages, total=total, warnings=course.warnings))
 
 
+@require_safe
 def accessibility(request):
     """The accessibility statement (public, as required for public-sector websites)."""
     return render(request, "accessibility.html", dict(contact=getattr(settings, "ACCESSIBILITY_CONTACT", "")))

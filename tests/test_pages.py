@@ -329,3 +329,24 @@ class Landing(TestCase):
             html = self.oidc().get("/").content.decode()
         self.assertIn('id="units"', html)
         self.assertNotIn("landing-hero", html)
+
+
+@page_settings()
+class Routing(SimpleTestCase):
+    def test_handler404_is_ours(self):
+        from django.urls import get_resolver
+
+        from app.views import not_found
+        self.assertIs(get_resolver().resolve_error_handler(404), not_found)
+
+    def test_assistant_without_slash_redirects(self):
+        r = self.client.get("/assistant")
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(r["Location"], "/assistant/")
+
+    def test_pages_are_get_only(self):
+        for url in ("/", "/welcome", "/units/u01", "/units/u01/p01", "/grammar", "/grammar/ye-topic",
+                    "/summaries.json", "/toolkit", "/glossary", "/accessibility", "/review"):
+            with self.subTest(url=url):
+                self.assertEqual(self.client.post(url).status_code, 405)
+                self.assertEqual(self.client.head(url).status_code in (200, 404), True)
