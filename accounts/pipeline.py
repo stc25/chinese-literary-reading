@@ -64,8 +64,13 @@ def finish_login(backend, user=None, *args, strategy=None, login_identifier=None
         raise AuthForbidden(backend)
     name = str((details or {}).get("first_name") or user.first_name or user.username)[:150]
     user.first_name, user.last_name, user.email = name, "", ""
-    user.set_unusable_password()
-    user.save(update_fields=["first_name", "last_name", "email", "password"])
+    fields = ["first_name", "last_name", "email"]
+    if user.has_usable_password():
+        # Only when it changes: a new unusable password is random, which would change the session
+        # hash and end the user's sessions on their other devices.
+        user.set_unusable_password()
+        fields.append("password")
+    user.save(update_fields=fields)
     if social is not None and social.extra_data:
         social.extra_data = {}     # load_extra_data copied the tokens; this site never calls Microsoft again
         social.save(update_fields=["extra_data"])

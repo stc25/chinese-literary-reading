@@ -293,6 +293,22 @@ class SignInFlowTests(TestCase):
         html = self.client.get("/").content.decode()
         self.assertIn("Reviewer notes: off", html)    # cz201 is a reviewer whatever the account is called
 
+    def test_sign_in_on_another_device_keeps_this_one(self):
+        a, b = Client(), Client()
+        sso_sign_in(a)
+        self.assertEqual(a.get("/glossary").status_code, 200)
+        sso_sign_in(b)
+        self.assertEqual(b.get("/glossary").status_code, 200)
+        self.assertEqual(a.get("/glossary").status_code, 200)    # still signed in on the first device
+
+    def test_logout_on_one_device_keeps_the_other(self):
+        a, b = Client(), Client()
+        sso_sign_in(a)
+        sso_sign_in(b)
+        self.assertEqual(b.post("/logout")["Location"], "/signed-out")
+        self.assertEqual(b.get("/glossary").status_code, 302)
+        self.assertEqual(a.get("/glossary").status_code, 200)
+
     def test_second_sign_in_reuses_the_account(self):
         sso_sign_in(self.client)
         self.client.post("/logout")
