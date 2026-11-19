@@ -1,6 +1,6 @@
 # Web app — plan
 
-> Historical plan: the backend is now Django, not Flask (see `docs/superpowers/` for the Django port plan). The decisions about content, links and pages below still hold.
+> Historical plan: the backend is now Django, not Flask. The decisions about content, links and pages below still hold.
 
 Draft v0.1 · 2026-11-07
 

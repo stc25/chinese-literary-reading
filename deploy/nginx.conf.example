@@ -45,6 +45,18 @@ server {
         proxy_read_timeout 30s;
     }
 
+    # The Django admin (the allowlist) has its own password login. Recommended: allow it only from
+    # the Language Centre's network, e.g.
+    # location /django-admin/ {
+    #     allow 131.111.0.0/16;      # replace with the addresses you manage it from
+    #     deny all;
+    #     proxy_pass http://127.0.0.1:8000;
+    #     proxy_set_header Host $host;
+    #     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    #     proxy_set_header X-Forwarded-Proto $scheme;
+    #     proxy_set_header X-Forwarded-Host $host;
+    # }
+
     # The assistant's AI steps can take up to ASSISTANT_STEP_DEADLINE (90 s) plus a wait for a free slot.
     location /assistant/api/ {
         proxy_pass http://127.0.0.1:8000;

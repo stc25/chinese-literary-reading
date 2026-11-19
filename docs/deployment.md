@@ -9,7 +9,7 @@ only each signed-in person's CRSid, display name and active flag: no email addre
 
 ## What you need
 
-- A Linux server (any current distribution) with Python 3.11 or later, nginx and a TLS certificate
+- A Linux server (any current distribution) with Python 3.10 or later (the container uses 3.12), nginx and a TLS certificate
   for the chosen host name, e.g. `course.langcen.cam.ac.uk`.
 - About 200 MB of disk and 256 MB of memory.
 - A new **Microsoft Entra ID** app registration for this site (University sign-in), as for the other
@@ -34,7 +34,7 @@ sudo python3 -m venv .venv
 sudo .venv/bin/pip install -r requirements.txt
 sudo .venv/bin/python tools/validate.py --quiet        # must report 0 errors
 sudo chown -R root:mlc /srv/mlc
-sudo install -d -o mlc -g mlc /srv/mlc/var             # SQLite database and collected static files
+sudo install -d -m 700 -o mlc -g mlc /srv/mlc/var      # SQLite database and static files, mlc only
 ```
 
 ## Configure
@@ -45,8 +45,9 @@ sudo install -m 600 -o mlc deploy/mlc.env.example /etc/mlc/mlc.env
 sudo nano /etc/mlc/mlc.env
 ```
 
-Fill in `MLC_AZURE_TENANT_ID`, `MLC_AZURE_CLIENT_ID`, `MLC_AZURE_CLIENT_SECRET`, a new `MLC_SECRET_KEY`,
-the reviewers' CRSids and the Ollama API key. Keep `MLC_TRUST_PROXY=1`: it is **required** behind
+Fill in `MLC_AZURE_TENANT_ID` (the tenant's GUID; names such as `common` are refused),
+`MLC_AZURE_CLIENT_ID`, `MLC_AZURE_CLIENT_SECRET`, a new `MLC_SECRET_KEY` (at least 32 random
+characters; the example's placeholder is refused), the reviewers' CRSids and the Ollama API key. Keep `MLC_TRUST_PROXY=1`: it is **required** behind
 nginx with TLS, otherwise Django's CSRF origin check rejects the sign-out and reviewer-mode posts. All settings are listed in the
 [README](../README.md#settings).
 
@@ -96,9 +97,13 @@ Only people on the allowlist can sign in. Create the first admin as above, then 
 exact address (`abc123@cam.ac.uk`) or a whole domain (`@ling.cam.ac.uk`). Matching ignores case.
 Removing an entry, or deactivating an account, takes effect on that person's next request.
 
-An account that signs in through SSO becomes SSO-only: its password is made unusable at its first SSO
-sign-in. Sign in to `/django-admin/` with the password **before** using SSO with that account, or use
-a separate admin account.
+**Admins.** The first admin is the account made with `createsuperuser`: it signs in with its
+password at `/django-admin/`. A University sign-in always creates (or reuses) a separate account, never
+this one. To make a colleague an admin, let them sign in once with SSO, then tick *Staff status* (and
+*Superuser status* if they should manage everything) on **their** account in the admin; from then on
+they reach `/django-admin/` through SSO, and stay subject to the allowlist. Restrict `/django-admin/`
+to the addresses you manage it from (a commented `allow`/`deny` block is in
+`deploy/nginx.conf.example`), or, once SSO admins exist, remove the password account's staff status.
 
 Then open `https://<host>/`: you should see the landing page and, after signing in with a University
 account on the allowlist, the course map.
@@ -189,14 +194,18 @@ If new passages add characters that the web font lacks, rebuild the font on a de
 ## Logs and privacy
 
 Gunicorn's access log records the client address, time, path and status, but not query strings
-(which may contain glossary searches) or user names. Sign-in failures are logged as warnings.
+(which may contain glossary searches) or user names. The app logs to standard error (the journal, or
+`docker logs`): warnings and errors, with a traceback for any unexpected error (500). Sign-in failures
+are logged as warnings, naming only the kind of failure.
 Problems with the model service (no connection, a refused key, timeouts, unusable answers, all
 slots busy) are logged with the model name, status and timing. Texts that learners paste, and the
 model's answers, are never logged or stored: they are sent by POST to the model service and
 discarded after the reply.
-Learners' progress and settings are kept only in their own browsers (`localStorage`); the session
-cookie holds the signed-in user's CRSid, name and reviewer flag, is signed with `MLC_SECRET_KEY`
-and expires after 12 hours.
+Learners' progress and settings are kept only in their own browsers (`localStorage`). The session
+cookie holds the user's account id, Django's session hash and the sign-in identifier (the University
+address, e.g. `abc123@cam.ac.uk`, used to re-check the allowlist on every request). It is signed with
+`MLC_SECRET_KEY`, so it cannot be altered, but **not encrypted**: its owner can read it. It expires
+after 12 hours.
 
 ## Troubleshooting
 
@@ -204,6 +213,7 @@ and expires after 12 hours.
 |---|---|
 | Gunicorn does not start; the journal lists file names and messages | Validation errors in the content: fix them or roll back the last change |
 | `ImproperlyConfigured: MLC_… is required when MLC_AUTH_MODE is oidc` | `/etc/mlc/mlc.env` incomplete or not loaded (`MLC_SECRET_KEY`, `MLC_AZURE_*`) |
+| `ImproperlyConfigured: MLC_SECRET_KEY must be a long random string` or `MLC_AZURE_TENANT_ID must be the tenant's ID` | The placeholder or a short key is still in `/etc/mlc/mlc.env`; or the tenant is given by name instead of its GUID |
 | Sign-in returns to an `http://` address or fails with a redirect mismatch | `MLC_TRUST_PROXY=1` missing, or nginx not overwriting `X-Forwarded-Proto`/`X-Forwarded-Host`; or the redirect URI is not registered in Entra |
 | Sign-out or the reviewer switch answers 403 (CSRF) | `MLC_TRUST_PROXY=1` missing, or nginx passes a different `Host`/`X-Forwarded-Host` |
 | The sign-in error page for a University account | The person is not on the allowlist: add an entry at `/django-admin/` |
@@ -211,4 +221,4 @@ and expires after 12 hours.
 | The assistant says "not set up correctly" | Run `python manage.py assistant_check` (see Run): a wrong or missing `MLC_OLLAMA_API_KEY` (401), or `MLC_ASSISTANT_MODEL` not covered by the plan or misspelt (402, 404) |
 | The assistant often says "busy" | More learners than slots: raise `MLC_ASSISTANT_MAX_CONCURRENT` (and `MLC_THREADS` with it, keeping 4 or more threads spare) |
 | The assistant says "usage limit has been reached" (the service's, not the learner's) | The Ollama plan's allowance is used up: lower `MLC_ASSISTANT_HOURLY_LIMIT`, or add credits |
-| Reviewer switch missing | The CRSid is not in `MLC_REVIEWERS` (lower case), or the user signed in before it was added: sign out and in again |
+| Reviewer switch missing | The CRSid is not in `MLC_REVIEWERS`, or the service has not been restarted since it was added: `sudo systemctl restart mlc` (reviewer status is worked out on every request; nobody needs to sign out) |
