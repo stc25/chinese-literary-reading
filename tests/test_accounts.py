@@ -49,6 +49,12 @@ class AllowsTests(TestCase):
         allow("abc123")
         self.assertTrue(AllowedLogin.objects.allows("abc123@cam.ac.uk", ""))
 
+    def test_given_crsid_overrides_local_part(self):
+        allow("abc123")
+        self.assertFalse(AllowedLogin.objects.allows("abc123@cam.ac.uk", "zzz"))
+        self.assertTrue(AllowedLogin.objects.allows("abc123@cam.ac.uk", ""))
+        self.assertTrue(AllowedLogin.objects.allows("other@cam.ac.uk", "abc123"))
+
     def test_crsid_entry_needs_cam_email(self):
         allow("abc123")
         self.assertFalse(AllowedLogin.objects.allows("abc123@gmail.com", "abc123"))

@@ -18,11 +18,9 @@ class AllowedLoginManager(models.Manager):
         if email and "@" in email:
             candidates.add(email)
             candidates.add("@" + email.rsplit("@", 1)[1])
-            local = email.rsplit("@", 1)[0]
             if email.endswith(CAM_DOMAIN):
-                candidates.add(local)
-                if crsid:
-                    candidates.add(crsid)
+                # A supplied crsid is authoritative; the local part is only a fallback.
+                candidates.add(crsid or email.rsplit("@", 1)[0])
         if not candidates:
             return False
         return self.filter(entry__in=candidates).exists()
