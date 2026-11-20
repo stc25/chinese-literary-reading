@@ -6,7 +6,6 @@ from . import views
 urlpatterns = [
     path("login", views.login, name="auth.login"),
     path("logout", views.logout_view, name="auth.logout"),
-    path("signed-out", views.signed_out, name="auth.signed_out"),
     path("signin-error", views.signin_error, name="auth.signin_error"),
     path("reviewer-mode", views.toggle_reviewer_mode, name="auth.toggle_reviewer_mode"),
     # The completion URL registered in Entra; `auth.callback` names it.

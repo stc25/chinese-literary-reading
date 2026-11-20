@@ -33,11 +33,7 @@ def login(request):
 @require_POST
 def logout_view(request):
     logout(request)
-    return redirect("auth.signed_out")
-
-
-def signed_out(request):
-    return render(request, "signed_out.html")
+    return redirect("pages.course_map")      # the home page, which shows the welcome page to a signed-out visitor
 
 
 def signin_error(request):

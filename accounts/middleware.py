@@ -19,7 +19,7 @@ log = logging.getLogger("accounts")
 
 # Paths that do not need sign-in. The course map at "/" shows the landing page to a visitor who is
 # not signed in. The admin has its own password login (superusers created with createsuperuser).
-OPEN_PATHS = {"/", "/welcome", "/login", "/logout", "/signed-out", "/signin-error", "/healthz", "/accessibility"}
+OPEN_PATHS = {"/", "/welcome", "/login", "/logout", "/signin-error", "/healthz", "/accessibility"}
 OPEN_PREFIXES = ("/auth/", "/static/", "/django-admin/")
 API_PATHS = {"/summaries.json"}
 API_PREFIXES = ("/assistant/api/",)

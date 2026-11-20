@@ -333,7 +333,7 @@ class SignInFlowTests(TestCase):
         a, b = Client(), Client()
         sso_sign_in(a)
         sso_sign_in(b)
-        self.assertEqual(b.post("/logout")["Location"], "/signed-out")
+        self.assertEqual(b.post("/logout")["Location"], "/")
         self.assertEqual(b.get("/glossary").status_code, 302)
         self.assertEqual(a.get("/glossary").status_code, 200)
 
@@ -531,7 +531,7 @@ class GateTests(TestCase):
         self.assertNotIn("review_mode", self.client.session)
 
     def test_open_pages(self):
-        for path in ("/healthz", "/static/css/site.css", "/accessibility", "/", "/welcome", "/signed-out"):
+        for path in ("/healthz", "/static/css/site.css", "/accessibility", "/", "/welcome"):
             with self.subTest(path=path):
                 r = self.client.get(path)
                 self.assertEqual(r.status_code, 200)
@@ -656,10 +656,9 @@ class CsrfTests(TestCase):
         token = csrf_from(self.client.get("/").content.decode())
         r = self.client.post("/logout", {"csrfmiddlewaretoken": token})
         self.assertEqual(r.status_code, 302)
-        self.assertEqual(r["Location"], "/signed-out")
+        self.assertEqual(r["Location"], "/")
         self.assertEqual(self.client.get("/glossary").status_code, 302)
         self.assertIn("Sign in with", self.client.get("/").content.decode())     # back to the landing page
-        self.assertIn("You have signed out", self.client.get("/signed-out").content.decode())
 
     def proxied_post(self, origin):
         token = csrf_from(self.client.get("/").content.decode())
@@ -671,7 +670,7 @@ class CsrfTests(TestCase):
         with self.settings(SECURE_PROXY_SSL_HEADER=("HTTP_X_FORWARDED_PROTO", "https"), USE_X_FORWARDED_HOST=True):
             r = self.proxied_post("https://mlc.example.ac.uk")
         self.assertEqual(r.status_code, 302)
-        self.assertEqual(r["Location"], "/signed-out")
+        self.assertEqual(r["Location"], "/")
 
     def test_origin_check_fails_without_trust_proxy(self):
         r = self.proxied_post("https://mlc.example.ac.uk")
@@ -688,7 +687,7 @@ class CsrfTests(TestCase):
         self.assertNotIn('name="csrf"', html)
         token = csrf_from(html)
         self.assertEqual(self.client.post("/logout", {"csrf": token}).status_code, 403)    # Flask's old name
-        self.assertEqual(self.client.post("/logout", {"csrfmiddlewaretoken": token})["Location"], "/signed-out")
+        self.assertEqual(self.client.post("/logout", {"csrfmiddlewaretoken": token})["Location"], "/")
 
     def test_logout_is_post_only(self):
         self.assertEqual(self.client.get("/logout").status_code, 405)
