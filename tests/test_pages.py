@@ -296,8 +296,7 @@ class Landing(TestCase):
         self.assertIn('href="/login"', html)
         self.assertIn('id="theme-switch"', html)
         self.assertNotIn("/grammar", html.split('<footer')[0])      # no course navigation or links before sign-in
-        # what sign-in keeps (accounts.pipeline.finish_login): the user name and the display name, no address
-        self.assertIn("the site stores only your user name and display name", " ".join(html.split()))
+        self.assertIn("it@langcen.cam.ac.uk", html)
 
     def test_sign_in_link_starts_the_sso(self):
         with oidc_mode(), no_network():
