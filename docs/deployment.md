@@ -16,6 +16,21 @@ branch or an old image, not missing a dependency.
 In production it is served at **https://lcapps.langcen.cam.ac.uk/chinese-literary-reading/**, under a path
 of the shared lcapps host (`MLC_URL_PREFIX=/chinese-literary-reading`; Caddy strips the prefix, the app adds it back).
 
+## Quick setup on lcapps (Docker)
+
+On the server, as `webadmin`, in `/var/www/chinese-literary-reading`:
+
+```bash
+git checkout main && git pull --ff-only     # main is the Django app; if you hold local edits, `git stash` them first
+./deploy/server.sh setup                    # asks for the Entra tenant ID, client ID and secret; builds and starts the app
+./deploy/server.sh admin                    # creates an admin: user name, email address, password
+```
+
+then add the Caddy blocks (`deploy/Caddyfile.example`) and register the Entra redirect URI, as the script
+prints at the end. Later updates: `./deploy/server.sh update` (pull, rebuild, restart, health check).
+`./deploy/server.sh status` shows whether it is running. The script writes `mlc.env` (mode 600, not in git);
+the sections below explain every setting and the non-Docker (systemd) alternative.
+
 ## What you need
 
 - A Linux server (any current distribution) with Python 3.10 or later (the container uses 3.12) and a Caddy reverse proxy (on lcapps it is already there; Caddy gets the TLS certificate)

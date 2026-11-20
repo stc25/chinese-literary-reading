@@ -42,7 +42,7 @@ lives in `./var`):
 docker compose -f docker-compose.dev.yml up --build     # then open http://localhost:5051/
 ```
 
-`MLC_DEBUG=1` means no sign-in. Then open <http://localhost:5050/> (or port 5051 with Docker). For production, `docker compose up -d --build` runs the production image (see [docs/deployment.md](docs/deployment.md))
+`MLC_DEBUG=1` means no sign-in. Then open <http://localhost:5050/> (or port 5051 with Docker). For production on lcapps, `./deploy/server.sh setup` builds and starts the production container (see [docs/deployment.md](docs/deployment.md))
 (Gunicorn behind Caddy, or a container; configuration files in `deploy/`). With `MLC_DEBUG=1` the app reloads the content when a file in
 `content/` changes. The app will not start if the validator reports errors. See
 [docs/app-plan.md](docs/app-plan.md) for the plan.
