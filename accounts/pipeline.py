@@ -35,7 +35,7 @@ def identifier_from_claims(claims: dict) -> str:
 def well_formed(identifier: str) -> bool:
     """One @, with something on both sides (so every part of the code splits it the same way)."""
     local, _, domain = (identifier or "").partition("@")
-    return identifier.count("@") == 1 and bool(local) and bool(domain)
+    return (identifier or "").count("@") == 1 and bool(local) and bool(domain)
 
 
 def crsid_of(identifier: str) -> str:
@@ -69,7 +69,8 @@ def enforce_allowlist(backend, details, response, *args, **kwargs):
     identifier = identifier_from_claims(response or {})
     if not is_allowed(identifier):
         raise AuthForbidden(backend)
-    username = crsid_of(identifier) or identifier.split("@", 1)[0]    # never the address itself
+    # never the address itself; "ext-" cannot collide with a CRSid (letters and digits only)
+    username = crsid_of(identifier) or "ext-" + identifier.split("@", 1)[0]
     name = str((response or {}).get("name") or "").strip() or identity_of(identifier)
     return {
         "details": {"username": username, "email": "", "fullname": name, "first_name": name[:150], "last_name": ""},

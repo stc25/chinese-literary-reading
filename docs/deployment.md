@@ -9,7 +9,7 @@ only each signed-in person's CRSid, display name and active flag: no email addre
 
 ## What you need
 
-- A Linux server (any current distribution) with Python 3.10 or later (the container uses 3.12), nginx and a TLS certificate
+- A Linux server (any current distribution) with Python 3.10 or later (the container uses 3.12) and a Caddy reverse proxy (on lcapps it is already there; Caddy gets the TLS certificate)
   for the chosen host name, e.g. `course.langcen.cam.ac.uk`.
 - About 200 MB of disk and 256 MB of memory.
 - A new **Microsoft Entra ID** app registration for this site (University sign-in), as for the other
@@ -48,12 +48,12 @@ sudo nano /etc/mlc/mlc.env
 Fill in `MLC_AZURE_TENANT_ID` (the tenant's GUID; names such as `common` are refused),
 `MLC_AZURE_CLIENT_ID`, `MLC_AZURE_CLIENT_SECRET`, a new `MLC_SECRET_KEY` (at least 32 random
 characters; the example's placeholder is refused), the reviewers' CRSids and the Ollama API key. Keep `MLC_TRUST_PROXY=1`: it is **required** behind
-nginx with TLS, otherwise Django's CSRF origin check rejects the sign-out and reviewer-mode posts. All settings are listed in the
+the Caddy proxy with TLS, otherwise Django's CSRF origin check rejects the sign-out and reviewer-mode posts. All settings are listed in the
 [README](../README.md#settings).
 
 ## Run
 
-The app runs under Gunicorn (`config.wsgi:application`), managed by systemd, behind nginx. The unit
+The app runs under Gunicorn (`config.wsgi:application`), managed by systemd, behind Caddy. The unit
 runs `manage.py migrate` and `manage.py collectstatic` before each start:
 
 ```bash
@@ -65,9 +65,8 @@ sudo systemctl status mlc
 sudo systemd-run --pty --wait --collect --quiet --uid=mlc --property=EnvironmentFile=/etc/mlc/mlc.env \
   --property=WorkingDirectory=/srv/mlc /srv/mlc/.venv/bin/python manage.py createsuperuser   # first admin
 
-sudo cp deploy/nginx.conf.example /etc/nginx/sites-available/mlc   # then edit host name and certificates
-sudo ln -s /etc/nginx/sites-available/mlc /etc/nginx/sites-enabled/
-sudo nginx -t && sudo systemctl reload nginx
+# Add the site block from deploy/Caddyfile.example (edit the host name) to the server's Caddyfile, then:
+sudo caddy validate --config /etc/caddy/Caddyfile && sudo systemctl reload caddy
 ```
 
 Check:
@@ -102,17 +101,17 @@ password at `/django-admin/`. A University sign-in always creates (or reuses) a 
 this one. To make a colleague an admin, let them sign in once with SSO, then tick *Staff status* (and
 *Superuser status* if they should manage everything) on **their** account in the admin; from then on
 they reach `/django-admin/` through SSO, and stay subject to the allowlist. Restrict `/django-admin/`
-to the addresses you manage it from (a commented `allow`/`deny` block is in
-`deploy/nginx.conf.example`), or, once SSO admins exist, remove the password account's staff status.
+to the addresses you manage it from (the `remote_ip` block is in
+`deploy/Caddyfile.example`), or, once SSO admins exist, remove the password account's staff status.
 
 Then open `https://<host>/`: you should see the landing page and, after signing in with a University
 account on the allowlist, the course map.
 
-nginx serves the static files (CSS, JavaScript, the font) from `/srv/mlc/var/static/`, collected by
-`python manage.py collectstatic` (the systemd unit and the container do it at start; Gunicorn's own
-WhiteNoise would also serve them), and compresses responses; Gunicorn serves the pages. The nginx
-site **overwrites** `X-Forwarded-Proto`, `X-Forwarded-Host` and `Host` with its own values (never
-appends to what the client sent): Django trusts them for the sign-in redirect URI and the CSRF check. If the content has validation errors, Gunicorn refuses to start and the journal
+The app serves its own static files (CSS, JavaScript, the font) through WhiteNoise, from
+`/srv/mlc/var/static/`, collected by `python manage.py collectstatic` (the systemd unit and the container
+do it at start); Caddy needs no static rule. Caddy terminates TLS, compresses responses and forwards
+everything else to Gunicorn. It sets `X-Forwarded-Proto`, `X-Forwarded-Host` and `Host` from the real
+request (never appending to what the client sent): Django trusts them for the sign-in redirect URI and the CSRF check. If the content has validation errors, Gunicorn refuses to start and the journal
 (`journalctl -u mlc`) lists them.
 
 ### The reading assistant under load
@@ -125,8 +124,7 @@ service.
 - At most `ASSISTANT_MAX_CONCURRENT` (6) model calls run at once. Further requests wait up to
   `ASSISTANT_QUEUE_WAIT` (20 s) for a free slot, then the page says the assistant is busy. This
   leaves threads free to serve the course pages.
-- A step gives up after `ASSISTANT_STEP_DEADLINE` (90 s). Gunicorn's timeout (130 s) and nginx's
-  `proxy_read_timeout` for `/assistant/api/` (130 s) are longer, so the learner sees the app's
+- A step gives up after `ASSISTANT_STEP_DEADLINE` (90 s). Gunicorn's timeout (130 s) is longer, and Caddy has no proxy read timeout by default, so the learner sees the app's
   message rather than a gateway error. Keep them in this order if you change one; a test checks the
   shipped files.
 - A temporary failure of the model service (no connection, an error 5xx) is retried once after a
@@ -153,9 +151,9 @@ docker exec -it mlc python manage.py createsuperuser                 # first adm
 
 The volume `mlc-var` holds the SQLite database (the allowlist), so keep it when you replace the
 container. The entrypoint runs `manage.py migrate` and `collectstatic`, then Gunicorn. Static files
-are served by the app (WhiteNoise); nginx need not have them on disk.
+are served by the app (WhiteNoise); Caddy need not have them on disk.
 
-Put nginx (or the server's existing proxy) in front of it as above, so that TLS and compression are
+Put Caddy in front of it as above, so that TLS and compression are
 handled there.
 
 ## Updating the content
@@ -214,8 +212,8 @@ after 12 hours.
 | Gunicorn does not start; the journal lists file names and messages | Validation errors in the content: fix them or roll back the last change |
 | `ImproperlyConfigured: MLC_… is required when MLC_AUTH_MODE is oidc` | `/etc/mlc/mlc.env` incomplete or not loaded (`MLC_SECRET_KEY`, `MLC_AZURE_*`) |
 | `ImproperlyConfigured: MLC_SECRET_KEY must be a long random string` or `MLC_AZURE_TENANT_ID must be the tenant's ID` | The placeholder or a short key is still in `/etc/mlc/mlc.env`; or the tenant is given by name instead of its GUID |
-| Sign-in returns to an `http://` address or fails with a redirect mismatch | `MLC_TRUST_PROXY=1` missing, or nginx not overwriting `X-Forwarded-Proto`/`X-Forwarded-Host`; or the redirect URI is not registered in Entra |
-| Sign-out or the reviewer switch answers 403 (CSRF) | `MLC_TRUST_PROXY=1` missing, or nginx passes a different `Host`/`X-Forwarded-Host` |
+| Sign-in returns to an `http://` address or fails with a redirect mismatch | `MLC_TRUST_PROXY=1` missing, or the proxy not overwriting `X-Forwarded-Proto`/`X-Forwarded-Host`; or the redirect URI is not registered in Entra |
+| Sign-out or the reviewer switch answers 403 (CSRF) | `MLC_TRUST_PROXY=1` missing, or the proxy passes a different `Host`/`X-Forwarded-Host` |
 | The sign-in error page for a University account | The person is not on the allowlist: add an entry at `/django-admin/` |
 | `sqlite3.OperationalError: unable to open database file` or a read-only database | `/srv/mlc/var` is missing or not writable by the `mlc` user |
 | The assistant says "not set up correctly" | Run `python manage.py assistant_check` (see Run): a wrong or missing `MLC_OLLAMA_API_KEY` (401), or `MLC_ASSISTANT_MODEL` not covered by the plan or misspelt (402, 404) |

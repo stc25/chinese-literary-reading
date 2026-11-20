@@ -12,7 +12,7 @@ See [PLAN.md](PLAN.md) for the project plan and
 | `docs/` | Specifications |
 | `templates/` | Blank templates and a worked example passage |
 | `app/`, `accounts/`, `config/` | The Django web app: pages and assistant, University sign-in and allowlist, settings |
-| `deploy/` | Server configuration: Gunicorn, nginx, systemd, settings template |
+| `deploy/` | Server configuration: Gunicorn, Caddy, systemd, settings template |
 | `tools/` | Scripts: validator, glossary and font builders |
 | `tests/` | Validator and app tests, and test fixtures |
 
@@ -32,7 +32,7 @@ docker compose -f docker-compose.dev.yml up --build     # then open http://local
 ```
 
 `MLC_DEBUG=1` means no sign-in. Then open <http://localhost:5050/> (or port 5051 with Docker). For production, see [docs/deployment.md](docs/deployment.md)
-(Gunicorn behind nginx, or a container; configuration files in `deploy/`). With `MLC_DEBUG=1` the app reloads the content when a file in
+(Gunicorn behind Caddy, or a container; configuration files in `deploy/`). With `MLC_DEBUG=1` the app reloads the content when a file in
 `content/` changes. The app will not start if the validator reports errors. See
 [docs/app-plan.md](docs/app-plan.md) for the plan.
 
@@ -60,7 +60,7 @@ MLC_ASSISTANT_MODEL=gemma4:31b
 | `MLC_REVIEWERS` | CRSids allowed to switch on reviewer notes, e.g. `["cz201"]` |
 | `MLC_DEV_USER` | With `none`, the user to act as, e.g. `cz201` to try reviewer mode |
 | `MLC_SHOW_UNREVIEWED` | `false` at release: hide pages not yet reviewed (reviewers still see them) |
-| `MLC_TRUST_PROXY` | `1` behind nginx (**required** there: without it Django's CSRF origin check rejects sign-out and reviewer-mode posts, and the sign-in redirect address is wrong). Default `0` |
+| `MLC_TRUST_PROXY` | `1` behind Caddy (**required** there: without it Django's CSRF origin check rejects sign-out and reviewer-mode posts, and the sign-in redirect address is wrong). Default `0` |
 | `MLC_DB_PATH` | The SQLite file that holds the allowlist and admin accounts. Default `var/db.sqlite3` |
 | `MLC_DEBUG` | `1` for development: Django debug mode, no sign-in by default, content reloads |
 | `MLC_TESTING` | Tests only (the test suite sets it): never set it in production |

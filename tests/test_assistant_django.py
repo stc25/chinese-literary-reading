@@ -355,9 +355,10 @@ class DeploymentSettings(SimpleTestCase):
         self.assertGreater(gconf["timeout"], step)
         self.assertEqual(gconf["workers"], 1)              # the usage limits are kept in one process
         self.assertGreaterEqual(gconf["threads"], settings.ASSISTANT_MAX_CONCURRENT + 4)
-        nginx = (ROOT / "deploy" / "nginx.conf.example").read_text()
-        api = re.search(r"location /assistant/api/ \{(.*?)\}", nginx, re.S).group(1)
-        self.assertGreaterEqual(int(re.search(r"proxy_read_timeout (\d+)s", api).group(1)), gconf["timeout"])
+        # Caddy has no proxy read timeout by default, so it cannot cut a step off before Gunicorn does.
+        caddy = (ROOT / "deploy" / "Caddyfile.example").read_text()
+        self.assertNotIn("read_timeout", caddy)
+        self.assertIn("reverse_proxy 127.0.0.1:8000", caddy)
 
 
 @oidc_settings(CONTENT_DIR=str(CONTENT))

@@ -205,6 +205,16 @@ class PipelineTests(TestCase):
         self.refused({"preferred_username": "cz201@example.ac.uk"})     # a CRSid entry is for Cambridge only
         self.refused({"preferred_username": "other@example.ac.uk"})
 
+    def test_non_cambridge_username_cannot_collide_with_a_crsid(self):
+        allow("@example.ac.uk")
+        out = self.enforce({"preferred_username": "cz201@example.ac.uk"})
+        self.assertEqual(out["details"]["username"], "ext-cz201")
+
+    def test_well_formed_tolerates_none(self):
+        from accounts.pipeline import well_formed
+        self.assertFalse(well_formed(None))
+        self.assertFalse(well_formed(""))
+
     def test_identity_of(self):
         from accounts.pipeline import identity_of
         self.assertEqual(identity_of("cz201@cam.ac.uk"), "cz201")

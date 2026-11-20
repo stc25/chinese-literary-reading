@@ -1,0 +1,33 @@
+# Caddy site for the course app. Replace course.example.cam.ac.uk, and the upstream port if you changed MLC_BIND.
+# Caddy gets the TLS certificate itself, compresses responses, and sets Host, X-Forwarded-Proto and
+# X-Forwarded-Host from the real request (overwriting anything the client sent). Django trusts them
+# when MLC_TRUST_PROXY=1, for the sign-in redirect URI and the CSRF check.
+# Static files (CSS, JavaScript, the font) are served by the app (WhiteNoise): no static rule is needed.
+# Caddy has no proxy read timeout by default, so the assistant's AI steps (up to 90 s plus a queue
+# wait) are not cut off; Gunicorn's own timeout (130 s) applies.
+
+course.example.cam.ac.uk {
+    encode zstd gzip
+
+    # The Django admin (the allowlist) has its own password login. Recommended: allow it only from
+    # the addresses you manage it from (replace 131.111.0.0/16).
+    @admin path /django-admin/*
+    handle @admin {
+        @outside not remote_ip 131.111.0.0/16
+        respond @outside 403
+        reverse_proxy 127.0.0.1:8000
+    }
+
+    # Requests larger than the assistant needs are refused here as well as in the app.
+    @api path /assistant/api/*
+    handle @api {
+        request_body {
+            max_size 256KB
+        }
+        reverse_proxy 127.0.0.1:8000
+    }
+
+    handle {
+        reverse_proxy 127.0.0.1:8000
+    }
+}
