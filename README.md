@@ -94,21 +94,20 @@ Cambridge CRSid. Only Cambridge sign-ins (a CRSid before `@cam.ac.uk`) can ever 
 address is refused whatever the list says. Removing an entry takes effect on that person's next request.
 The database stores only the user name (the CRSid), the display name and an active flag, no email address.
 
-**Admin login.** The Django admin at `https://lcapps.langcen.cam.ac.uk/chinese-literary-reading/django-admin/` has its own username and password
-login, separate from the Cambridge sign-in button. A password sign-in works only inside `/django-admin/`.
+**Admin login.** The Django admin at `https://lcapps.langcen.cam.ac.uk/chinese-literary-reading/django-admin/`
+is for the people who manage the site. It has its own sign-in, **an email address and a password**, and it is
+**not** part of the Cambridge SSO: an SSO sign-in has no email address stored and never opens the admin.
+Visitors who are not signed in to the admin see a landing page with a button to the admin login.
 
-1. Create the first admin: `python manage.py createsuperuser` (in Docker:
+1. Create an admin: `python manage.py createsuperuser` (in Docker:
    `docker compose exec web python manage.py createsuperuser`; the deployment guide has the non-Docker
-   command). It asks for a username, an optional email address and a password. The email is only a
-   contact field: the login uses the username.
-2. Sign in at `/django-admin/` with that username and password, and add the allowlist entries.
-3. Optional, to make admin sign-in use the Cambridge account: add your own CRSid to the allowlist, sign
-   in once on the main site with SSO, then in the admin open your account under Users and tick *Staff*
-   (and *Superuser* for full access). From then on you reach `/django-admin/` through SSO, still
-   subject to the allowlist. Once SSO admins exist, remove the password account's staff status.
+   command). Give it a user name (any), **an email address (required for the login)** and a password.
+2. Sign in at `/django-admin/` with that email address and password, and add the allowlist entries.
+3. More admins: under Users in the admin, add a user with an email address and a password and tick *Staff*
+   (and *Superuser* for full access). Each email address must belong to one account only.
 
-A University sign-in always creates (or reuses) a separate account, never the `createsuperuser` one. In
-production, restrict `/django-admin/` to the addresses you manage it from in the Caddy site block
+A University sign-in always creates (or reuses) a separate account with no email address, never an admin
+one. In production, restrict `/django-admin/` to the addresses you manage it from in the Caddy site block
 (`deploy/Caddyfile.example`, `remote_ip`).
 
 To try reviewer mode locally:

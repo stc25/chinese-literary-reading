@@ -177,7 +177,7 @@ def build_settings(env: dict, debug: bool, testing: bool) -> dict:
         }],
         AUTHENTICATION_BACKENDS=[
             "social_core.backends.azuread_tenant.AzureADTenantOAuth2",
-            "django.contrib.auth.backends.ModelBackend",   # the admin's own password login (superusers)
+            "accounts.backends.EmailBackend",   # the admin's own login: email address and password
         ],
         AUTH_PASSWORD_VALIDATORS=PASSWORD_VALIDATORS,
         RELOAD_CONTENT=reload_content,

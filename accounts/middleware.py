@@ -23,7 +23,7 @@ OPEN_PATHS = {"/", "/welcome", "/login", "/logout", "/signed-out", "/signin-erro
 OPEN_PREFIXES = ("/auth/", "/static/", "/django-admin/")
 API_PATHS = {"/summaries.json"}
 API_PREFIXES = ("/assistant/api/",)
-PASSWORD_BACKEND = "django.contrib.auth.backends.ModelBackend"
+PASSWORD_BACKEND = "accounts.backends.EmailBackend"
 
 REFUSED = "This course is open to members of the University of Cambridge only."
 FAILED = "The sign-in could not be completed."

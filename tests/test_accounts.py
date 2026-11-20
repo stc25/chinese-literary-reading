@@ -604,9 +604,9 @@ class GateTests(TestCase):
         self.assertIn("DatabaseError", "\n".join(logs.output))
 
     def test_admin_add_view_stores_the_normalised_entry(self):
-        User.objects.create_superuser("admin", password="a-long-admin-password-123")
+        User.objects.create_superuser("admin", "admin@example.org", "a-long-admin-password-123")
         client = Client(enforce_csrf_checks=True)
-        client.login(username="admin", password="a-long-admin-password-123")
+        client.login(username="admin@example.org", password="a-long-admin-password-123")
         url = "/django-admin/accounts/allowedlogin/add/"
         html = client.get(url).content.decode()
         token = re.search(r'name="csrfmiddlewaretoken" value="([^"]+)"', html).group(1)
@@ -618,8 +618,8 @@ class GateTests(TestCase):
         self.assertFalse(AllowedLogin.objects.filter(entry="not valid!").exists())
 
     def test_admin_password_login_only_counts_inside_the_admin(self):
-        User.objects.create_superuser("admin", password="a-long-admin-password-123")
-        self.assertTrue(self.client.login(username="admin", password="a-long-admin-password-123"))
+        User.objects.create_superuser("admin", "admin@example.org", "a-long-admin-password-123")
+        self.assertTrue(self.client.login(username="admin@example.org", password="a-long-admin-password-123"))
         self.assertEqual(self.client.get("/django-admin/").status_code, 200)
         r = self.client.get("/glossary")
         self.assertEqual(r.status_code, 302)
@@ -630,8 +630,7 @@ class GateTests(TestCase):
         User.objects.filter(username="cz201").update(is_staff=True, is_superuser=True)
         self.assertEqual(self.client.get("/django-admin/").status_code, 200)
         AllowedLogin.objects.all().delete()
-        r = self.client.get("/django-admin/")
-        self.assertEqual(r.status_code, 302)
+        self.assertIn("Course administration", self.client.get("/django-admin/").content.decode())   # the landing page, not the index
         self.assertNotEqual(self.client.get("/glossary").status_code, 200)
 
 
@@ -802,3 +801,52 @@ class ReviewerTests(TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+@oidc_settings(CONTENT_DIR=str(CONTENT))
+class AdminLanding(TestCase):
+    PW = "pw-for-tests-123"
+
+    def test_signed_out_sees_a_landing_page_with_a_link_to_the_admin_login(self):
+        r = Client().get("/django-admin/")
+        self.assertEqual(r.status_code, 200)
+        html = r.content.decode()
+        self.assertIn("Course administration", html)
+        self.assertIn('href="/django-admin/login/?next=/django-admin/"', html)
+        login = Client().get("/django-admin/login/")
+        self.assertEqual(login.status_code, 200)
+        self.assertIn("Email address", login.content.decode())      # the admin login asks for an email address
+
+    def test_login_is_by_email_address_and_password(self):
+        User.objects.create_superuser("boss", "boss@example.org", self.PW)
+        c = Client()
+        self.assertFalse(c.login(username="boss", password=self.PW))              # not the user name
+        self.assertFalse(c.login(username="boss@example.org", password="wrong"))
+        self.assertTrue(c.login(username="Boss@Example.org", password=self.PW))   # case-insensitive
+        r = c.get("/django-admin/")
+        self.assertIn("Site administration", r.content.decode())
+        self.assertNotIn("Course administration", r.content.decode())
+
+    def test_posting_the_admin_login_form(self):
+        User.objects.create_superuser("boss", "boss@example.org", self.PW)
+        c = Client()
+        r = c.post("/django-admin/login/?next=/django-admin/", {"username": "boss@example.org", "password": self.PW})
+        self.assertEqual(r.status_code, 302, r.content.decode()[:300])
+        self.assertIn("Site administration", c.get("/django-admin/").content.decode())
+
+    def test_accounts_without_an_email_address_cannot_use_it(self):
+        """An SSO account has no email address and an unusable password: it can never match."""
+        User.objects.create_user("cz201", "", self.PW)
+        self.assertFalse(Client().login(username="cz201", password=self.PW))
+        self.assertFalse(Client().login(username="", password=self.PW))
+
+    def test_two_accounts_with_one_address_match_neither(self):
+        User.objects.create_user("a", "same@example.org", self.PW)
+        User.objects.create_user("b", "same@example.org", self.PW)
+        self.assertFalse(Client().login(username="same@example.org", password=self.PW))
+
+    def test_signed_in_non_staff_see_the_landing_page(self):
+        User.objects.create_user("plain", "plain@example.org", self.PW)
+        c = Client()
+        self.assertTrue(c.login(username="plain@example.org", password=self.PW))
+        self.assertIn("Course administration", c.get("/django-admin/").content.decode())

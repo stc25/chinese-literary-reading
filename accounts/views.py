@@ -51,3 +51,19 @@ def toggle_reviewer_mode(request):
         raise Http404
     request.session["review_mode"] = request.POST.get("on") == "1"
     return redirect(safe_next(request.POST.get("next")))
+
+
+def admin_landing(request):
+    """/django-admin/: the admin index for signed-in staff, otherwise a landing page that leads to the
+    admin's own username-and-password login (the Cambridge sign-in does not open the admin)."""
+    from django.contrib import admin
+    from django.shortcuts import render
+    from django.urls import reverse
+
+    user = request.user
+    if user.is_active and user.is_staff:
+        return admin.site.admin_view(admin.site.index)(request)
+    return render(request, "admin_landing.html", {
+        "landing": True,
+        "admin_login_url": reverse("admin:login") + "?next=" + reverse("admin:index"),
+    })

@@ -105,13 +105,13 @@ Only people on the allowlist can sign in. Create the first admin as above, then 
 exact address (`abc123@cam.ac.uk`) or `@cam.ac.uk` for every Cambridge CRSid. Only Cambridge sign-ins (a CRSid before `@cam.ac.uk`) can ever be admitted; any other address is refused whatever the list says. Matching ignores case.
 Removing an entry, or deactivating an account, takes effect on that person's next request.
 
-**Admins.** The first admin is the account made with `createsuperuser`: it signs in with its
-password at `/django-admin/`. A University sign-in always creates (or reuses) a separate account, never
-this one. To make a colleague an admin, let them sign in once with SSO, then tick *Staff status* (and
-*Superuser status* if they should manage everything) on **their** account in the admin; from then on
-they reach `/django-admin/` through SSO, and stay subject to the allowlist. Restrict `/django-admin/`
-to the addresses you manage it from (the `remote_ip` block is in
-`deploy/Caddyfile.example`), or, once SSO admins exist, remove the password account's staff status.
+**Admins.** Admins sign in at `/django-admin/` with an **email address and a password**, separate from the
+Cambridge SSO. Make the first one with `createsuperuser`: give it a user name, **an email address (the login
+uses it)** and a password. For more admins, add a user with an email address and a password under Users in the
+admin, and tick *Staff* (and *Superuser* for full access). A University sign-in never opens the admin: it
+creates a separate account with no email address. A visitor who is not signed in to the admin sees a landing
+page with a button to the admin login. Restrict `/django-admin/` to the addresses you manage it from (the
+`remote_ip` block is in `deploy/Caddyfile.example`).
 
 Then open `https://lcapps.langcen.cam.ac.uk/chinese-literary-reading/`: you should see the landing page and, after signing in with a University
 account on the allowlist, the course map.
