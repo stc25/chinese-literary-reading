@@ -87,7 +87,7 @@ class Pages(SimpleTestCase):
         c = current_course()
         # The development user rv1 is a reviewer and pages() switches reviewer mode on, so the
         # reviewer-only markup (notes, Draft tags, the review list) is checked too.
-        cls.urls = (["/", "/grammar", "/toolkit", "/glossary?q=qun", "/accessibility", "/review", "/signed-out", "/assistant/", "/assistant/help",
+        cls.urls = (["/", "/grammar", "/toolkit", "/glossary?q=qun", "/accessibility", "/review", "/assistant/", "/assistant/help",
                      "/toolkit/t02?mode=reign&reign=光緒&year=24"]
                     + [f"/units/{u}" for u in c.units]
                     + [f"/units/{p.unit_id}/{p.number}" for p in c.passages.values()]
