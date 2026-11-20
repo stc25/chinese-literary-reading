@@ -292,7 +292,8 @@ class Landing(TestCase):
             r = self.oidc().get("/")
         self.assertEqual(r.status_code, 200)
         html = r.content.decode()
-        self.assertIn("Sign in with your University of Cambridge account", html)
+        self.assertIn("Sign in with Cambridge", html)
+        self.assertIn("University account", html)
         self.assertIn('href="/login"', html)
         self.assertIn('id="theme-switch"', html)
         self.assertNotIn("/grammar", html.split('<footer')[0])      # no course navigation or links before sign-in
