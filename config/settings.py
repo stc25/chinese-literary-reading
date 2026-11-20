@@ -5,6 +5,7 @@ JSON-parsed where possible), so the real environment wins over the file.
 """
 import json
 import os
+import re
 import secrets
 import sys
 import uuid
@@ -63,6 +64,7 @@ DEFAULTS = {
     "OLLAMA_HOST": "http://localhost:11434",   # the cloud service: https://ollama.com
     "OLLAMA_API_KEY": "",                      # cloud only; kept on the server
     "DB_PATH": str(REPO / "var" / "db.sqlite3"),
+    "URL_PREFIX": "",                  # the path the site is served under, e.g. /chinese-literary-reading
     "RELOAD_CONTENT": None,            # None: reload content files when DEBUG is on
 }
 
@@ -115,13 +117,15 @@ def build_settings(env: dict, debug: bool, testing: bool) -> dict:
     elif not secret:
         secret = secrets.token_hex(32)   # development only: sessions end when the app restarts
 
+    prefix = parse_url_prefix(values.get("URL_PREFIX"))
+
     reload_content = values.get("RELOAD_CONTENT")
     if reload_content is not None and reload_content != "":
         reload_content = parse_bool(reload_content, "RELOAD_CONTENT")
     else:
         reload_content = None    # reload content files when DEBUG is on
 
-    s = {k: v for k, v in values.items() if k not in ("SECRET_KEY", "DB_PATH", "AUTH_MODE")}
+    s = {k: v for k, v in values.items() if k not in ("SECRET_KEY", "DB_PATH", "AUTH_MODE", "URL_PREFIX")}
     s.update(
         DEBUG=debug,
         SECRET_KEY=str(secret),
@@ -178,7 +182,9 @@ def build_settings(env: dict, debug: bool, testing: bool) -> dict:
         AUTH_PASSWORD_VALIDATORS=PASSWORD_VALIDATORS,
         RELOAD_CONTENT=reload_content,
         LOGIN_URL="auth.login",
-        LOGIN_REDIRECT_URL="/",
+        URL_PREFIX=prefix,
+        FORCE_SCRIPT_NAME=prefix or None,     # reverse() and redirects include the prefix; the proxy strips it
+        LOGIN_REDIRECT_URL=prefix + "/",
         SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_KEY=str(values.get("AZURE_CLIENT_ID") or ""),
         SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_SECRET=str(values.get("AZURE_CLIENT_SECRET") or ""),
         SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_TENANT_ID=tenant,
@@ -186,11 +192,11 @@ def build_settings(env: dict, debug: bool, testing: bool) -> dict:
         SOCIAL_AUTH_USERNAME_IS_FULL_EMAIL=False,
         SOCIAL_AUTH_USER_FIELDS=["username"],          # create_user never copies the address
         SOCIAL_AUTH_RAISE_EXCEPTIONS=False,
-        SOCIAL_AUTH_LOGIN_ERROR_URL="/signin-error",
-        SOCIAL_AUTH_LOGIN_REDIRECT_URL="/",
+        SOCIAL_AUTH_LOGIN_ERROR_URL=prefix + "/signin-error",
+        SOCIAL_AUTH_LOGIN_REDIRECT_URL=prefix + "/",
         SOCIAL_AUTH_REDIRECT_IS_HTTPS=(mode == "oidc"),   # the redirect URI registered in Entra is https
         TESTING=testing,
-        STATIC_URL="/static/",
+        STATIC_URL=prefix + "/static/",
         STATICFILES_DIRS=[str(REPO / "app" / "static")],
         WHITENOISE_USE_FINDERS=debug or testing,           # production serves the collected files
         ROOT_URLCONF="config.urls",
@@ -199,6 +205,11 @@ def build_settings(env: dict, debug: bool, testing: bool) -> dict:
         DEFAULT_AUTO_FIELD="django.db.models.BigAutoField",
         USE_TZ=True,
         SESSION_ENGINE="django.contrib.sessions.backends.signed_cookies",
+        # Other apps share the host (lcapps): own cookie names, and cookies only under this site's path.
+        SESSION_COOKIE_NAME="mlc_session",
+        SESSION_COOKIE_PATH=prefix or "/",
+        CSRF_COOKIE_NAME="mlc_csrf",
+        CSRF_COOKIE_PATH=prefix or "/",
         SESSION_COOKIE_AGE=int(timedelta(hours=12).total_seconds()),
         SESSION_COOKIE_SAMESITE="Lax",
         SESSION_COOKIE_HTTPONLY=True,
@@ -216,6 +227,17 @@ def build_settings(env: dict, debug: bool, testing: bool) -> dict:
     if not (debug or testing):
         s["STATIC_ROOT"] = str(REPO / "var" / "static")   # `manage.py collectstatic` target
     return s
+
+
+def parse_url_prefix(value) -> str:
+    """MLC_URL_PREFIX: "" (served at the root) or a path such as /chinese-literary-reading."""
+    text = str(value or "").strip().rstrip("/")
+    if not text:
+        return ""
+    if not re.fullmatch(r"/[A-Za-z0-9._~-]+(/[A-Za-z0-9._~-]+)*", text):
+        raise ImproperlyConfigured(
+            f"MLC_URL_PREFIX must look like /chinese-literary-reading (a path, no spaces), not {value!r}")
+    return text
 
 
 def parse_bool(value, name: str) -> bool:

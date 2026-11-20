@@ -24,7 +24,7 @@ class SecurityHeadersMiddleware:
         resp.headers.setdefault("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
         if settings.AUTH_MODE == "oidc":
             resp.headers.setdefault("Strict-Transport-Security", "max-age=31536000")
-        if request.path.startswith("/static/"):
+        if request.path_info.startswith("/static/"):
             patch_cache_control(resp, public=True)
         else:
             patch_cache_control(resp, private=True, no_cache=True)   # pages may show reviewer notes or the user's name

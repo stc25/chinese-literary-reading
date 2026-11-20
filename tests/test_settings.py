@@ -10,7 +10,7 @@ os.environ.setdefault("MLC_TESTING", "1")
 from django.core.exceptions import ImproperlyConfigured
 
 from config.envfile import read_env_file
-from config.settings import build_settings, is_testing, merge_env, parse_bool
+from config.settings import build_settings, is_testing, merge_env, parse_bool, parse_url_prefix
 
 OIDC = {
     "AUTH_MODE": "oidc",
@@ -101,6 +101,33 @@ def read_env_file_text(text):
         p = Path(d) / ".env"
         p.write_text(text, encoding="utf-8")
         return read_env_file(p)
+
+
+class UrlPrefix(unittest.TestCase):
+    def test_parse(self):
+        self.assertEqual(parse_url_prefix(None), "")
+        self.assertEqual(parse_url_prefix(""), "")
+        self.assertEqual(parse_url_prefix("/"), "")
+        self.assertEqual(parse_url_prefix("/chinese-literary-reading"), "/chinese-literary-reading")
+        self.assertEqual(parse_url_prefix("/chinese-literary-reading/"), "/chinese-literary-reading")
+        for bad in ("chinese", "/a b", "//evil.com", "/a//b", "http://x/y", "/a?b"):
+            with self.subTest(bad=bad), self.assertRaises(ImproperlyConfigured):
+                parse_url_prefix(bad)
+
+    def test_settings_follow_the_prefix(self):
+        s = build_settings({"URL_PREFIX": "/chinese-literary-reading"}, debug=True, testing=False)
+        self.assertEqual(s["FORCE_SCRIPT_NAME"], "/chinese-literary-reading")
+        self.assertEqual(s["STATIC_URL"], "/chinese-literary-reading/static/")
+        self.assertEqual(s["SESSION_COOKIE_PATH"], "/chinese-literary-reading")
+        self.assertEqual(s["CSRF_COOKIE_PATH"], "/chinese-literary-reading")
+        self.assertEqual(s["SOCIAL_AUTH_LOGIN_ERROR_URL"], "/chinese-literary-reading/signin-error")
+
+    def test_no_prefix_is_the_root(self):
+        s = build_settings({}, debug=True, testing=False)
+        self.assertIsNone(s["FORCE_SCRIPT_NAME"])
+        self.assertEqual(s["STATIC_URL"], "/static/")
+        self.assertEqual(s["SESSION_COOKIE_PATH"], "/")
+        self.assertEqual((s["SESSION_COOKIE_NAME"], s["CSRF_COOKIE_NAME"]), ("mlc_session", "mlc_csrf"))
 
 
 class Settings(unittest.TestCase):

@@ -4,6 +4,17 @@ Course materials for Cambridge learners reading 19th–20th century literary Chi
 See [PLAN.md](PLAN.md) for the project plan and
 [docs/content-spec.md](docs/content-spec.md) for the content format.
 
+## Django, not Flask
+
+The web app is **Django**. An earlier version was Flask (the `main` branch before the Django port); that
+version is retired. Do not install Flask, do not run `app.py` or `flask run`, and do not add Flask code
+or a Flask test run. Start the app with `python manage.py runserver` (development), Gunicorn on
+`config.wsgi:application` or the container (production), and run the tests with `python manage.py test`.
+If something complains that Flask is missing, you are on the wrong branch or an old image.
+
+In production the app is served at https://lcapps.langcen.cam.ac.uk/chinese-literary-reading/ (see
+`MLC_URL_PREFIX` and [docs/deployment.md](docs/deployment.md)).
+
 ## Layout
 
 | Folder | Contents |
@@ -60,6 +71,7 @@ MLC_ASSISTANT_MODEL=gemma4:31b
 | `MLC_REVIEWERS` | CRSids allowed to switch on reviewer notes, e.g. `["cz201"]` |
 | `MLC_DEV_USER` | With `none`, the user to act as, e.g. `cz201` to try reviewer mode |
 | `MLC_SHOW_UNREVIEWED` | `false` at release: hide pages not yet reviewed (reviewers still see them) |
+| `MLC_URL_PREFIX` | The path the site is served under, e.g. `/chinese-literary-reading` (on lcapps: https://lcapps.langcen.cam.ac.uk/chinese-literary-reading/). The proxy strips it; the app adds it to every link, redirect, static URL and cookie path. Empty (the default): served at the root |
 | `MLC_TRUST_PROXY` | `1` behind Caddy (**required** there: without it Django's CSRF origin check rejects sign-out and reviewer-mode posts, and the sign-in redirect address is wrong). Default `0` |
 | `MLC_DB_PATH` | The SQLite file that holds the allowlist and admin accounts. Default `var/db.sqlite3` |
 | `MLC_DEBUG` | `1` for development: Django debug mode, no sign-in by default, content reloads |
@@ -73,7 +85,7 @@ MLC_ASSISTANT_MODEL=gemma4:31b
 | `MLC_ASSISTANT_MAX_CONCURRENT`, `MLC_ASSISTANT_QUEUE_WAIT` | Model calls at once for everyone (default 6), and seconds a request waits for a free slot before the page says the assistant is busy (default 20) |
 
 The sign-in redirect URI to register in Microsoft Entra ID (platform Web) is
-`https://<host>/auth/sso/complete/azuread-tenant-oauth2/`; in production the operator adds it on
+`https://lcapps.langcen.cam.ac.uk/chinese-literary-reading/auth/sso/complete/azuread-tenant-oauth2/`; in production the operator adds it on
 lcapps. Local development needs none, because `MLC_DEBUG=1` uses no sign-in.
 
 **Allowlist.** Only people on the allowlist can sign in. Add entries at `/django-admin/` under
@@ -82,7 +94,7 @@ Cambridge CRSid. Only Cambridge sign-ins (a CRSid before `@cam.ac.uk`) can ever 
 address is refused whatever the list says. Removing an entry takes effect on that person's next request.
 The database stores only the user name (the CRSid), the display name and an active flag, no email address.
 
-**Admin login.** The Django admin at `https://<host>/django-admin/` has its own username and password
+**Admin login.** The Django admin at `https://lcapps.langcen.cam.ac.uk/chinese-literary-reading/django-admin/` has its own username and password
 login, separate from the Cambridge sign-in button. A password sign-in works only inside `/django-admin/`.
 
 1. Create the first admin: `python manage.py createsuperuser` (in Docker:

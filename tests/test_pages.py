@@ -349,3 +349,30 @@ class Routing(SimpleTestCase):
             with self.subTest(url=url):
                 self.assertEqual(self.client.post(url).status_code, 405)
                 self.assertEqual(self.client.head(url).status_code in (200, 404), True)
+
+
+PREFIX = "/chinese-literary-reading"
+
+
+@page_settings(URL_PREFIX=PREFIX, FORCE_SCRIPT_NAME=PREFIX, STATIC_URL=PREFIX + "/static/")
+class UnderAPathPrefix(SimpleTestCase):
+    """Served at https://host/chinese-literary-reading/: the proxy strips the prefix, the app writes it into every link."""
+
+    def setUp(self):
+        from django.urls import set_script_prefix
+        set_script_prefix(PREFIX)      # the real WSGI handler does this per request; the test client does not
+        self.addCleanup(set_script_prefix, "/")
+
+    def test_links_scripts_and_content_links_carry_the_prefix(self):
+        import re
+        for path in ("/", "/units/u01", "/units/u01/p01", "/grammar", "/glossary", "/assistant/"):
+            r = self.client.get(path)
+            self.assertEqual(r.status_code, 200, path)
+            html = r.content.decode()
+            for attr in re.findall(r'(?:href|src|action|data-api|data-summaries)="(/[^"]*)"', html):
+                self.assertTrue(attr == PREFIX or attr.startswith(PREFIX + "/"), (path, attr))
+
+    def test_json_and_redirects(self):
+        r = self.client.get("/summaries.json")
+        self.assertTrue(all(k.startswith(PREFIX + "/") for k in r.json()))
+        self.assertEqual(self.client.get("/assistant")["Location"], PREFIX + "/assistant/")

@@ -28,7 +28,7 @@
 
 {% if analysis %}{% set p = analysis.prepared %}
 <div class="assistant-result" id="result" data-text="{{ analysis.prepared.text if analysis.prepared.text and not analysis.prepared.too_long else '' }}"
-     data-api="{{ url_for('assistant.page') }}api/" data-csrf="{{ csrf_token() }}">
+     data-api="{{ url_for('assistant.page') }}api/" data-grammar-url="{{ url_for('pages.grammar', gid='GRAMMAR_ID') }}" data-csrf="{{ csrf_token() }}">
   {% if not p.text %}
   <p class="notice">Paste some text first.</p>
   {% elif p.too_long %}
@@ -91,7 +91,7 @@
           <tr>
             <td class="zh" lang="zh-Hant">{{ w.form }}</td>
             <td>{{ w.count }}</td>
-            <td>{% for gr in w.grammar %}<a class="xref" href="{{ url_for('pages.grammar', gid=gr.id) }}" data-ref="/grammar/{{ gr.id }}">{{ gr.title }}</a>{{ '; ' if not loop.last }}{% endfor %}</td>
+            <td>{% for gr in w.grammar %}<a class="xref" href="{{ url_for('pages.grammar', gid=gr.id) }}" data-ref="{{ url_for('pages.grammar', gid=gr.id) }}">{{ gr.title }}</a>{{ '; ' if not loop.last }}{% endfor %}</td>
           </tr>
           {% endfor %}
         </tbody>

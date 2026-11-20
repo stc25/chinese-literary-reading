@@ -13,6 +13,7 @@ from django.apps import apps
 from django.conf import settings
 from django.http import Http404, JsonResponse
 from django.shortcuts import render
+from django.urls import reverse
 from django.utils.cache import patch_cache_control
 from django.views.decorators.http import require_http_methods
 
@@ -66,7 +67,7 @@ def view_model(request, a: Analysis):
                 "refTitle": ref_title(e.grammar) if e.grammar else None,
                 "len": m.end - m.start,
                 "from": {"title": first.title, "unit": course.units[first.unit_id].number,
-                         "url": f"/units/{first.unit_id}/{first.number}"},
+                         "url": reverse("pages.passage", kwargs={"uid": first.unit_id, "num": first.number})},
                 "fromLabel": "Course glossary, first in ",
                 "fromNote": "" if len(m.entries) == 1 else
                             f". The course glosses this term in {len(m.entries)} senses: choose the one that fits.",

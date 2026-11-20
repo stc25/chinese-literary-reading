@@ -271,7 +271,7 @@ class SignInFlowTests(TestCase):
         self.assertIn("code_challenge", q)
         self.assertNotIn("form_post", q.get("response_mode", [""])[0])    # a GET back, so the Lax cookie is sent
         # The state lives in the signed session cookie, which is SameSite=Lax
-        cookie = r.cookies["sessionid"]
+        cookie = r.cookies["mlc_session"]
         self.assertEqual(cookie["samesite"], "Lax")
         self.assertTrue(cookie["secure"])
         state = q["state"][0]
@@ -485,7 +485,7 @@ class SignInFlowTests(TestCase):
 
     def test_session_cookie_is_secure(self):
         r = sso_sign_in(self.client)
-        cookie = r.cookies["sessionid"]
+        cookie = r.cookies["mlc_session"]
         self.assertTrue(cookie["secure"])
         self.assertTrue(cookie["httponly"])
         self.assertEqual(cookie["samesite"], "Lax")
@@ -645,13 +645,13 @@ class CsrfTests(TestCase):
         sso_sign_in(self.client)
 
     def session_cookie(self):
-        return self.client.cookies["sessionid"].value
+        return self.client.cookies["mlc_session"].value
 
     def test_logout_needs_token(self):
         before = self.session_cookie()
         r = self.client.post("/logout")
         self.assertEqual(r.status_code, 403)
-        self.assertNotIn("sessionid", r.cookies)
+        self.assertNotIn("mlc_session", r.cookies)
         self.assertEqual(self.session_cookie(), before)
         self.assertEqual(self.client.get("/glossary").status_code, 200)     # still signed in
         token = csrf_from(self.client.get("/").content.decode())

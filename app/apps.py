@@ -66,7 +66,7 @@ class MlcConfig(AppConfig):
             self._store = self._build_from_settings()   # fails startup on ContentError
 
     def _settings_changed(self, setting, **kwargs):
-        if setting in ("CONTENT_DIR", "RELOAD_CONTENT", "DEBUG"):
+        if setting in ("CONTENT_DIR", "RELOAD_CONTENT", "DEBUG", "URL_PREFIX"):
             self._store = None
         if setting.startswith(("ASSISTANT_", "OLLAMA_")):
             self.reset_assistant()      # limits, gate and client are rebuilt from the new settings

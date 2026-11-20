@@ -23,7 +23,7 @@ urlpatterns = [
     path("glossary", views.glossary, name="pages.glossary"),
     path("review", views.review_list, name="pages.review_list"),
     path("accessibility", views.accessibility, name="pages.accessibility"),
-    path("assistant", RedirectView.as_view(url="/assistant/", permanent=False)),
+    path("assistant", RedirectView.as_view(pattern_name="assistant.page", permanent=False)),
     path("assistant/", assistant_views.page, name="assistant.page"),
     path("assistant/help", assistant_views.help, name="assistant.help"),
     path("assistant/api/<str:step>", assistant_views.api, name="assistant.api"),

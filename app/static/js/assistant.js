@@ -8,6 +8,7 @@
   if (!result || !result.getAttribute("data-text")) return;
   var TEXT = result.getAttribute("data-text");
   var API = result.getAttribute("data-api");
+  var GRAMMAR_URL = result.getAttribute("data-grammar-url");   // with the site's path prefix, if any
   var CSRF = result.getAttribute("data-csrf");
   var history = [];
 
@@ -99,8 +100,8 @@
         if (n.grammar_id) {
           li.appendChild(document.createTextNode(" · "));
           var a = el("a", "xref", n.grammar_title);
-          a.href = "/grammar/" + encodeURIComponent(n.grammar_id);
-          a.setAttribute("data-ref", "/grammar/" + n.grammar_id);
+          a.href = GRAMMAR_URL.replace("GRAMMAR_ID", encodeURIComponent(n.grammar_id));
+          a.setAttribute("data-ref", GRAMMAR_URL.replace("GRAMMAR_ID", n.grammar_id));
           li.appendChild(a);
         }
         li.appendChild(el("span", "ai-note", n.note));

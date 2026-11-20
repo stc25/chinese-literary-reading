@@ -7,15 +7,24 @@ application: it reads the Markdown in `content/` at start-up, keeps it in memory
 small SQLite database (`var/db.sqlite3`) holds the sign-in **allowlist** and admin accounts. It stores
 only each signed-in person's CRSid, display name and active flag: no email address.
 
+**Do not use Flask.** This app is Django. The earlier Flask version (the `main` branch before the Django
+port) is retired: do not install Flask, do not run `app.py` or `flask run`, and do not add Flask code or a
+Flask test run. Run the app with Gunicorn on `config.wsgi:application` (or the container) and run the tests
+with `python manage.py test`. If a build or test run complains that Flask is missing, you are on the wrong
+branch or an old image, not missing a dependency.
+
+In production it is served at **https://lcapps.langcen.cam.ac.uk/chinese-literary-reading/**, under a path
+of the shared lcapps host (`MLC_URL_PREFIX=/chinese-literary-reading`; Caddy strips the prefix, the app adds it back).
+
 ## What you need
 
 - A Linux server (any current distribution) with Python 3.10 or later (the container uses 3.12) and a Caddy reverse proxy (on lcapps it is already there; Caddy gets the TLS certificate)
-  for the chosen host name, e.g. `course.langcen.cam.ac.uk`.
+  for the host `lcapps.langcen.cam.ac.uk`.
 - About 200 MB of disk and 256 MB of memory.
 - A new **Microsoft Entra ID** app registration for this site (University sign-in), as for the other
   Language Centre apps:
   - platform: **Web**;
-  - redirect URI: `https://<host>/auth/sso/complete/azuread-tenant-oauth2/` (the operator adds it on
+  - redirect URI: `https://lcapps.langcen.cam.ac.uk/chinese-literary-reading/auth/sso/complete/azuread-tenant-oauth2/` (the operator adds it on
     lcapps in production; local development needs none, because it uses no sign-in);
   - accounts: University of Cambridge only (single tenant);
   - permissions: `openid`, `profile`, `email` (sign-in only);
@@ -72,7 +81,7 @@ sudo caddy validate --config /etc/caddy/Caddyfile && sudo systemctl reload caddy
 Check:
 
 ```bash
-curl -s https://<host>/healthz          # {"status": "ok"}
+curl -s https://lcapps.langcen.cam.ac.uk/chinese-literary-reading/healthz         # {"status": "ok"}
 ```
 
 Check the reading assistant's model settings with one short request:
@@ -92,7 +101,7 @@ not covered by the plan (402).
 ### The allowlist and the first admin
 
 Only people on the allowlist can sign in. Create the first admin as above, then open
-`https://<host>/django-admin/` and add allowlist entries in one of three forms: a CRSid (`abc123`), an
+`https://lcapps.langcen.cam.ac.uk/chinese-literary-reading/django-admin/` and add allowlist entries in one of three forms: a CRSid (`abc123`), an
 exact address (`abc123@cam.ac.uk`) or `@cam.ac.uk` for every Cambridge CRSid. Only Cambridge sign-ins (a CRSid before `@cam.ac.uk`) can ever be admitted; any other address is refused whatever the list says. Matching ignores case.
 Removing an entry, or deactivating an account, takes effect on that person's next request.
 
@@ -104,7 +113,7 @@ they reach `/django-admin/` through SSO, and stay subject to the allowlist. Rest
 to the addresses you manage it from (the `remote_ip` block is in
 `deploy/Caddyfile.example`), or, once SSO admins exist, remove the password account's staff status.
 
-Then open `https://<host>/`: you should see the landing page and, after signing in with a University
+Then open `https://lcapps.langcen.cam.ac.uk/chinese-literary-reading/`: you should see the landing page and, after signing in with a University
 account on the allowlist, the course map.
 
 The app serves its own static files (CSS, JavaScript, the font) through WhiteNoise, from
@@ -120,35 +129,52 @@ nginx is not needed. On lcapps, Caddy sits in front of the app and handles TLS (
 the certificate itself), compression and the public host name. The app serves its own static files
 (WhiteNoise), so Caddy needs no `/static/` rule and nothing in `/srv/mlc/var/` has to be readable by it.
 
-Add this site block to the server's Caddyfile (a copy is in `deploy/Caddyfile.example`; replace the host name):
+The site is served under a path of the shared `lcapps.langcen.cam.ac.uk` host, so add the `redir` and
+`handle_path` blocks below **inside the existing site block**, next to the other apps (a copy is in
+`deploy/Caddyfile.example`). `handle_path` strips `/chinese-literary-reading` before the request reaches
+Gunicorn, and `MLC_URL_PREFIX=/chinese-literary-reading` in `mlc.env` makes the app write the prefix back
+into every link, redirect, static URL and cookie path (the session and CSRF cookies are limited to that path
+and named `mlc_session` and `mlc_csrf`, so they cannot clash with the other apps on the host).
 
 ```
-course.example.cam.ac.uk {
-    encode zstd gzip
+lcapps.langcen.cam.ac.uk {
+    # ... the existing blocks for the other apps ...
 
-    @admin path /django-admin/*
-    handle @admin {
-        @outside not remote_ip 131.111.0.0/16      # replace with the addresses you manage the admin from
-        respond @outside 403
-        reverse_proxy 127.0.0.1:8000
-    }
+    redir /chinese-literary-reading /chinese-literary-reading/
 
-    @api path /assistant/api/*
-    handle @api {
-        request_body {
-            max_size 256KB
+    handle_path /chinese-literary-reading/* {
+        encode zstd gzip
+
+        # The Django admin (the allowlist) has its own password login. Recommended: allow it only from
+        # the addresses you manage it from (replace 131.111.0.0/16).
+        @admin path /django-admin/*
+        handle @admin {
+            @outside not remote_ip 131.111.0.0/16
+            respond @outside 403
+            reverse_proxy 127.0.0.1:8000
         }
-        reverse_proxy 127.0.0.1:8000
-    }
 
-    handle {
-        reverse_proxy 127.0.0.1:8000
+        # Requests larger than the assistant needs are refused here as well as in the app.
+        @api path /assistant/api/*
+        handle @api {
+            request_body {
+                max_size 256KB
+            }
+            reverse_proxy 127.0.0.1:8000
+        }
+
+        handle {
+            reverse_proxy 127.0.0.1:8000
+        }
     }
 }
 ```
 
 Then `sudo caddy validate --config /etc/caddy/Caddyfile && sudo systemctl reload caddy`.
 
+- **The prefix must match.** `MLC_URL_PREFIX` and the `handle_path` path must be the same. If you change one,
+  change the other, and the Entra redirect URI. Without `MLC_URL_PREFIX` the pages would link to the root of the
+  host and miss the app.
 - **Upstream.** `127.0.0.1:8000` is Gunicorn's default bind (`MLC_BIND`) and the port the container publishes
   (`-p 127.0.0.1:8000:8000`). If Caddy runs in Docker too, point `reverse_proxy` at the container's name and
   port on the shared network instead.
@@ -158,8 +184,8 @@ Then `sudo caddy validate --config /etc/caddy/Caddyfile && sudo systemctl reload
   `127.0.0.1` when Caddy is on the same machine; if Caddy connects from another address, set it to that address.
 - **Timeouts.** Caddy has no proxy read timeout by default, so the assistant's AI steps (up to 90 s plus a
   queue wait) are not cut off; Gunicorn's 130 s timeout is the limit. Do not add a shorter `read_timeout`.
-- **Entra redirect URI.** Register `https://<host>/auth/sso/complete/azuread-tenant-oauth2/` on the new app
-  registration, with exactly the host name used in the site block.
+- **Entra redirect URI.** Register `https://lcapps.langcen.cam.ac.uk/chinese-literary-reading/auth/sso/complete/azuread-tenant-oauth2/` on the new app
+  registration (the prefix is part of it).
 - **Admin.** The `remote_ip` block keeps `/django-admin/` (the allowlist) to your own network. Remove it only
   if the admin accounts are protected some other way.
 

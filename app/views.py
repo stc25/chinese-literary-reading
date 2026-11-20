@@ -50,9 +50,9 @@ def get_or_404(mapping: dict, key: str):
 def ref_url(ref: str) -> str | None:
     """URL for a grammar id or toolkit id used in a gloss table."""
     if ref in the_course().grammar:
-        return f"/grammar/{ref}"
+        return reverse("pages.grammar", kwargs={"gid": ref})
     if ref in the_course().toolkit:
-        return f"/toolkit/{ref}"
+        return reverse("pages.toolkit", kwargs={"tid": ref})
     return None
 
 
@@ -177,10 +177,10 @@ def summaries(request):
     out = {}
     for gid, gr in course.grammar.items():
         if visible(gr):
-            out[f"/grammar/{gid}"] = {"title": gr.title, "summary": str(render_inline(gr.summary, gr.path, course.urls))}
+            out[reverse("pages.grammar", kwargs={"gid": gid})] = {"title": gr.title, "summary": str(render_inline(gr.summary, gr.path, course.urls))}
     for tid, t in course.toolkit.items():
         if visible(t):
-            out[f"/toolkit/{tid}"] = {"title": t.title, "summary": str(render_inline(t.summary, t.path, course.urls))}
+            out[reverse("pages.toolkit", kwargs={"tid": tid})] = {"title": t.title, "summary": str(render_inline(t.summary, t.path, course.urls))}
     resp = JsonResponse(out, json_dumps_params={"sort_keys": True})   # sorted keys, as the page script expects
     patch_cache_control(resp, max_age=300)
     return resp
