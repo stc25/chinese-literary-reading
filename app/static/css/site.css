@@ -528,3 +528,8 @@ h2 a:hover { text-decoration: underline; }
 .auth-field label { display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.3rem; }
 .auth-field input { width: 100%; box-sizing: border-box; padding: 0.6rem 0.7rem; font: inherit; border: 1px solid var(--rule); border-radius: 4px; background: var(--surface-secondary, #fff); color: inherit; }
 .auth-error { background: var(--status-warning-light, #fdecea); border-radius: 4px; padding: 0.6rem 0.8rem; margin: 0 0 1rem; }
+
+/* The University banner above the sign-in button. Its text is dark, so in dark mode it sits on a white panel. */
+.auth-banner { margin: 0 0 1.25rem; text-align: center; }
+.auth-banner img { display: inline-block; max-width: 100%; height: auto; width: 14rem; }
+html[data-theme="dark"] .auth-banner img { background: #ffffff; padding: 0.5rem 0.75rem; border-radius: 4px; box-sizing: content-box; }
