@@ -144,7 +144,7 @@ def page_fields(doc: v.Doc, reviews: dict[Path, list[Review]]) -> dict:
     )
 
 
-def load(root: Path, spec: Path = v.DEFAULT_SPEC) -> Course:
+def load(root: Path, spec: Path = v.DEFAULT_SPEC, url_prefix: str = "") -> Course:
     rep, idx = v.build(root, spec)
     if rep.errors:
         raise ContentError([
@@ -168,13 +168,13 @@ def load(root: Path, spec: Path = v.DEFAULT_SPEC) -> Course:
         if ex and ex.nonblank():
             examples = [tuple(cells) for _, cells in v.parse_table(doc, ex, v.EXAMPLE_HEADER, rep)]
         grammar[gid] = Grammar(**page_fields(doc, reviews), summary=section_md(doc, "Summary"), examples=examples)
-        urls[doc.path.resolve()] = f"/grammar/{gid}"
+        urls[doc.path.resolve()] = f"{url_prefix}/grammar/{gid}"
 
     for tid, doc in idx.toolkit.items():
         toolkit[tid] = Toolkit(**page_fields(doc, reviews), summary=section_md(doc, "Summary"),
                                data=list(doc.meta.get("data") or []),
                                practice=parse_exercises(doc.sections.get("Practice")))
-        urls[doc.path.resolve()] = f"/toolkit/{tid}"
+        urls[doc.path.resolve()] = f"{url_prefix}/toolkit/{tid}"
 
     for pid, doc in idx.passages.items():
         text_sec = doc.sections.get("Text")
@@ -194,7 +194,7 @@ def load(root: Path, spec: Path = v.DEFAULT_SPEC) -> Course:
         )
         p.glosses = parse_glosses(doc, p.text, rep)
         passages[pid] = p
-        urls[doc.path.resolve()] = f"/units/{unit_id}/{number}"
+        urls[doc.path.resolve()] = f"{url_prefix}/units/{unit_id}/{number}"
 
     for uid, doc in idx.units.items():
         listed = linked_docs(doc, idx, "Passages", v.NUMBERED_LINK)
@@ -210,7 +210,7 @@ def load(root: Path, spec: Path = v.DEFAULT_SPEC) -> Course:
             planned_passages=planned,
             grammar_ids=[g for g in (doc.meta.get("grammar") or []) if g in grammar],
         )
-        urls[doc.path.resolve()] = f"/units/{uid}"
+        urls[doc.path.resolve()] = f"{url_prefix}/units/{uid}"
 
     course_doc = idx.course
     levels: dict[str, list[str]] = {"beginner": [], "intermediate": []}
@@ -228,7 +228,7 @@ def load(root: Path, spec: Path = v.DEFAULT_SPEC) -> Course:
             if target is not None and target.kind == "unit":
                 levels[level].append(target.meta["id"])
     toolkit_ids = [d.meta["id"] for d in linked_docs(course_doc, idx, "Toolkit", v.BULLET_LINK) if d.kind == "toolkit"]
-    urls[course_doc.path.resolve()] = "/"
+    urls[course_doc.path.resolve()] = f"{url_prefix}/"
 
     course = Course(
         title=str(course_doc.meta.get("title", "Course")),

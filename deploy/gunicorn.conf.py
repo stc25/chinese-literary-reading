@@ -1,6 +1,6 @@
 """Gunicorn settings for the course app.
 
-    gunicorn -c deploy/gunicorn.conf.py wsgi:application
+    gunicorn -c deploy/gunicorn.conf.py config.wsgi:application
 """
 import os
 
@@ -23,3 +23,5 @@ errorlog = "-"
 # Leave out the query string and referrer: they can contain search terms.
 access_log_format = '%(h)s %(t)s "%(m)s %(U)s" %(s)s %(b)s %(L)ss'
 forwarded_allow_ips = os.environ.get("MLC_FORWARDED_ALLOW_IPS", "127.0.0.1")
+# No control socket: it needs a writable home directory, which the service user does not have.
+control_socket_disable = True

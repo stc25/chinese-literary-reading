@@ -2,20 +2,21 @@
    A neutral design meant to be restyled later. Colours are tokens on :root. */
 
 :root {
-  color-scheme: light dark;
-  --bg: #fbfaf7;
-  --surface: #ffffff;
-  --text: #1f1d1a;
-  --muted: #5f5a52;
-  --rule: #e2ddd3;
-  --accent: #8a2c1f;        /* vermilion, used sparingly */
-  --accent-soft: #f6e9e5;
-  --link: #1d4f86;
-  --draft-bg: #fff6d6;
-  --draft-text: #6b5300;
-  --error-bg: #fde8e6;
-  --error-text: #8a1c12;
-  --focus: #2b6cb0;
+  /* Colours come from the Cambridge Language Centre tokens (tokens.css), which switch with
+     :root[data-theme="dark"]. These names are the ones the rest of this file uses. */
+  --bg: var(--surface-default);
+  --surface: var(--surface-secondary);
+  --text: var(--text-primary);
+  --muted: var(--text-tertiary);
+  --rule: var(--divider-subtle);
+  --accent: var(--anno);                 /* cherry, used sparingly */
+  --accent-soft: color-mix(in srgb, var(--anno) 12%, var(--surface-default));
+  --link: #0c7381;
+  --draft-bg: var(--status-warning-light);
+  --draft-text: var(--status-warning-dark);
+  --error-bg: var(--status-danger-light);
+  --error-text: var(--status-danger-dark);
+  --focus: var(--focus-ring);
 
   --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-serif: Georgia, "Times New Roman", serif;
@@ -25,23 +26,7 @@
   --wide: 60rem;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #171614;
-    --surface: #1f1e1b;
-    --text: #ece8e1;
-    --muted: #a8a196;
-    --rule: #3a3731;
-    --accent: #e08a73;
-    --accent-soft: #3a2621;
-    --link: #8db8e8;
-    --draft-bg: #3b3218;
-    --draft-text: #f0d98a;
-    --error-bg: #3d1f1b;
-    --error-text: #f4b3a8;
-    --focus: #8db8e8;
-  }
-}
+:root[data-theme="dark"] { --link: #92e2e1; }
 
 /* Noto Serif CJK TC (SIL Open Font License, see /static/fonts/OFL.txt), cut down by tools/build_font.py
    to the characters used in the course. Other characters fall back to the system fonts. */
@@ -87,19 +72,32 @@ code { font-size: 0.9em; }
 .skip-link { position: absolute; left: -999px; top: 0; background: var(--surface); padding: 0.5rem 1rem; z-index: 10; }
 .skip-link:focus { left: 1rem; }
 
-/* Header and footer */
-.site-header { background: var(--surface); border-bottom: 1px solid var(--rule); }
-.header-inner { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem 1.5rem; padding-top: 0.75rem; padding-bottom: 0.75rem; }
-.site-title { font-family: var(--font-serif); font-size: 1.15rem; font-weight: 600; color: var(--text); text-decoration: none; }
-.site-title::before { content: "文"; font-family: var(--font-zh); color: var(--accent); margin-right: 0.4rem; }
-.nav-list { list-style: none; display: flex; gap: 1.25rem; margin: 0; padding: 0; }
-.nav-list a { color: var(--text); text-decoration: none; }
-.nav-list a:hover { text-decoration: underline; }
+/* Header: dark teal in both themes, like the Language Centre apps' masthead */
+.site-header { z-index: 40; background: var(--surface-inverse); color: var(--text-inverse); border-bottom: 1px solid var(--divider-subtle); }
+.header-inner {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "title user" "nav nav";
+  align-items: center; gap: 0.4rem 1.25rem; padding-top: 0.7rem; padding-bottom: 0.7rem;
+}
+.site-title { grid-area: title; justify-self: start; }
+.site-header nav { grid-area: nav; min-width: 0; }
+.site-header .user-bar { grid-area: user; justify-self: end; }
+.site-header a, .site-header .user-bar, .site-header .user-name { color: var(--text-inverse); }
+.site-header :focus-visible { outline-color: var(--colour-blue-200); }
+.site-title { font-family: var(--font-serif); font-size: 1.5rem; line-height: 1.2; font-weight: 600; text-decoration: none; }
+.site-title::before { content: "文"; font-family: var(--font-zh); color: var(--colour-blue-200); margin-right: 0.4rem; }
+.nav-list { list-style: none; display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 0.5rem 1.5rem; margin: 0; padding: 0; }   /* links at the right-hand edge; more links wrap onto a new line */
+.nav-list a { line-height: 1.4; text-decoration: none; opacity: 0.88; }
+.nav-list a:hover, .nav-list a[aria-current] { opacity: 1; text-decoration: underline; text-decoration-color: currentColor; text-decoration-thickness: 2px; text-underline-offset: 6px; }
+.site-header .btn { background: transparent; color: var(--text-inverse); border-color: rgba(255, 255, 255, 0.6); }
+.site-header .btn:hover { background: rgba(255, 255, 255, 0.12); }
+/* Switched on (Pinyin): mint with dark text, readable on the teal header in both themes */
+.site-header .btn[aria-pressed="true"]:not(.btn-review-on) { background: var(--colour-blue-200); border-color: var(--colour-blue-200); color: var(--colour-blue-900); }
+.site-header .btn-review-on { background: #efe3fb; border-color: #efe3fb; color: #4a2a72; }
+.site-header .dev-mode { background: var(--draft-bg); color: var(--draft-text); }
 
 main { padding-top: 1rem; padding-bottom: 3rem; }
 main:focus { outline: none; }
 
-.site-footer { border-top: 1px solid var(--rule); color: var(--muted); font-size: 0.9rem; padding: 1.5rem 0; }
 
 /* Text blocks */
 .prose { max-width: var(--measure); }
@@ -140,6 +138,7 @@ th { font-weight: 600; background: var(--surface); }
 .unit-list, .passage-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.6rem; }
 .unit-list { grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr)); }
 .unit-card, .passage-card { background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; padding: 0.75rem 0.9rem; }
+.unit-list.cam-autogrid { list-style: none; margin: 0; padding: 0; }
 .unit-card a, .passage-card a { display: block; text-decoration: none; }
 .unit-number { display: block; font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.03em; }
 .unit-title, .passage-title { font-family: var(--font-serif); font-size: 1.1rem; color: var(--text); }
@@ -327,7 +326,6 @@ html:not(.js) .zh-text .g { cursor: text; text-decoration: none; }
 .glossary-table th:nth-child(2) { width: 16%; }
 .glossary-table th:nth-child(4) { width: 11%; }
 .first-seen { white-space: nowrap; font-size: 0.9rem; }
-.nav-list a[aria-current="true"] { text-decoration: underline; text-decoration-thickness: 2px; text-decoration-color: var(--accent); }
 .taught-in { color: var(--muted); font-size: 0.95rem; }
 h2 a { color: inherit; text-decoration: none; }
 h2 a:hover { text-decoration: underline; }
@@ -384,9 +382,7 @@ h2 a:hover { text-decoration: underline; }
 .progress-mark.done { color: #2e7d32; font-weight: 600; }
 .continue { background: var(--accent-soft); border-radius: 8px; padding: 0.5rem 0.9rem; margin: 1rem 0; max-width: var(--measure); }
 .continue p { margin: 0; }
-@media (prefers-color-scheme: dark) {
-  .fb-right, .choice-options li.opt-right .option-mark, .progress-mark.done, .exercise-status.status-correct { color: #8bd18f; }
-}
+:root[data-theme="dark"] .fb-right, :root[data-theme="dark"] .choice-options li.opt-right .option-mark, :root[data-theme="dark"] .progress-mark.done, :root[data-theme="dark"] .exercise-status.status-correct { color: #8bd18f; }
 
 /* ------------------------------------------------------------------------
    M5: sign-in and reviewer mode
@@ -402,11 +398,9 @@ h2 a:hover { text-decoration: underline; }
 .review-note .review-where { display: block; font-size: 0.75rem; color: #6b3fa0; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; }
 .review-note code { font-size: 0.8rem; }
 .review-table td { font-size: 0.9rem; }
-@media (prefers-color-scheme: dark) {
-  .btn-review-on { background: #3a2a52; border-color: #b892e6; color: #e7d8fb; }
-  .review-note { background: #2a2038; color: #e7d8fb; border-left-color: #b892e6; }
-  .review-note .review-where { color: #c9a8ef; }
-}
+:root[data-theme="dark"] .btn-review-on { background: #3a2a52; border-color: #b892e6; color: #e7d8fb; }
+:root[data-theme="dark"] .review-note { background: #2a2038; color: #e7d8fb; border-left-color: #b892e6; }
+:root[data-theme="dark"] .review-note .review-where { color: #c9a8ef; }
 
 /* ------------------------------------------------------------------------
    Reading assistant
@@ -449,6 +443,77 @@ h2 a:hover { text-decoration: underline; }
 .qa-a { margin: 0.2rem 0 0; }
 .ask-form { max-width: var(--measure); }
 .ask-form input { font: inherit; color: var(--text); background: var(--surface); border: 1px solid var(--muted); border-radius: 6px; padding: 0.3rem 0.5rem; flex: 1; min-width: 0; }
-@media (prefers-color-scheme: dark) {
-  .source-ai { background: #3a2a52; color: #e7d8fb; }
+:root[data-theme="dark"] .source-ai { background: #3a2a52; color: #e7d8fb; }
+
+/* ------------------------------------------------------------------------
+   Theme switch (sun, switch, moon) and back-to-top button, as in Academic Reading.
+   The header is dark teal in both themes, so the switch is drawn for that ground.
+   ------------------------------------------------------------------------ */
+
+.theme-toggle { display: inline-flex; align-items: center; gap: 0.5rem; color: var(--text-inverse); }
+.theme-toggle svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.theme-switch {
+  position: relative; width: 40px; height: 24px; padding: 0; cursor: pointer;
+  border: 2px solid var(--text-inverse); border-radius: var(--radius-max); background: transparent;
+  transition: background var(--duration-fast) var(--ease-standard);
 }
+.theme-switch::after {
+  content: ''; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px;
+  border-radius: 50%; background: var(--text-inverse);
+  transition: transform var(--duration-fast) var(--ease-standard), background var(--duration-fast) var(--ease-standard);
+}
+.theme-switch[aria-checked="true"] { background: var(--colour-blue-200); }
+.theme-switch[aria-checked="true"]::after { transform: translateX(16px); background: var(--colour-blue-900); }
+
+.back-to-top {
+  position: fixed; right: var(--space-24); bottom: var(--space-24); z-index: 50;
+  display: flex; align-items: center; justify-content: center;
+  width: 2.75rem; height: 2.75rem; padding: 0;
+  border: 1px solid var(--divider-strong); border-radius: 50%;
+  background: var(--button-primary-bg); color: var(--button-primary-text);
+  box-shadow: var(--shadow-md); cursor: pointer;
+  opacity: 0; visibility: hidden; transform: translateY(8px);
+  transition: opacity 250ms var(--ease-standard), transform 250ms var(--ease-standard), visibility 0s linear 250ms;
+}
+.back-to-top.is-visible { opacity: 1; visibility: visible; transform: none; transition-delay: 0s; }
+.back-to-top:hover { background: var(--button-primary-hover); }
+.back-to-top svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+@media (prefers-reduced-motion: reduce) {
+  .theme-switch, .theme-switch::after, .back-to-top, .back-to-top.is-visible { transition: none; }
+  .back-to-top, .back-to-top.is-visible { transform: none; }
+}
+
+/* ------------------------------------------------------------------------
+   Landing page
+   ------------------------------------------------------------------------ */
+
+.auth-shell { display: grid; gap: 2rem; align-items: center; padding: 2rem 0; }
+@media (min-width: 48rem) { .auth-shell { grid-template-columns: 3fr 2fr; gap: 3rem; padding: 3rem 0; } }
+.auth-panel h1 { font-size: 2.2rem; margin: 0.4rem 0 0.8rem; }
+.auth-list { margin: 1.2rem 0 0; padding-left: 1.2rem; }
+.auth-list li { margin: 0.35rem 0; }
+.auth-card { background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; padding: 1.5rem; }
+.auth-card h2 { margin-top: 0; }
+.auth-note { color: var(--muted); font-size: 0.9rem; margin: 0.75rem 0 0; }
+.btn-block { display: flex; align-items: center; justify-content: center; gap: 0.6rem; width: 100%; box-sizing: border-box; text-align: center; }
+.ms-logo { width: 1.1rem; height: 1.1rem; flex: none; }
+.btn-primary {
+  display: inline-block; padding: 0.7rem 1.3rem; border-radius: 6px; font-weight: 600; text-decoration: none;
+  background: var(--button-primary-bg); color: var(--button-primary-text); border: 1px solid var(--button-primary-bg);
+}
+.btn-primary:hover { background: var(--button-primary-hover); border-color: var(--button-primary-hover); text-decoration: none; }
+
+/* The taller header stays pinned only where there is room for it */
+@media (min-width: 48rem) { .site-header { position: sticky; top: 0; } }
+@media (max-width: 40rem) { .site-title { font-size: 1.25rem; } .header-inner { padding-top: 0.9rem; padding-bottom: 0.9rem; } }
+
+/* Home page: intro callout, grouped cards (after the Academic Reading library page) */
+.callout { background: var(--surface-brand); border-radius: var(--radius-md); padding: var(--space-16) var(--space-20); margin-bottom: var(--space-24); max-width: none; }
+.callout > :first-child { margin-top: 0; } .callout > :last-child { margin-bottom: 0; }
+.lang-group { margin-bottom: var(--space-32); }
+.card { background: var(--surface-secondary); border: 1px solid var(--divider-subtle); border-radius: var(--radius-md); padding: var(--space-20); }
+.text-card { display: block; color: inherit; transition: box-shadow var(--duration-fast) var(--ease-standard); }
+.text-card:hover { box-shadow: var(--shadow-md); }
+.text-card h3 { margin: 0 0 var(--space-4); font-size: var(--text-size-3); }
+.text-card .byline { color: var(--text-secondary); font-size: var(--text-size-1); }
+@media (prefers-reduced-motion: reduce) { .text-card { transition: none; } }

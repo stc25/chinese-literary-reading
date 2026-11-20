@@ -1,11 +1,10 @@
 {% extends "base.html" %}
-{% from "_macros.html" import status_badge, draft_notice, review_notes, breadcrumbs, exercises with context %}
+{% from "_macros.html" import status_badge, review_notes, breadcrumbs, exercises with context %}
 {% block title %}{{ t.title }} · Toolkit · {{ course.title }}{% endblock %}
 {% block breadcrumbs %}{{ breadcrumbs([('Course', url_for('pages.course_map')), ('Toolkit', url_for('pages.toolkit_index')), (t.title, None)]) }}{% endblock %}
 {% block content %}
 <p class="eyebrow">Toolkit</p>
 <h1>{{ t.title }} {{ status_badge(t) }}</h1>
-{{ draft_notice(t) }}
 {{ review_notes(t, [None, 'Summary']) }}
 <div class="prose lead">{{ md(t.summary, t) }}</div>
 

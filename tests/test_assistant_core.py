@@ -1,19 +1,37 @@
-"""Tests for the reading assistant's deterministic layer (A1) and page."""
-import re
+"""The reading assistant's framework-free tests: lookup layer, model client, steps, limits, scoring."""
+import json
 import sys
+import threading as _threading
+import time as _time
 import unittest
+from datetime import date as _date
 from pathlib import Path
+
+import requests as _requests
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from app import create_app  # noqa: E402
+from app.assistant import client as _client_mod, steps  # noqa: E402
+from app.assistant.client import ModelError, OllamaClient  # noqa: E402
+from app.assistant.evaluate import (boundaries, break_positions, content_words, glosses_agree,  # noqa: E402
+                                    score_punctuation, score_sets)
+from app.assistant.limits import Limits  # noqa: E402
 from app.assistant.lookup import (analyse, find_dates, find_function_words, find_glossary_matches,  # noqa: E402
                                   function_forms, glossary_index, key, parse_number, prepare, uncovered)
 from app.content import load  # noqa: E402
 from app.content.glossary import build  # noqa: E402
+from tests.assistant_helpers import FakeResponse, FakeSession, ScriptedSession, scripted, stub  # noqa: E402,F401
 
 CONTENT = ROOT / "content"
+_CACHE = {}
+
+
+def _course_and_entries():
+    if not _CACHE:
+        course = load(ROOT / "content")
+        _CACHE["v"] = (course, build(course))
+    return _CACHE["v"]
 
 
 class Normalise(unittest.TestCase):
@@ -100,95 +118,6 @@ class Layer(unittest.TestCase):
             for gl in p.glosses:
                 if len(gl.parts) == 1 and gl.spans:
                     self.assertIn(key(gl.term), {key(t) for t in found}, f"{p.id}: {gl.term}")
-
-
-class Page(unittest.TestCase):
-    def setUp(self):
-        self.client = create_app({"TESTING": True}).test_client()
-
-    def post(self, text):
-        html = self.client.get("/assistant/").get_data(as_text=True)
-        token = re.search(r'name="csrf" value="([^"]+)"', html).group(1)
-        return self.client.post("/assistant/", data={"csrf": token, "text": text})
-
-    def test_form(self):
-        self.assertEqual(self.client.get("/assistant/").status_code, 200)
-
-    def test_analysis(self):
-        r = self.post("光绪二十四年四月二十三日，内阁奉上谕")
-        html = r.get_data(as_text=True)
-        self.assertEqual(r.status_code, 200)
-        self.assertIn("converted to traditional", html)
-        self.assertIn('id="gloss-data"', html)
-        self.assertIn("1898", html)
-        self.assertIn("no-store", r.headers["Cache-Control"])
-
-    def test_text_not_in_url_or_get(self):
-        r = self.client.get("/assistant/?text=之乎者也")
-        self.assertNotIn("之乎者也", r.get_data(as_text=True))
-
-    def test_needs_token(self):
-        self.assertEqual(self.client.post("/assistant/", data={"text": "之"}).status_code, 400)
-
-    def test_too_long(self):
-        self.assertIn("longer than", self.post("之" * 700).get_data(as_text=True))
-
-    def test_can_be_switched_off(self):
-        client = create_app({"TESTING": True, "ASSISTANT_ENABLED": False}).test_client()
-        self.assertEqual(client.get("/assistant/").status_code, 404)
-        self.assertNotIn("/assistant/", client.get("/").get_data(as_text=True))
-
-    def test_result_page_accessibility(self):
-        sys.path.insert(0, str(ROOT / "tests"))
-        from test_accessibility import parse
-        root = parse(self.post("日本人之稱我中國也，一則曰老大帝國。光緒二十四年").get_data(as_text=True))
-        nodes = list(root.iter())
-        ids = [n.attrs["id"] for n in nodes if "id" in n.attrs]
-        self.assertEqual(len(ids), len(set(ids)))
-        self.assertEqual(sum(n.tag == "h1" for n in nodes), 1)
-        textarea = next(n for n in nodes if n.tag == "textarea")
-        self.assertTrue(any(n.tag == "label" and n.attrs.get("for") == textarea.attrs["id"] for n in nodes))
-
-
-if __name__ == "__main__":
-    unittest.main()
-
-
-# --------------------------------------------------------------------------
-# A2: AI steps, with the model replaced by a stub
-# --------------------------------------------------------------------------
-
-import json  # noqa: E402
-
-from app.assistant import steps  # noqa: E402
-from app.assistant.client import ModelError, OllamaClient  # noqa: E402
-
-
-class FakeResponse:
-    def __init__(self, content, status=200):
-        self.status_code = status
-        self._body = {"message": {"content": content}, "prompt_eval_count": 10, "eval_count": 5}
-
-    def json(self):
-        return self._body
-
-
-class FakeSession:
-    """Returns the queued replies in order and records the requests."""
-
-    def __init__(self, *replies, status=200):
-        self.replies = list(replies)
-        self.status = status
-        self.requests = []
-
-    def post(self, url, json=None, headers=None, timeout=None):
-        self.requests.append({"url": url, "json": json, "headers": headers})
-        content = self.replies.pop(0) if self.replies else "{}"
-        return FakeResponse(content if isinstance(content, str) else globals()["json"].dumps(content), self.status)
-
-
-def stub(*replies, status=200, api_key=""):
-    return OllamaClient("http://model.test", "test-model", api_key=api_key, session=FakeSession(*replies, status=status))
 
 
 class Client(unittest.TestCase):
@@ -281,55 +210,6 @@ class Steps(unittest.TestCase):
         self.assertEqual(r.data, {"translation": "This is it.", "literal": "this be it"})
 
 
-class ApiBase(unittest.TestCase):
-    def setUp(self):
-        self.app = create_app({"TESTING": True})
-        self.client = self.app.test_client()
-        html = self.client.get("/assistant/").get_data(as_text=True)
-        self.token = re.search(r'name="csrf" value="([^"]+)"', html).group(1)
-
-    def call(self, step, body, token=None):
-        return self.client.post(f"/assistant/api/{step}", json=body,
-                                headers={"X-CSRF-Token": self.token if token is None else token})
-
-
-class Api(ApiBase):
-    def test_translate_endpoint(self):
-        self.app.extensions["assistant_client"] = stub({"translation": "When the Japanese speak of our China"})
-        r = self.call("translate", {"text": "日本人之稱我中國也"})
-        self.assertEqual(r.status_code, 200)
-        d = r.get_json()
-        self.assertTrue(d["ok"])
-        self.assertEqual(d["source"], "ai")
-        self.assertIn("Japanese", d["data"]["translation"])
-        self.assertIn("no-store", r.headers["Cache-Control"])
-
-    def test_needs_token(self):
-        self.assertEqual(self.call("translate", {"text": "之"}, token="wrong").status_code, 400)
-
-    def test_unknown_step(self):
-        self.assertEqual(self.call("poem", {"text": "之"}).status_code, 404)
-
-    def test_empty_or_long_text(self):
-        self.assertEqual(self.call("translate", {"text": " "}).status_code, 400)
-        self.assertEqual(self.call("translate", {"text": "之" * 700}).status_code, 400)
-
-    def test_model_failure_is_reported(self):
-        self.app.extensions["assistant_client"] = stub("bad", "bad")
-        r = self.call("punctuate", {"text": "日本人之稱我中國也"})
-        self.assertEqual(r.status_code, 502)
-        self.assertFalse(r.get_json()["ok"])
-
-
-# --------------------------------------------------------------------------
-# A3: limits, questions, page
-# --------------------------------------------------------------------------
-
-from datetime import date as _date  # noqa: E402
-
-from app.assistant.limits import Limits  # noqa: E402
-
-
 class LimitsTest(unittest.TestCase):
     def test_daily_limit_and_reset(self):
         day = [_date(2027, 1, 1)]
@@ -350,70 +230,6 @@ class LimitsTest(unittest.TestCase):
         self.assertIn("hourly limit", lim.check_and_count("d"))
         now[0] += 3601
         self.assertIsNone(lim.check_and_count("d"))
-
-
-class AskAndLimits(unittest.TestCase):
-    def setUp(self):
-        self.app = create_app({"TESTING": True, "ASSISTANT_DAILY_LIMIT": 3})
-        self.client = self.app.test_client()
-        html = self.client.get("/assistant/").get_data(as_text=True)
-        self.token = re.search(r'name="csrf" value="([^"]+)"', html).group(1)
-
-    def call(self, step, body):
-        return self.client.post(f"/assistant/api/{step}", json=body, headers={"X-CSRF-Token": self.token})
-
-    def test_ask(self):
-        self.app.extensions["assistant_client"] = stub({"answer": "之 joins 日本人 and 稱."})
-        r = self.call("ask", {"text": "日本人之稱我中國也", "question": "What does 之 do?",
-                              "history": [{"q": "Who speaks?", "a": "The Japanese."}]})
-        d = r.get_json()
-        self.assertTrue(d["ok"])
-        self.assertIn("之", d["data"]["answer"])
-        sent = self.app.extensions["assistant_client"].session.requests[0]["json"]["messages"][1]["content"]
-        self.assertIn("Earlier question: Who speaks?", sent)
-        self.assertIn("Question: What does 之 do?", sent)
-
-    def test_ask_needs_question_and_limits_history(self):
-        self.assertEqual(self.call("ask", {"text": "之", "question": " "}).status_code, 400)
-        history = [{"q": "q", "a": "a"}] * 10
-        self.assertEqual(self.call("ask", {"text": "之", "question": "more?", "history": history}).status_code, 400)
-
-    def test_daily_limit_returns_429(self):
-        self.app.extensions["assistant_client"] = stub(*[{"translation": "x"}] * 5)
-        codes = [self.call("translate", {"text": "日本人之稱我中國也"}).status_code for _ in range(4)]
-        self.assertEqual(codes, [200, 200, 200, 429])
-
-    def test_remaining_reported(self):
-        self.app.extensions["assistant_client"] = stub({"translation": "x"})
-        self.assertEqual(self.call("translate", {"text": "日本人之稱我中國也"}).get_json()["remaining"], 2)
-
-
-class A3Page(unittest.TestCase):
-    def setUp(self):
-        self.client = create_app({"TESTING": True}).test_client()
-
-    def test_help_page(self):
-        r = self.client.get("/assistant/help")
-        self.assertEqual(r.status_code, 200)
-        self.assertIn("How it goes wrong", r.get_data(as_text=True))
-
-    def test_ai_controls_and_notice(self):
-        html = self.client.get("/assistant/").get_data(as_text=True)
-        token = re.search(r'name="csrf" value="([^"]+)"', html).group(1)
-        html = self.client.post("/assistant/", data={"csrf": token, "text": "吾心目中有黿鼉"}).get_data(as_text=True)
-        self.assertIn("external AI service", html)
-        for step in ("punctuate", "words", "grammar", "names", "translate"):
-            self.assertIn(f'data-run="{step}"', html)
-        self.assertIn("assistant.js", html)
-        self.assertIn('data-text="吾心目中有黿鼉"', html)
-
-
-# --------------------------------------------------------------------------
-# A4: scoring
-# --------------------------------------------------------------------------
-
-from app.assistant.evaluate import (boundaries, break_positions, content_words, glosses_agree,  # noqa: E402
-                                    score_punctuation, score_sets)
 
 
 class Scoring(unittest.TestCase):
@@ -481,42 +297,6 @@ class Chunks(unittest.TestCase):
         self.assertEqual([w["word"] for w in r.data["words"]], ["黿鼉"])
 
 
-# --------------------------------------------------------------------------
-# A5: hardening
-# --------------------------------------------------------------------------
-
-import threading as _threading  # noqa: E402
-import time as _time  # noqa: E402
-
-import requests as _requests  # noqa: E402
-
-from app.assistant import client as _client_mod  # noqa: E402
-
-
-class ScriptedSession:
-    """Each item is a status code, an exception to raise, or a reply (dict or str) with status 200."""
-
-    def __init__(self, *script):
-        self.script = list(script)
-        self.timeouts = []
-
-    def post(self, url, json=None, headers=None, timeout=None):
-        self.timeouts.append(timeout)
-        item = self.script.pop(0)
-        if isinstance(item, Exception):
-            raise item
-        if isinstance(item, int):
-            r = FakeResponse("{}", item)
-            r.text = "refused"
-            return r
-        return FakeResponse(item if isinstance(item, str) else globals()["json"].dumps(item))
-
-
-def scripted(*script, timeout=60.0):
-    return OllamaClient("http://model.test", "test-model", session=ScriptedSession(*script), timeout=timeout,
-                        retry_pause=0)
-
-
 class Hardening(unittest.TestCase):
     def test_setup_errors_are_not_retried(self):
         for status in (401, 402, 403, 404):
@@ -539,7 +319,7 @@ class Hardening(unittest.TestCase):
             def json(self):
                 raise ValueError("html")
         s = ScriptedSession()
-        replies = [Html(""), FakeResponse(globals()["json"].dumps({"translation": "It is."}))]
+        replies = [Html(""), FakeResponse(json.dumps({"translation": "It is."}))]
         s.post = lambda *a, **k: replies.pop(0)
         c = OllamaClient("http://model.test", "m", session=s, retry_pause=0)
         self.assertEqual(steps.translate(c, "是也").data["translation"], "It is.")
@@ -600,104 +380,3 @@ class Hardening(unittest.TestCase):
         lim.refund("u")
         self.assertEqual(lim.remaining("u"), 2)
         self.assertEqual(len(lim._recent), 0)
-
-
-_CACHE = {}
-
-
-def _course_and_entries():
-    if not _CACHE:
-        course = load(ROOT / "content")
-        _CACHE["v"] = (course, build(course))
-    return _CACHE["v"]
-
-
-class ApiHardening(ApiBase):
-    def test_service_failure_not_counted(self):
-        self.app.extensions["assistant_client"] = scripted(503, 503)
-        r = self.call("translate", {"text": "日本人之稱我中國也"})
-        self.assertEqual(r.status_code, 502)
-        self.assertEqual(r.get_json()["remaining"], self.app.config["ASSISTANT_DAILY_LIMIT"])
-
-    def test_learner_side_failure_counted(self):
-        self.app.extensions["assistant_client"] = stub("bad", "bad")
-        r = self.call("translate", {"text": "日本人之稱我中國也"})
-        self.assertEqual(r.status_code, 502)
-        self.assertEqual(r.get_json()["remaining"], self.app.config["ASSISTANT_DAILY_LIMIT"] - 1)
-
-    def test_busy_when_all_slots_taken(self):
-        self.app.config.update(ASSISTANT_MAX_CONCURRENT=1, ASSISTANT_QUEUE_WAIT=0.1)
-        self.app.extensions.pop("assistant_gate", None)
-        self.app.extensions["assistant_client"] = stub({"translation": "x"})
-        with self.app.app_context():
-            from app.assistant import get_gate
-            gate = get_gate()
-        gate.acquire()
-        try:
-            r = self.call("translate", {"text": "日本人之稱我中國也"})
-        finally:
-            gate.release()
-        self.assertEqual(r.status_code, 503)
-        self.assertIn("busy", r.get_json()["error"])
-        self.assertEqual(self.call("translate", {"text": "日本人之稱我中國也"}).status_code, 200)
-
-    def test_concurrent_requests_respect_the_cap(self):
-        self.app.config.update(ASSISTANT_MAX_CONCURRENT=2, ASSISTANT_QUEUE_WAIT=5, ASSISTANT_DAILY_LIMIT=0,
-                               ASSISTANT_HOURLY_LIMIT=0)
-        self.app.extensions.pop("assistant_gate", None)
-        self.app.extensions.pop("assistant_limits", None)
-        state = {"now": 0, "max": 0}
-        lock = _threading.Lock()
-
-        class Slow:
-            model = "slow"
-
-            def deadline(self, s):
-                return OllamaClient("x", "y").deadline(s)
-
-            def chat_json(self, *a, **k):
-                with lock:
-                    state["now"] += 1
-                    state["max"] = max(state["max"], state["now"])
-                _time.sleep(0.1)
-                with lock:
-                    state["now"] -= 1
-                return _client_mod.Reply({"translation": "x"})
-
-        self.app.extensions["assistant_client"] = Slow()
-        codes = []
-
-        def one():
-            c = self.app.test_client()
-            c.get("/assistant/")
-            with c.session_transaction() as s:
-                s["csrf"] = "t"
-            codes.append(c.post("/assistant/api/translate", json={"text": "是也"},
-                                headers={"X-CSRF-Token": "t"}).status_code)
-
-        threads = [_threading.Thread(target=one) for _ in range(8)]
-        for t in threads:
-            t.start()
-        for t in threads:
-            t.join()
-        self.assertEqual(codes, [200] * 8)
-        self.assertLessEqual(state["max"], 2)
-
-    def test_request_size_limited(self):
-        r = self.client.post("/assistant/api/translate", data="x" * 300_000, content_type="application/json",
-                             headers={"X-CSRF-Token": self.token})
-        self.assertEqual(r.status_code, 413)
-
-
-class DeploymentSettings(unittest.TestCase):
-    def test_timeouts_fit_together(self):
-        app = create_app({"TESTING": True})
-        step = app.config["ASSISTANT_STEP_DEADLINE"] + app.config["ASSISTANT_QUEUE_WAIT"]
-        gconf = {}
-        exec((ROOT / "deploy" / "gunicorn.conf.py").read_text(), gconf)
-        self.assertGreater(gconf["timeout"], step)
-        self.assertEqual(gconf["workers"], 1)              # the usage limits are kept in one process
-        self.assertGreaterEqual(gconf["threads"], app.config["ASSISTANT_MAX_CONCURRENT"] + 4)
-        nginx = (ROOT / "deploy" / "nginx.conf.example").read_text()
-        api = re.search(r"location /assistant/api/ \{(.*?)\}", nginx, re.S).group(1)
-        self.assertGreaterEqual(int(re.search(r"proxy_read_timeout (\d+)s", api).group(1)), gconf["timeout"])

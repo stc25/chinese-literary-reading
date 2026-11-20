@@ -1,5 +1,7 @@
 # Web app — plan
 
+> Historical plan: the backend is now Django, not Flask. The decisions about content, links and pages below still hold.
+
 Draft v0.1 · 2026-11-07
 
 This plan covers Phase 4 of [PLAN.md](../PLAN.md): the Flask app that renders the course. The
@@ -11,7 +13,7 @@ Markdown in `content/` stays the single source of truth; the app only reads it.
 |---|---|
 | Access | Cambridge sign-in (University SSO, Microsoft Entra ID via OpenID Connect). No personal data stored on the server beyond the session cookie. A development setting bypasses sign-in locally |
 | Progress | Kept in the learner's own browser (`localStorage`): display preferences, completed exercises, last passage read. Nothing on the server |
-| Server | Not yet known. Build a standard deployment (Gunicorn behind nginx or Apache, Python 3.11+), with an optional Dockerfile, and document it |
+| Server | Not yet known. Build a standard deployment (Gunicorn behind a reverse proxy (Caddy on lcapps), Python 3.11+), with an optional Dockerfile, and document it |
 | Scope of v1 | The course reader. The AI reading assistant comes in a second stage, once it has been specified |
 | Unreviewed content | Shown, with a visible "draft, not yet reviewed" label. A release setting can hide anything below `reviewed` |
 | Reviewer mode | REVIEW comments shown inline to reviewers only (a list of CRSids in the configuration). Learners never see them |
@@ -90,7 +92,7 @@ served from the app (no third-party font or script requests).
 | M3 ✓ | Grammar, toolkit, glossary | all pages linked, tooltips, glossary search, reign-year converter |
 | M4 ✓ | Exercises and progress | interactive exercises; progress and preferences in `localStorage` |
 | M5 ✓ | Sign-in and reviewer mode | OIDC sign-in, development bypass, reviewer view of REVIEW notes, draft labels and release setting |
-| M6 ✓ | Accessibility and deployment | WCAG 2.2 AA check, device testing, Gunicorn/nginx and Docker setup, deployment guide |
+| M6 ✓ | Accessibility and deployment | WCAG 2.2 AA check, device testing, Gunicorn/Caddy and Docker setup, deployment guide |
 | — | Reading assistant (second stage) | planned in [assistant-plan.md](assistant-plan.md), milestones A1–A5 |
 
 ## Open points

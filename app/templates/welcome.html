@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}{{ course.title }}{% endblock %}
+{% block content %}
+<div class="auth-shell">
+  <section class="auth-panel" aria-labelledby="welcome-h">
+    <p class="eyebrow">University of Cambridge Language Centre</p>
+    <h1 id="welcome-h">{{ course.title }}</h1>
+    <p class="lead">Learn to read literary Chinese of the 19th and 20th centuries through passages from texts of the period,
+      with glosses, grammar notes and exercises.</p>
+    <ul class="auth-list">
+      <li>{{ counts.units }} units and {{ counts.passages }} reading passages, from beginner to intermediate</li>
+      <li>Select a word for its gloss, pinyin and the grammar point behind it</li>
+      <li>Your progress is saved in your own browser</li>
+    </ul>
+  </section>
+
+  <div class="auth-card">
+    {% if current_user or auth_mode != 'oidc' %}
+      <h2>Welcome</h2>
+      <p><a class="btn-primary btn-block" href="{{ url_for('pages.course_map') }}">Open the course</a></p>
+      {% if not current_user %}
+      <p class="auth-note">Development mode: sign-in is switched off. On the live site you would sign in here with your University account.</p>
+      {% endif %}
+    {% else %}
+      <h2>Sign in</h2>
+      <p><a class="btn-primary btn-block" href="{{ url_for('auth.login') }}"><svg viewBox="0 0 23 23" class="ms-logo" aria-hidden="true" focusable="false"><path fill="#f25022" d="M1 1h10v10H1z"/><path fill="#7fba00" d="M12 1h10v10H12z"/><path fill="#00a4ef" d="M1 12h10v10H1z"/><path fill="#ffb900" d="M12 12h10v10H12z"/></svg>Sign in with your University of Cambridge account</a></p>
+      <p class="auth-note">Open to members of the University of Cambridge who have been added to the system.
+        Contact <a href="mailto:it@langcen.cam.ac.uk">it@langcen.cam.ac.uk</a> if interested in gaining access.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

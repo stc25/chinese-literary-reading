@@ -1,0 +1,21 @@
+# Production container: Gunicorn on 127.0.0.1:8000, for the Caddy reverse proxy on the same host.
+#   cp deploy/mlc.env.example mlc.env     # then fill it in (MLC_TRUST_PROXY=1, the Azure settings, a new secret key)
+#   docker compose up -d --build         # the build fails if the content has validation errors
+#   docker compose exec web python manage.py createsuperuser     # first admin
+# MLC_ENV_FILE can point at another env file, e.g. /etc/mlc/mlc.env. The volume mlc-var holds the SQLite
+# database (the allowlist), so keep it when you replace the container. For development use docker-compose.dev.yml.
+services:
+  web:
+    build:
+      context: .
+      target: prod
+    image: mlc
+    env_file: ${MLC_ENV_FILE:-./mlc.env}
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - mlc-var:/srv/mlc/var
+    restart: unless-stopped
+
+volumes:
+  mlc-var:

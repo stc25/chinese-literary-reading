@@ -1,12 +1,7 @@
+{#- The Draft tag is for reviewers (reviewer mode on); learners do not see it. -#}
 {% macro status_badge(page) -%}
-  {%- if not page.reviewed -%}
+  {%- if reviewer_mode and not page.reviewed -%}
   <span class="badge badge-draft" title="This page has not yet been reviewed">Draft</span>
-  {%- endif -%}
-{%- endmacro %}
-
-{% macro draft_notice(page) -%}
-  {%- if not page.reviewed -%}
-  <p class="notice notice-draft">Draft: this page has not yet been reviewed and may contain errors.</p>
   {%- endif -%}
 {%- endmacro %}
 

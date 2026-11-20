@@ -1,0 +1,40 @@
+# Caddy site for the course app, served under a path of the shared lcapps host:
+#   https://lcapps.langcen.cam.ac.uk/chinese-literary-reading/
+# Add the two blocks below INSIDE the existing lcapps.langcen.cam.ac.uk { ... } site block, next to the other apps.
+# The app runs with MLC_URL_PREFIX=/chinese-literary-reading: Caddy strips the prefix (handle_path) and the app
+# writes it back into every link, redirect and cookie path. Caddy sets Host, X-Forwarded-Proto and X-Forwarded-Host
+# from the real request; Django trusts them when MLC_TRUST_PROXY=1, for the sign-in redirect URI and the CSRF check.
+# Static files are served by the app (WhiteNoise): no static rule is needed. Caddy has no proxy read timeout by
+# default, so the assistant's AI steps (up to 90 s plus a queue wait) are not cut off; Gunicorn's timeout (130 s) applies.
+
+lcapps.langcen.cam.ac.uk {
+    # ... the existing blocks for the other apps ...
+
+    redir /chinese-literary-reading /chinese-literary-reading/
+
+    handle_path /chinese-literary-reading/* {
+        encode zstd gzip
+
+        # The Django admin (the allowlist) has its own password login. Recommended: allow it only from
+        # the addresses you manage it from (replace 131.111.0.0/16).
+        @admin path /django-admin/*
+        handle @admin {
+            @outside not remote_ip 131.111.0.0/16
+            respond @outside 403
+            reverse_proxy 127.0.0.1:8000
+        }
+
+        # Requests larger than the assistant needs are refused here as well as in the app.
+        @api path /assistant/api/*
+        handle @api {
+            request_body {
+                max_size 256KB
+            }
+            reverse_proxy 127.0.0.1:8000
+        }
+
+        handle {
+            reverse_proxy 127.0.0.1:8000
+        }
+    }
+}

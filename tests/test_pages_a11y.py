@@ -1,4 +1,6 @@
-"""Automated accessibility checks (part of WCAG 2.2 AA) over every page of the course.
+"""The accessibility checks of tests/test_accessibility.py, run against the Django views.
+
+Automated accessibility checks (part of WCAG 2.2 AA) over every page of the course.
 
 These cover what can be checked from the HTML and CSS alone: document language,
 headings, labels, accessible names, ids, ARIA references and colour contrast.
@@ -10,12 +12,12 @@ import unittest
 from html.parser import HTMLParser
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(ROOT))
+from tests.django_helpers import ROOT, current_course, page_settings  # noqa: E402  (sets up Django first)
 
-from app import create_app  # noqa: E402
+from django.test import SimpleTestCase  # noqa: E402
 
 CSS = ROOT / "app" / "static" / "css" / "site.css"
+TOKENS = ROOT / "app" / "static" / "css" / "tokens.css"
 VOID = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "source", "track", "wbr"}
 
 
@@ -77,13 +79,15 @@ def accessible_name(node, ids):
     return node.all_text().strip()
 
 
-class Pages(unittest.TestCase):
+@page_settings(ROOT / "content", REVIEWERS=["rv1"], DEV_USER="rv1")
+class Pages(SimpleTestCase):
     @classmethod
     def setUpClass(cls):
-        app = create_app({"TESTING": True, "REVIEWERS": ["rv1"], "DEV_USER": "rv1"})
-        cls.client = app.test_client()
-        c = app.extensions["course_store"].course
-        cls.urls = (["/", "/grammar", "/toolkit", "/glossary?q=qun", "/review", "/signed-out", "/accessibility", "/assistant/", "/assistant/help",
+        super().setUpClass()
+        c = current_course()
+        # The development user rv1 is a reviewer and pages() switches reviewer mode on, so the
+        # reviewer-only markup (notes, Draft tags, the review list) is checked too.
+        cls.urls = (["/", "/grammar", "/toolkit", "/glossary?q=qun", "/accessibility", "/review", "/signed-out", "/assistant/", "/assistant/help",
                      "/toolkit/t02?mode=reign&reign=光緒&year=24"]
                     + [f"/units/{u}" for u in c.units]
                     + [f"/units/{p.unit_id}/{p.number}" for p in c.passages.values()]
@@ -92,8 +96,11 @@ class Pages(unittest.TestCase):
                     + [f"/toolkit/{t}" for t in c.toolkit])
 
     def pages(self):
+        r = self.client.post("/reviewer-mode", {"on": "1", "next": "/"})
+        self.assertEqual(r.status_code, 302)
+        self.assertIn('class="review-note"', self.client.get("/units/u17/p01").content.decode())
         for url in self.urls:
-            html = self.client.get(url).get_data(as_text=True)
+            html = self.client.get(url).content.decode()
             yield url, parse(html)
 
     def test_structure(self):
@@ -156,9 +163,26 @@ class Pages(unittest.TestCase):
                             self.assertEqual(lang, "zh-Hant")
 
 
-def hex_to_rgb(h):
-    h = h.lstrip("#")
-    return tuple(int(h[i:i + 2], 16) / 255 for i in (0, 2, 4))
+def parse_colour(value, tokens, backdrop=(1, 1, 1)):
+    """A CSS colour from tokens.css/site.css as 0-1 RGB: #hex, rgba() (composited on `backdrop`),
+    var(--x) and color-mix(in srgb, A p%, B)."""
+    v = value.strip()
+    m = re.fullmatch(r"var\(--([\w-]+)\)", v)
+    if m:
+        return parse_colour(tokens[m.group(1)], tokens, backdrop)
+    m = re.fullmatch(r"color-mix\(in srgb,\s*(.+?)\s+(\d+)%,\s*(.+)\)", v)
+    if m:
+        x, y = parse_colour(m.group(1), tokens, backdrop), parse_colour(m.group(3), tokens, backdrop)
+        k = int(m.group(2)) / 100
+        return tuple(k * i + (1 - k) * j for i, j in zip(x, y))
+    if v.startswith("#"):
+        h = v[1:]
+        h = "".join(c * 2 for c in h) if len(h) == 3 else h
+        return tuple(int(h[i:i + 2], 16) / 255 for i in (0, 2, 4))
+    m = re.fullmatch(r"rgba?\(([^)]*)\)", v)
+    p = [float(x) for x in m.group(1).split(",")]
+    a = p[3] if len(p) > 3 else 1.0
+    return tuple(a * p[i] / 255 + (1 - a) * backdrop[i] for i in range(3))
 
 
 def luminance(rgb):
@@ -169,11 +193,11 @@ def luminance(rgb):
 
 
 def contrast(a, b):
-    la, lb = sorted((luminance(hex_to_rgb(a)), luminance(hex_to_rgb(b))), reverse=True)
+    la, lb = sorted((luminance(a), luminance(b)), reverse=True)
     return (la + 0.05) / (lb + 0.05)
 
 
-class Contrast(unittest.TestCase):
+class Contrast(SimpleTestCase):
     """Text colour pairs from the design tokens meet 4.5:1 (normal text) in light and dark mode."""
 
     PAIRS = [
@@ -185,24 +209,33 @@ class Contrast(unittest.TestCase):
     ]
 
     def tokens(self):
-        css = CSS.read_text(encoding="utf-8")
-        light = dict(re.findall(r"--([\w-]+):\s*(#[0-9a-fA-F]{6})", css.split("@media (prefers-color-scheme: dark)")[0]))
-        dark_block = re.search(r"@media \(prefers-color-scheme: dark\)\s*\{\s*:root\s*\{(.*?)\}", css, re.S).group(1)
-        dark = {**light, **dict(re.findall(r"--([\w-]+):\s*(#[0-9a-fA-F]{6})", dark_block))}
+        """Light and dark token values: tokens.css, then the course aliases in site.css (:root)."""
+        def decls(text):
+            return dict(re.findall(r"--([\w-]+)\s*:\s*([^;]+);", text))
+
+        def block(css, selector):
+            m = re.search(re.escape(selector) + r"\s*\{(.*?)\n?\}", css, re.S)
+            return decls(m.group(1)) if m else {}
+
+        tk, site = TOKENS.read_text(encoding="utf-8"), CSS.read_text(encoding="utf-8")
+        light = {**block(tk, ":root"), **block(site, ":root")}
+        dark = {**light, **block(tk, ':root[data-theme="dark"]'), **block(site, ':root[data-theme="dark"]')}
         return {"light": light, "dark": dark}
 
     def test_pairs(self):
         for mode, t in self.tokens().items():
             for fg, bg in self.PAIRS:
                 with self.subTest(mode=mode, pair=(fg, bg)):
-                    self.assertGreaterEqual(contrast(t[fg], t[bg]), 4.5, f"{fg} on {bg}: {contrast(t[fg], t[bg]):.2f}")
+                    page = parse_colour("var(--bg)", t)      # translucent colours (the rule) sit on the page
+                    c = contrast(parse_colour(f"var(--{fg})", t, page), parse_colour(f"var(--{bg})", t, page))
+                    self.assertGreaterEqual(c, 4.5, f"{fg} on {bg}: {c:.2f}")
 
 
 if __name__ == "__main__":
     unittest.main()
 
 
-class Font(unittest.TestCase):
+class Font(SimpleTestCase):
     def test_subset_covers_the_course(self):
         try:
             from fontTools.ttLib import TTFont

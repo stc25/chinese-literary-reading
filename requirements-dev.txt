@@ -1,0 +1,2 @@
+pytest
+playwright>=1.40   # then: playwright install chromium (tests/test_browser.py; optional)

@@ -3,7 +3,7 @@
 Draft v0.1 · 2026-11-06
 
 All course content is written as Markdown files that follow this spec. The rules are
-strict so that (a) a validation script can check every file, and (b) the Flask app
+strict so that (a) a validation script can check every file, and (b) the Django app
 can render the files without anyone converting them. Files must still read well
 in any Markdown viewer, for reviewers who never see the app.
 

@@ -3,14 +3,14 @@
   "configurations": [
     {
       "name": "course-app",
-      "runtimeExecutable": "python3",
-      "runtimeArgs": ["-m", "flask", "--app", "app", "run", "--debug", "--port", "5050"],
+      "runtimeExecutable": "env",
+      "runtimeArgs": ["MLC_DEBUG=1", "python3", "manage.py", "runserver", "5050"],
       "port": 5050
     },
     {
       "name": "course-app-reviewer",
       "runtimeExecutable": "env",
-      "runtimeArgs": ["MLC_DEV_USER=cz201", "MLC_REVIEWERS=[\"cz201\"]", "python3", "-m", "flask", "--app", "app", "run", "--debug", "--port", "5051"],
+      "runtimeArgs": ["MLC_DEV_USER=cz201", "MLC_REVIEWERS=[\"cz201\"]", "MLC_DEBUG=1", "python3", "manage.py", "runserver", "5051"],
       "port": 5051
     }
   ]

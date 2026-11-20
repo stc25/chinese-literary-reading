@@ -13,3 +13,6 @@ __pycache__/
 .env
 *.env
 !deploy/*.env.example
+
+# The SQLite database and collected static files
+/var/

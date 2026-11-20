@@ -8,6 +8,7 @@
   if (!result || !result.getAttribute("data-text")) return;
   var TEXT = result.getAttribute("data-text");
   var API = result.getAttribute("data-api");
+  var GRAMMAR_URL = result.getAttribute("data-grammar-url");   // with the site's path prefix, if any
   var CSRF = result.getAttribute("data-csrf");
   var history = [];
 
@@ -68,6 +69,7 @@
     words: function (d, out) {
       if (!d.words.length) { out.appendChild(el("p", "", "The AI gave no glosses for the uncovered words.")); return; }
       var wrap = el("div", "table-wrap"), t = el("table", "ai-words");
+      wrap.tabIndex = 0;        // a scrollable region must be reachable by keyboard
       var head = el("tr");
       ["Word", "Pinyin", "Gloss"].forEach(function (h, i) {
         var th = el("th", i === 1 ? "pinyin-col" : "", h); th.scope = "col"; head.appendChild(th);
@@ -98,8 +100,8 @@
         if (n.grammar_id) {
           li.appendChild(document.createTextNode(" · "));
           var a = el("a", "xref", n.grammar_title);
-          a.href = "/grammar/" + encodeURIComponent(n.grammar_id);
-          a.setAttribute("data-ref", "/grammar/" + n.grammar_id);
+          a.href = GRAMMAR_URL.replace("GRAMMAR_ID", encodeURIComponent(n.grammar_id));
+          a.setAttribute("data-ref", GRAMMAR_URL.replace("GRAMMAR_ID", n.grammar_id));
           li.appendChild(a);
         }
         li.appendChild(el("span", "ai-note", n.note));

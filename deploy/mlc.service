@@ -2,7 +2,7 @@
 #   sudo cp deploy/mlc.service /etc/systemd/system/mlc.service
 #   sudo systemctl daemon-reload && sudo systemctl enable --now mlc
 [Unit]
-Description=Reading Modern Literary Chinese (Flask app)
+Description=Reading Modern Literary Chinese (Django app)
 After=network.target
 
 [Service]
@@ -11,15 +11,20 @@ User=mlc
 Group=mlc
 WorkingDirectory=/srv/mlc
 EnvironmentFile=/etc/mlc/mlc.env
-ExecStart=/srv/mlc/.venv/bin/gunicorn -c deploy/gunicorn.conf.py wsgi:application
+ExecStartPre=/srv/mlc/.venv/bin/python manage.py migrate --noinput
+ExecStartPre=/srv/mlc/.venv/bin/python manage.py collectstatic --noinput --verbosity 0
+ExecStart=/srv/mlc/.venv/bin/gunicorn -c deploy/gunicorn.conf.py config.wsgi:application
 ExecReload=/bin/kill -HUP $MAINPID
 Restart=on-failure
-# Hardening: the app only reads its own files.
+# New files (the SQLite database and its journal) are readable by the mlc user only.
+UMask=0077
+# Hardening: the app only reads its own files, and writes only the SQLite database and static files in var/.
 NoNewPrivileges=true
 ProtectSystem=strict
 ProtectHome=true
 PrivateTmp=true
 ReadOnlyPaths=/srv/mlc
+ReadWritePaths=/srv/mlc/var
 
 [Install]
 WantedBy=multi-user.target

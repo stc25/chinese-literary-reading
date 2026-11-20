@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Course administration · {{ course.title }}{% endblock %}
+{% block content %}
+<div class="auth-shell">
+  <section class="auth-panel" aria-labelledby="admin-h">
+    <p class="eyebrow">University of Cambridge Language Centre</p>
+    <h1 id="admin-h">Course administration</h1>
+    <p class="lead">For the people who manage {{ course.title }}: add or remove who is allowed to sign in, and manage admin accounts.</p>
+  </section>
+
+  <div class="auth-card">
+    <h2>Admin sign-in</h2>
+    <p><a class="btn-primary btn-block" href="{{ admin_login_url }}">Sign in to the admin</a></p>
+    <p class="auth-note">Sign in with the email address and password of your admin account. This is separate from the
+      University sign-in (SSO), which does not open the admin.</p>
+    <p class="auth-note">Looking for the course? <a href="{{ url_for('pages.course_map') }}">Go to the course</a>.</p>
+  </div>
+</div>
+{% endblock %}
