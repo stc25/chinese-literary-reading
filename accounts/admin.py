@@ -17,3 +17,4 @@ class EmailAdminLoginForm(AdminAuthenticationForm):
 
 
 admin.site.login_form = EmailAdminLoginForm
+admin.site.login_template = "admin_login.html"     # the site's look, not Django's blue page

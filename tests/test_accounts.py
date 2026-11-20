@@ -834,6 +834,17 @@ class AdminLanding(TestCase):
         self.assertEqual(r.status_code, 302, r.content.decode()[:300])
         self.assertIn("Site administration", c.get("/django-admin/").content.decode())
 
+    def test_admin_login_page_uses_the_site_look_and_shows_errors(self):
+        User.objects.create_superuser("boss", "boss@example.org", self.PW)
+        c = Client()
+        html = c.get("/django-admin/login/").content.decode()
+        self.assertIn('class="auth-card"', html)
+        self.assertIn('type="email"', html)
+        self.assertIn('type="password"', html)
+        r = c.post("/django-admin/login/", {"username": "boss@example.org", "password": "wrong"})
+        self.assertEqual(r.status_code, 200)
+        self.assertIn('class="auth-error"', r.content.decode())
+
     def test_accounts_without_an_email_address_cannot_use_it(self):
         """An SSO account has no email address and an unusable password: it can never match."""
         User.objects.create_user("cz201", "", self.PW)
