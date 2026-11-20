@@ -178,11 +178,11 @@ class PipelineTests(TestCase):
         self.refused({"preferred_username": "abc123"})    # no domain at all
 
     def test_allowlist_matching(self):
-        allow("abc123", "@ling.cam.ac.uk", "xyz9@cam.ac.uk")
-        for ident in ("ABC123@cam.ac.uk", "abc123@CAM.AC.UK", "q1@Ling.Cam.Ac.Uk", "XYZ9@cam.ac.uk"):
+        allow("abc123", "xyz9@cam.ac.uk")
+        for ident in ("ABC123@cam.ac.uk", "abc123@CAM.AC.UK", "XYZ9@cam.ac.uk"):
             with self.subTest(ident=ident):
                 self.enforce({"preferred_username": ident})
-        for ident in ("abc123@gmail.com", "abc123@cam.ac.uk.evil.com", "abc123@evilcam.ac.uk", "nobody@cam.ac.uk"):
+        for ident in ("abc123@gmail.com", "abc123@cam.ac.uk.evil.com", "abc123@evilcam.ac.uk", "nobody@cam.ac.uk", "abc123@ling.cam.ac.uk"):
             with self.subTest(ident=ident):
                 self.refused({"preferred_username": ident})
 
@@ -196,19 +196,12 @@ class PipelineTests(TestCase):
         self.assertFalse(is_allowed("abc123@x.com@cam.ac.uk"))      # the per-request re-check too
         self.assertTrue(is_allowed("abc123@cam.ac.uk"))
 
-    def test_non_cambridge_address_by_email_or_domain_entry(self):
-        allow("cz201", "visitor@example.ac.uk", "@partner.ac.uk")
-        out = self.enforce({"preferred_username": "Visitor@Example.ac.uk", "name": "V."})
-        self.assertEqual(out["login_identifier"], "visitor@example.ac.uk")
-        self.assertEqual(out["details"]["email"], "")
-        self.enforce({"preferred_username": "anyone.here@partner.ac.uk"})
-        self.refused({"preferred_username": "cz201@example.ac.uk"})     # a CRSid entry is for Cambridge only
-        self.refused({"preferred_username": "other@example.ac.uk"})
-
-    def test_non_cambridge_username_cannot_collide_with_a_crsid(self):
-        allow("@example.ac.uk")
-        out = self.enforce({"preferred_username": "cz201@example.ac.uk"})
-        self.assertEqual(out["details"]["username"], "ext-cz201")
+    def test_only_cambridge_addresses_can_be_allowed(self):
+        allow("cz201", "visitor@example.ac.uk", "@partner.ac.uk", "@example.ac.uk", "cz201@ling.cam.ac.uk")
+        for ident in ("visitor@example.ac.uk", "anyone.here@partner.ac.uk", "cz201@example.ac.uk",
+                      "cz201@ling.cam.ac.uk"):
+            with self.subTest(ident=ident):
+                self.refused({"preferred_username": ident})
 
     def test_well_formed_tolerates_none(self):
         from accounts.pipeline import well_formed
@@ -351,31 +344,6 @@ class SignInFlowTests(TestCase):
         r = self.client.get("/")
         self.assertEqual(r.wsgi_request.user_info, {"id": "cz201", "name": "C. Z.", "reviewer": True})
         self.assertEqual(User.objects.get().username, "cz201")
-
-    def test_non_cambridge_account_has_its_own_identity(self):
-        """cz201@example.ac.uk (allowlisted by address) is not the reviewer cz201 and has its own
-        assistant limit key."""
-        allow("cz201@example.ac.uk")
-        sso_sign_in(self.client, claims_for("cz201@example.ac.uk", "Visitor"))
-        r = self.client.get("/")
-        self.assertEqual(r.wsgi_request.user_info,
-                         {"id": "cz201@example.ac.uk", "name": "Visitor", "reviewer": False})
-        self.assertNotIn("Reviewer notes", r.content.decode())
-        self.assertEqual(self.client.get("/review").status_code, 404)
-        self.assertEqual(User.objects.get().email, "")
-
-        from django.apps import apps
-
-        from app.assistant.views import get_limits
-        from tests.assistant_helpers import stub
-        apps.get_app_config("app").set_assistant("client", stub({"translation": "x"}))
-        self.addCleanup(apps.get_app_config("app").reset_assistant)
-        with self.settings(CONTENT_DIR=str(CONTENT)):     # the assistant needs the real course's tables
-            r = self.client.post("/assistant/api/translate", {"text": "之"}, content_type="application/json")
-        self.assertEqual(r.status_code, 200, r.content)
-        limits = get_limits()
-        daily = limits.remaining("cz201")
-        self.assertEqual(limits.remaining("cz201@example.ac.uk"), daily - 1)
 
     def test_two_at_signs_refused_and_no_user(self):
         allow("@cam.ac.uk", "@x.com")

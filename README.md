@@ -78,7 +78,7 @@ lcapps. Local development needs none, because `MLC_DEBUG=1` uses no sign-in.
 
 **Allowlist.** Only people on the allowlist can sign in. Create the first admin with
 `python manage.py createsuperuser`, then add entries at `/django-admin/`: a CRSid (`abc123`), an
-exact address (`abc123@cam.ac.uk`) or a whole domain (`@ling.cam.ac.uk`). The `createsuperuser`
+exact address (`abc123@cam.ac.uk`) or `@cam.ac.uk` for every Cambridge CRSid. Only Cambridge sign-ins (a CRSid before `@cam.ac.uk`) can ever be admitted; any other address is refused whatever the list says. The `createsuperuser`
 account signs in with its password at `/django-admin/`; a University sign-in always uses a separate
 account. To make someone an admin, let them sign in once with SSO, then tick Staff (and Superuser)
 on their account in the admin. The database stores only the user name (the CRSid), the display name

@@ -29,7 +29,7 @@ class AllowedLoginManager(models.Manager):
 class AllowedLogin(models.Model):
     entry = models.CharField(
         max_length=254, unique=True,
-        help_text="A CRSid (abc123), an exact email (abc123@cam.ac.uk) or a whole domain (@ling.cam.ac.uk).",
+        help_text="A CRSid (abc123), an exact email (abc123@cam.ac.uk) or @cam.ac.uk for everyone with a CRSid. Only Cambridge sign-ins can be admitted.",
     )
     note = models.CharField(max_length=200, blank=True)
     created = models.DateTimeField(auto_now_add=True)
@@ -42,7 +42,7 @@ class AllowedLogin(models.Model):
     def clean(self):
         self.entry = (self.entry or "").strip().lower()
         if not (CRSID_RE.match(self.entry) or EMAIL_RE.match(self.entry) or DOMAIN_RE.match(self.entry)):
-            raise ValidationError({"entry": "Enter a CRSid, an email address or a domain such as @cam.ac.uk."})
+            raise ValidationError({"entry": "Enter a CRSid, an email address (abc123@cam.ac.uk) or @cam.ac.uk."})
 
     def save(self, *args, **kwargs):
         # Validate here so every write path (not only the admin form) stores a normalised, valid entry.

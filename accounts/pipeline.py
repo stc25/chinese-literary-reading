@@ -3,7 +3,7 @@
 ``enforce_allowlist`` runs right after social-core's ``auth_allowed`` and refuses the sign-in
 before any user or social-auth row exists. ``finish_login`` runs last, once a stock
 ``auth.User`` has been found or created. Only the user name (the CRSid, or the local part of a
-non-Cambridge address) and the display name are kept: never the address, never the tokens.
+Cambridge address) and the display name are kept: never the address, never the tokens.
 """
 from __future__ import annotations
 
@@ -53,12 +53,11 @@ def identity_of(identifier: str) -> str:
 
 
 def is_allowed(identifier: str) -> bool:
-    """The allowlist decision, at sign-in and again on every request. A Cambridge address must have
-    a CRSid as its local part; any other address can only match an email or a domain entry."""
-    if not well_formed(identifier):
-        return False
+    """The allowlist decision, at sign-in and again on every request. Only Cambridge sign-ins
+    (abc123@cam.ac.uk, a CRSid before the @) can be allowed; any other address is refused
+    whatever the allowlist says."""
     crsid = crsid_of(identifier)
-    if identifier.endswith(CAM_DOMAIN) and not crsid:
+    if not crsid:
         return False
     return AllowedLogin.objects.allows(identifier, crsid)
 
@@ -69,8 +68,7 @@ def enforce_allowlist(backend, details, response, *args, **kwargs):
     identifier = identifier_from_claims(response or {})
     if not is_allowed(identifier):
         raise AuthForbidden(backend)
-    # never the address itself; "ext-" cannot collide with a CRSid (letters and digits only)
-    username = crsid_of(identifier) or "ext-" + identifier.split("@", 1)[0]
+    username = crsid_of(identifier)    # never the address itself
     name = str((response or {}).get("name") or "").strip() or identity_of(identifier)
     return {
         "details": {"username": username, "email": "", "fullname": name, "first_name": name[:150], "last_name": ""},

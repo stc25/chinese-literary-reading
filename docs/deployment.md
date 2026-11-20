@@ -93,7 +93,7 @@ not covered by the plan (402).
 
 Only people on the allowlist can sign in. Create the first admin as above, then open
 `https://<host>/django-admin/` and add allowlist entries in one of three forms: a CRSid (`abc123`), an
-exact address (`abc123@cam.ac.uk`) or a whole domain (`@ling.cam.ac.uk`). Matching ignores case.
+exact address (`abc123@cam.ac.uk`) or `@cam.ac.uk` for every Cambridge CRSid. Only Cambridge sign-ins (a CRSid before `@cam.ac.uk`) can ever be admitted; any other address is refused whatever the list says. Matching ignores case.
 Removing an entry, or deactivating an account, takes effect on that person's next request.
 
 **Admins.** The first admin is the account made with `createsuperuser`: it signs in with its
