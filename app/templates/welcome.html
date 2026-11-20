@@ -15,6 +15,7 @@
   </section>
 
   <div class="auth-card">
+    <p class="auth-banner"><img src="{{ url_for('static', filename='img/logo/bannerlogo.png') }}" alt="University of Cambridge" width="280" height="60"></p>
     {% if current_user or auth_mode != 'oidc' %}
       <h2>Welcome</h2>
       <p><a class="btn-primary btn-block" href="{{ url_for('pages.course_map') }}">Open the course</a></p>
