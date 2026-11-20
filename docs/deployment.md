@@ -187,7 +187,16 @@ With `gemma4:31b` on the cloud service, a full analysis takes about 15 seconds
 
 ### Alternative: a container
 
-If the server runs containers instead:
+If the server runs containers instead, `docker-compose.yml` does it in one step (Gunicorn on
+`127.0.0.1:8000`, the volume `mlc-var`, restart on failure; set `MLC_ENV_FILE` to `/etc/mlc/mlc.env`
+or keep a `mlc.env` beside it):
+
+```bash
+docker compose up -d --build
+docker compose exec web python manage.py createsuperuser      # first admin
+```
+
+The same without Compose:
 
 ```bash
 docker build -t mlc .                     # fails if the content has validation errors

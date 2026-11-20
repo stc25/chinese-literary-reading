@@ -31,7 +31,7 @@ lives in `./var`):
 docker compose -f docker-compose.dev.yml up --build     # then open http://localhost:5051/
 ```
 
-`MLC_DEBUG=1` means no sign-in. Then open <http://localhost:5050/> (or port 5051 with Docker). For production, see [docs/deployment.md](docs/deployment.md)
+`MLC_DEBUG=1` means no sign-in. Then open <http://localhost:5050/> (or port 5051 with Docker). For production, `docker compose up -d --build` runs the production image (see [docs/deployment.md](docs/deployment.md))
 (Gunicorn behind Caddy, or a container; configuration files in `deploy/`). With `MLC_DEBUG=1` the app reloads the content when a file in
 `content/` changes. The app will not start if the validator reports errors. See
 [docs/app-plan.md](docs/app-plan.md) for the plan.
@@ -86,7 +86,7 @@ The database stores only the user name (the CRSid), the display name and an acti
 login, separate from the Cambridge sign-in button. A password sign-in works only inside `/django-admin/`.
 
 1. Create the first admin: `python manage.py createsuperuser` (in Docker:
-   `docker exec -it mlc python manage.py createsuperuser`; the deployment guide has the non-Docker
+   `docker compose exec web python manage.py createsuperuser`; the deployment guide has the non-Docker
    command). It asks for a username, an optional email address and a password. The email is only a
    contact field: the login uses the username.
 2. Sign in at `/django-admin/` with that username and password, and add the allowlist entries.
