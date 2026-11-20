@@ -15,7 +15,6 @@
   </section>
 
   <div class="auth-card">
-    <p class="auth-banner"><img src="{{ url_for('static', filename='img/logo/bannerlogo.png') }}" alt="University of Cambridge" width="280" height="60"></p>
     {% if current_user or auth_mode != 'oidc' %}
       <h2>Welcome</h2>
       <p><a class="btn-primary btn-block" href="{{ url_for('pages.course_map') }}">Open the course</a></p>
@@ -23,7 +22,7 @@
       <p class="auth-note">Development mode: sign-in is switched off. On the live site you would sign in here with your University account.</p>
       {% endif %}
     {% else %}
-      <p><a class="btn-primary btn-microsoft btn-block" href="{{ url_for('auth.login') }}"><span class="ms-text">Sign in with Cambridge <span class="ms-sub">University account</span></span></a></p>
+      <p><a class="btn-primary btn-microsoft btn-block" href="{{ url_for('auth.login') }}"><img class="ms-banner" src="{{ url_for('static', filename='img/logo/bannerlogo.png') }}" alt="University of Cambridge" width="280" height="60"><span class="ms-text">Sign in with your University of Cambridge account credentials</span></a></p>
       <p class="auth-note">Open to members of the University of Cambridge who have been added to the system.
         Contact <a href="mailto:it@langcen.cam.ac.uk">it@langcen.cam.ac.uk</a> if interested in gaining access.</p>
     {% endif %}
