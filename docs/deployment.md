@@ -114,6 +114,55 @@ everything else to Gunicorn. It sets `X-Forwarded-Proto`, `X-Forwarded-Host` and
 request (never appending to what the client sent): Django trusts them for the sign-in redirect URI and the CSRF check. If the content has validation errors, Gunicorn refuses to start and the journal
 (`journalctl -u mlc`) lists them.
 
+### The Caddy reverse proxy
+
+nginx is not needed. On lcapps, Caddy sits in front of the app and handles TLS (it obtains and renews
+the certificate itself), compression and the public host name. The app serves its own static files
+(WhiteNoise), so Caddy needs no `/static/` rule and nothing in `/srv/mlc/var/` has to be readable by it.
+
+Add this site block to the server's Caddyfile (a copy is in `deploy/Caddyfile.example`; replace the host name):
+
+```
+course.example.cam.ac.uk {
+    encode zstd gzip
+
+    @admin path /django-admin/*
+    handle @admin {
+        @outside not remote_ip 131.111.0.0/16      # replace with the addresses you manage the admin from
+        respond @outside 403
+        reverse_proxy 127.0.0.1:8000
+    }
+
+    @api path /assistant/api/*
+    handle @api {
+        request_body {
+            max_size 256KB
+        }
+        reverse_proxy 127.0.0.1:8000
+    }
+
+    handle {
+        reverse_proxy 127.0.0.1:8000
+    }
+}
+```
+
+Then `sudo caddy validate --config /etc/caddy/Caddyfile && sudo systemctl reload caddy`.
+
+- **Upstream.** `127.0.0.1:8000` is Gunicorn's default bind (`MLC_BIND`) and the port the container publishes
+  (`-p 127.0.0.1:8000:8000`). If Caddy runs in Docker too, point `reverse_proxy` at the container's name and
+  port on the shared network instead.
+- **`MLC_TRUST_PROXY=1` is required.** Caddy sets `Host`, `X-Forwarded-Proto` and `X-Forwarded-Host` from the
+  real request, and Django trusts them for the sign-in redirect address and the CSRF check. Without it,
+  sign-in returns to an `http://` address and sign-out answers 403. Keep `MLC_FORWARDED_ALLOW_IPS` at
+  `127.0.0.1` when Caddy is on the same machine; if Caddy connects from another address, set it to that address.
+- **Timeouts.** Caddy has no proxy read timeout by default, so the assistant's AI steps (up to 90 s plus a
+  queue wait) are not cut off; Gunicorn's 130 s timeout is the limit. Do not add a shorter `read_timeout`.
+- **Entra redirect URI.** Register `https://<host>/auth/sso/complete/azuread-tenant-oauth2/` on the new app
+  registration, with exactly the host name used in the site block.
+- **Admin.** The `remote_ip` block keeps `/django-admin/` (the allowlist) to your own network. Remove it only
+  if the admin accounts are protected some other way.
+
 ### The reading assistant under load
 
 The app runs as **one Gunicorn process with 16 threads**. The assistant's usage limits are counted
