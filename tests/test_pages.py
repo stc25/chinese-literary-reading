@@ -328,7 +328,7 @@ class Landing(TestCase):
             sso_sign_in(self.oidc())
             html = self.oidc().get("/").content.decode()
         self.assertIn('id="units"', html)
-        self.assertNotIn("landing-hero", html)
+        self.assertNotIn("auth-shell", html)
 
 
 @page_settings()

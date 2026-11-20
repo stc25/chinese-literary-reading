@@ -138,6 +138,7 @@ th { font-weight: 600; background: var(--surface); }
 .unit-list, .passage-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.6rem; }
 .unit-list { grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr)); }
 .unit-card, .passage-card { background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; padding: 0.75rem 0.9rem; }
+.unit-list.cam-autogrid { list-style: none; margin: 0; padding: 0; }
 .unit-card a, .passage-card a { display: block; text-decoration: none; }
 .unit-number { display: block; font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.03em; }
 .unit-title, .passage-title { font-family: var(--font-serif); font-size: 1.1rem; color: var(--text); }
@@ -486,19 +487,33 @@ h2 a:hover { text-decoration: underline; }
    Landing page
    ------------------------------------------------------------------------ */
 
-.landing-hero { padding: 1.5rem 0 0.5rem; }
-.landing-hero h1 { font-size: 2.4rem; }
-.landing-actions { margin: 1.25rem 0 0.75rem; }
+.auth-shell { display: grid; gap: 2rem; align-items: center; padding: 2rem 0; }
+@media (min-width: 48rem) { .auth-shell { grid-template-columns: 3fr 2fr; gap: 3rem; padding: 3rem 0; } }
+.auth-panel h1 { font-size: 2.2rem; margin: 0.4rem 0 0.8rem; }
+.auth-list { margin: 1.2rem 0 0; padding-left: 1.2rem; }
+.auth-list li { margin: 0.35rem 0; }
+.auth-card { background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; padding: 1.5rem; }
+.auth-card h2 { margin-top: 0; }
+.auth-note { color: var(--muted); font-size: 0.9rem; margin: 0.75rem 0 0; }
+.btn-block { display: flex; align-items: center; justify-content: center; gap: 0.6rem; width: 100%; box-sizing: border-box; text-align: center; }
+.ms-logo { width: 1.1rem; height: 1.1rem; flex: none; }
 .btn-primary {
   display: inline-block; padding: 0.7rem 1.3rem; border-radius: 6px; font-weight: 600; text-decoration: none;
   background: var(--button-primary-bg); color: var(--button-primary-text); border: 1px solid var(--button-primary-bg);
 }
 .btn-primary:hover { background: var(--button-primary-hover); border-color: var(--button-primary-hover); text-decoration: none; }
-.feature-grid { list-style: none; margin: 0; padding: 0; }
-.feature-card { background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; padding: 0.9rem 1.1rem; }
-.feature-card h3 { margin-top: 0; }
-.feature-card p { margin: 0; font-size: 0.95rem; }
 
 /* The taller header stays pinned only where there is room for it */
 @media (min-width: 48rem) { .site-header { position: sticky; top: 0; } }
 @media (max-width: 40rem) { .site-title { font-size: 1.25rem; } .header-inner { padding-top: 0.9rem; padding-bottom: 0.9rem; } }
+
+/* Home page: intro callout, grouped cards (after the Academic Reading library page) */
+.callout { background: var(--surface-brand); border-radius: var(--radius-md); padding: var(--space-16) var(--space-20); margin-bottom: var(--space-24); max-width: none; }
+.callout > :first-child { margin-top: 0; } .callout > :last-child { margin-bottom: 0; }
+.lang-group { margin-bottom: var(--space-32); }
+.card { background: var(--surface-secondary); border: 1px solid var(--divider-subtle); border-radius: var(--radius-md); padding: var(--space-20); }
+.text-card { display: block; color: inherit; transition: box-shadow var(--duration-fast) var(--ease-standard); }
+.text-card:hover { box-shadow: var(--shadow-md); }
+.text-card h3 { margin: 0 0 var(--space-4); font-size: var(--text-size-3); }
+.text-card .byline { color: var(--text-secondary); font-size: var(--text-size-1); }
+@media (prefers-reduced-motion: reduce) { .text-card { transition: none; } }

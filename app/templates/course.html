@@ -5,25 +5,21 @@
 
 <section aria-labelledby="intro-h">
   <h2 id="intro-h" class="visually-hidden">Introduction</h2>
-  <div class="prose lead">{{ md(course.sections.get('Introduction', '')) }}</div>
+  <div class="callout prose">{{ md(course.sections.get('Introduction', '')) }}</div>
 </section>
 
 <aside class="continue" data-continue hidden aria-label="Continue reading">
   <p>Continue where you left off: <a href="#" data-continue-link>your last passage</a></p>
 </aside>
 
-<section aria-labelledby="how-h">
-  <h2 id="how-h">How to use this course</h2>
-  <div class="prose">{{ md(course.sections.get('How to use this course', '')) }}</div>
-</section>
-
 <section id="units" aria-labelledby="units-h">
   <h2 id="units-h">Units</h2>
   {% for level, label in [('beginner', 'Beginner'), ('intermediate', 'Intermediate')] %}
+  <div class="lang-group">
   <h3>{{ label }}</h3>
-  <ol class="unit-list">
+  <ol class="unit-list cam-autogrid">
     {% for uid in course.levels[level] %}{% set u = course.units[uid] %}{% if visible(u) %}
-    <li class="unit-card" data-unit-passages='{{ u.passage_ids | map("passage_progress_item") | list | tojson }}'>
+    <li class="unit-card card text-card" data-unit-passages='{{ u.passage_ids | map("passage_progress_item") | list | tojson }}'>
       <a href="{{ url_for('pages.unit', uid=uid) }}">
         <span class="unit-number">Unit {{ u.number }}</span>
         <span class="unit-title">{{ u.title }}</span>
@@ -33,20 +29,26 @@
     </li>
     {% endif %}{% endfor %}
   </ol>
+  </div>
   {% endfor %}
 </section>
 
 <section id="toolkit" aria-labelledby="toolkit-h">
   <h2 id="toolkit-h">Toolkit</h2>
   <p>Reference pages you can use at any time.</p>
-  <ul class="toolkit-list">
+  <div class="cam-autogrid">
     {% for tid in course.toolkit_ids %}{% set t = course.toolkit[tid] %}{% if visible(t) %}
-    <li>
-      <a href="{{ url_for('pages.toolkit', tid=tid) }}">{{ t.title }}</a> {{ status_badge(t) }}
-      <div class="summary">{{ md_inline(t.summary, t) }}</div>
-    </li>
+    <div class="card text-card">
+      <h3><a href="{{ url_for('pages.toolkit', tid=tid) }}">{{ t.title }}</a> {{ status_badge(t) }}</h3>
+      <div class="byline">{{ md_inline(t.summary, t) }}</div>
+    </div>
     {% endif %}{% endfor %}
-  </ul>
+  </div>
+</section>
+
+<section aria-labelledby="how-h">
+  <h2 id="how-h">How to use this course</h2>
+  <div class="prose">{{ md(course.sections.get('How to use this course', '')) }}</div>
 </section>
 
 <section aria-labelledby="progress-h" class="progress-note">
