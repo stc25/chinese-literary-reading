@@ -76,13 +76,28 @@ The sign-in redirect URI to register in Microsoft Entra ID (platform Web) is
 `https://<host>/auth/sso/complete/azuread-tenant-oauth2/`; in production the operator adds it on
 lcapps. Local development needs none, because `MLC_DEBUG=1` uses no sign-in.
 
-**Allowlist.** Only people on the allowlist can sign in. Create the first admin with
-`python manage.py createsuperuser`, then add entries at `/django-admin/`: a CRSid (`abc123`), an
-exact address (`abc123@cam.ac.uk`) or `@cam.ac.uk` for every Cambridge CRSid. Only Cambridge sign-ins (a CRSid before `@cam.ac.uk`) can ever be admitted; any other address is refused whatever the list says. The `createsuperuser`
-account signs in with its password at `/django-admin/`; a University sign-in always uses a separate
-account. To make someone an admin, let them sign in once with SSO, then tick Staff (and Superuser)
-on their account in the admin. The database stores only the user name (the CRSid), the display name
-and an active flag, no email address.
+**Allowlist.** Only people on the allowlist can sign in. Add entries at `/django-admin/` under
+"Allowed logins": a CRSid (`abc123`), an exact address (`abc123@cam.ac.uk`) or `@cam.ac.uk` for every
+Cambridge CRSid. Only Cambridge sign-ins (a CRSid before `@cam.ac.uk`) can ever be admitted; any other
+address is refused whatever the list says. Removing an entry takes effect on that person's next request.
+The database stores only the user name (the CRSid), the display name and an active flag, no email address.
+
+**Admin login.** The Django admin at `https://<host>/django-admin/` has its own username and password
+login, separate from the Cambridge sign-in button. A password sign-in works only inside `/django-admin/`.
+
+1. Create the first admin: `python manage.py createsuperuser` (in Docker:
+   `docker exec -it mlc python manage.py createsuperuser`; the deployment guide has the non-Docker
+   command). It asks for a username, an optional email address and a password. The email is only a
+   contact field: the login uses the username.
+2. Sign in at `/django-admin/` with that username and password, and add the allowlist entries.
+3. Optional, to make admin sign-in use the Cambridge account: add your own CRSid to the allowlist, sign
+   in once on the main site with SSO, then in the admin open your account under Users and tick *Staff*
+   (and *Superuser* for full access). From then on you reach `/django-admin/` through SSO, still
+   subject to the allowlist. Once SSO admins exist, remove the password account's staff status.
+
+A University sign-in always creates (or reuses) a separate account, never the `createsuperuser` one. In
+production, restrict `/django-admin/` to the addresses you manage it from in the Caddy site block
+(`deploy/Caddyfile.example`, `remote_ip`).
 
 To try reviewer mode locally:
 
